@@ -23,26 +23,53 @@ const disparosDiariosCache = new Map();
 let ultimaSincronizacaoRss = 0;
 
 /**
- * Retorna a data atual no formato YYYY-MM-DD
+ * Retorna a data atual no formato YYYY-MM-DD no fuso configurado (padrão America/Sao_Paulo)
+ * @param {string} [fuso]
  * @returns {string}
  */
-function obterDataHojeFormatada() {
-  const agora = new Date();
-  const ano = agora.getFullYear();
-  const mes = String(agora.getMonth() + 1).padStart(2, '0');
-  const dia = String(agora.getDate()).padStart(2, '0');
-  return `${ano}-${mes}-${dia}`;
+function obterDataHojeFormatada(fuso = process.env.TIMEZONE || 'America/Sao_Paulo') {
+  try {
+    const partes = new Intl.DateTimeFormat('pt-BR', {
+      timeZone: fuso,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).formatToParts(new Date());
+    const ano = partes.find((p) => p.type === 'year').value;
+    const mes = partes.find((p) => p.type === 'month').value;
+    const dia = partes.find((p) => p.type === 'day').value;
+    return `${ano}-${mes}-${dia}`;
+  } catch (_) {
+    const agora = new Date();
+    const ano = agora.getFullYear();
+    const mes = String(agora.getMonth() + 1).padStart(2, '0');
+    const dia = String(agora.getDate()).padStart(2, '0');
+    return `${ano}-${mes}-${dia}`;
+  }
 }
 
 /**
- * Retorna a hora atual no formato HH:MM
+ * Retorna a hora atual no formato HH:MM no fuso configurado (padrão America/Sao_Paulo)
+ * @param {string} [fuso]
  * @returns {string}
  */
-function obterHoraAtualFormatada() {
-  const agora = new Date();
-  const horas = String(agora.getHours()).padStart(2, '0');
-  const minutos = String(agora.getMinutes()).padStart(2, '0');
-  return `${horas}:${minutos}`;
+function obterHoraAtualFormatada(fuso = process.env.TIMEZONE || 'America/Sao_Paulo') {
+  try {
+    const partes = new Intl.DateTimeFormat('pt-BR', {
+      timeZone: fuso,
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    }).formatToParts(new Date());
+    const hora = partes.find((p) => p.type === 'hour').value.padStart(2, '0');
+    const min = partes.find((p) => p.type === 'minute').value.padStart(2, '0');
+    return `${hora}:${min}`;
+  } catch (_) {
+    const agora = new Date();
+    const horas = String(agora.getHours()).padStart(2, '0');
+    const minutos = String(agora.getMinutes()).padStart(2, '0');
+    return `${horas}:${minutos}`;
+  }
 }
 
 /**

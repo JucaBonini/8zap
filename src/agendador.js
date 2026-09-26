@@ -317,10 +317,11 @@ async function executarCicloAgendador() {
  * Inicia o loop periódico do agendador
  */
 function iniciarAgendador() {
-  const intervaloSegundos = parseInt(process.env.INTERVALO_AGENDADOR_SEGUNDOS, 10) || 60;
+  const intervaloSegundos = parseInt(process.env.INTERVALO_AGENDADOR_SEGUNDOS, 10) || 20;
   const intervaloMs = Math.max(intervaloSegundos, 5) * 1000;
+  const fuso = process.env.TIMEZONE || 'America/Sao_Paulo';
 
-  console.log(`[Agendador] Iniciando serviço de postagens agendadas (Checagem a cada ${intervaloMs / 1000}s)...`);
+  console.log(`[Agendador] Iniciando serviço de postagens agendadas (Checagem a cada ${intervaloMs / 1000}s | Fuso: ${fuso})...`);
 
   // Executa uma primeira vez logo na inicialização
   executarCicloAgendador();
