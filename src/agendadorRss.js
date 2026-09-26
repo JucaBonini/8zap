@@ -295,20 +295,21 @@ async function processarDisparoArtigoRss(projectId, config, horarioAtual) {
       return;
     }
 
-    // 3. Lê o histórico e filtra destinos elegíveis (cooldown e lista permitida)
-    const historicoUso = destinosManager.obterHistoricoDestinos(projectId);
-    const destinosElegiveis = destinosManager.filtrarDestinosElegiveis(
-      todosDestinos,
-      historicoUso,
-      config.cooldownHorasPorDestino || 24,
-      config.destinosPermitidos || []
-    );
+    // 3. Determina a lista de destinos selecionados para envio (Broadcast)
+    let destinosAlvos = [];
+    const permitidos = Array.isArray(config.destinosPermitidos) ? config.destinosPermitidos : [];
 
-    if (destinosElegiveis.length === 0) {
+    if (permitidos.length > 0) {
+      destinosAlvos = todosDestinos.filter((d) => permitidos.includes(d.jid));
+    } else {
+      destinosAlvos = todosDestinos;
+    }
+
+    if (destinosAlvos.length === 0) {
       logProjeto(
         projectId,
-        'RSS_COOLDOWN',
-        `Todos os ${todosDestinos.length} destinos estão em período de cooldown (${config.cooldownHorasPorDestino || 24}h) ou bloqueados por permissões. Post pulado.`,
+        'RSS_SEM_DESTINOS_SELECIONADOS',
+        'Nenhum dos destinos cadastrados está marcado como ativo no painel. Post pulado.',
         'warn'
       );
       controle.horariosDisparados.add(horarioAtual);
@@ -316,11 +317,7 @@ async function processarDisparoArtigoRss(projectId, config, horarioAtual) {
       return;
     }
 
-    // 4. Sorteia um destino aleatório dentre os elegíveis
-    const indiceDestino = Math.floor(Math.random() * destinosElegiveis.length);
-    const destinoEscolhido = destinosElegiveis[indiceDestino];
-
-    // 5. Tenta obter a imagem oficial da receita caso não tenha vindo no feed RSS
+    // 4. Tenta obter a imagem oficial da receita caso não tenha vindo no feed RSS
     let imagemParaEnvio = artigo.imagem;
     if (!imagemParaEnvio && artigo.link) {
       try {
@@ -333,53 +330,76 @@ async function processarDisparoArtigoRss(projectId, config, horarioAtual) {
 
     logProjeto(
       projectId,
-      'RSS_ENVIANDO',
-      `Sorteado destino "${destinoEscolhido.nome}" (${destinoEscolhido.jid}) para o artigo "${artigo.titulo}" [Imagem: ${imagemParaEnvio ? 'Sim' : 'Não'}].`,
+      'RSS_BROADCAST_INICIO',
+      `Iniciando envio do artigo "${artigo.titulo}" para TODOS os ${destinosAlvos.length} destinos selecionados [Imagem: ${imagemParaEnvio ? 'Sim' : 'Não'}]...`,
       'info'
     );
 
-    // 6. Envia através do sessionManager (respeitando a fila e o rate limiting existente)
-    try {
-      if (imagemParaEnvio) {
-        await sessionManager.enviarMensagem(projectId, {
-          to: destinoEscolhido.jid,
-          type: 'imagem',
-          url: imagemParaEnvio,
-          legenda: textoMensagem
+    // 5. Envia através do sessionManager para TODOS os destinos (respeitando a fila e rate limiting seguro)
+    let totalEnviadosComSucesso = 0;
+
+    for (const destino of destinosAlvos) {
+      try {
+        logProjeto(
+          projectId,
+          'RSS_ENVIANDO',
+          `Disparando para "${destino.nome}" (${destino.jid})...`,
+          'info'
+        );
+
+        if (imagemParaEnvio) {
+          try {
+            await sessionManager.enviarMensagem(projectId, {
+              to: destino.jid,
+              type: 'imagem',
+              url: imagemParaEnvio,
+              legenda: textoMensagem
+            });
+          } catch (envioImgErr) {
+            logProjeto(
+              projectId,
+              'FALLBACK_TEXTO',
+              `Falha ao carregar imagem remota para "${destino.nome}" (${envioImgErr.message}). Enviando como texto...`,
+              'warn'
+            );
+            await sessionManager.enviarMensagem(projectId, {
+              to: destino.jid,
+              type: 'texto',
+              texto: textoMensagem
+            });
+          }
+        } else {
+          await sessionManager.enviarMensagem(projectId, {
+            to: destino.jid,
+            type: 'texto',
+            texto: textoMensagem
+          });
+        }
+
+        // Registra o histórico de uso individual do destino
+        destinosManager.registrarUsoDestino(projectId, {
+          jid: destino.jid,
+          nome: destino.nome,
+          tipo: destino.tipo,
+          artigoId: artigo.id,
+          tituloArtigo: artigo.titulo
         });
-      } else {
-        await sessionManager.enviarMensagem(projectId, {
-          to: destinoEscolhido.jid,
-          type: 'texto',
-          texto: textoMensagem
-        });
-      }
-    } catch (envioImgErr) {
-      if (imagemParaEnvio) {
-        logProjeto(projectId, 'FALLBACK_TEXTO', `Falha ao carregar imagem remota (${envioImgErr.message}). Enviando como texto formatado...`, 'warn');
-        await sessionManager.enviarMensagem(projectId, {
-          to: destinoEscolhido.jid,
-          type: 'texto',
-          texto: textoMensagem
-        });
-      } else {
-        throw envioImgErr;
+
+        totalEnviadosComSucesso++;
+      } catch (errDestino) {
+        logProjeto(
+          projectId,
+          'RSS_ERRO_DESTINO',
+          `Falha ao enviar artigo para "${destino.nome}" (${destino.jid}): ${errDestino.message}`,
+          'error'
+        );
       }
     }
 
-    // 7. Marca o artigo como usado
+    // 6. Marca o artigo como usado no pool
     rssFetcher.marcarArtigoComoUsado(projectId, artigo.id);
 
-    // 8. Registra o uso do destino
-    destinosManager.registrarUsoDestino(projectId, {
-      jid: destinoEscolhido.jid,
-      nome: destinoEscolhido.nome,
-      tipo: destinoEscolhido.tipo,
-      artigoId: artigo.id,
-      tituloArtigo: artigo.titulo
-    });
-
-    // 9. Atualiza e persiste o controle diário
+    // 7. Atualiza e persiste o controle diário
     controle.horariosDisparados.add(horarioAtual);
     controle.totalHoje += 1;
     await salvarControleDiario(projectId, controle);
@@ -387,14 +407,15 @@ async function processarDisparoArtigoRss(projectId, config, horarioAtual) {
     logProjeto(
       projectId,
       'RSS_SUCESSO',
-      `Artigo postado com sucesso no destino "${destinoEscolhido.nome}"! (${controle.totalHoje}/${config.quantidadePorDia} hoje)`,
+      `Artigo postado com sucesso em ${totalEnviadosComSucesso}/${destinosAlvos.length} destinos! (${controle.totalHoje}/${config.quantidadePorDia} hoje)`,
       'success'
     );
 
     return {
       sucesso: true,
       artigo,
-      destino: destinoEscolhido,
+      destinos: destinosAlvos,
+      totalEnviados: totalEnviadosComSucesso,
       horario: horarioAtual
     };
   } catch (erroDisparo) {
