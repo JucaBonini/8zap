@@ -30,6 +30,15 @@ function autenticarApiKey(req, res, next) {
 // Aplica a autenticação a todas as rotas deste router
 router.use(autenticarApiKey);
 
+/**
+ * GET /auth/verify
+ * Verifica se a chave de API fornecida é válida
+ */
+router.get('/auth/verify', (req, res) => {
+  res.json({ sucesso: true, autenticado: true, mensagem: 'Chave de acesso autenticada com sucesso!' });
+});
+
+
 // ==========================================
 // ROTAS DE GERENCIAMENTO DE SESSÕES
 // ==========================================

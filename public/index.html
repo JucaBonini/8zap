@@ -93,30 +93,153 @@
       display: block;
     }
 
-    .auth-bar {
+    .auth-status-bar {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
-      background: var(--bg-input);
-      border: 1px solid var(--border-color);
-      padding: 0.35rem 0.6rem 0.35rem 1rem;
-      border-radius: var(--radius-md);
+      gap: 0.85rem;
     }
 
-    .auth-bar label {
+    .auth-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(37, 211, 102, 0.12);
+      border: 1px solid rgba(37, 211, 102, 0.25);
+      color: var(--primary);
+      padding: 0.35rem 0.75rem;
+      border-radius: var(--radius-sm);
       font-size: 0.8rem;
-      color: var(--text-muted);
       font-weight: 500;
     }
 
-    .auth-bar input {
-      background: transparent;
-      border: none;
-      outline: none;
+    .btn-logout {
+      background: rgba(248, 113, 113, 0.12);
+      border: 1px solid rgba(248, 113, 113, 0.25);
+      color: var(--accent-red);
+      font-size: 0.8rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    .btn-logout:hover {
+      background: rgba(248, 113, 113, 0.22);
+      color: #fff;
+    }
+
+    /* Modal / Tela de Login */
+    .login-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(7, 10, 18, 0.88);
+      backdrop-filter: blur(16px);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      opacity: 1;
+      visibility: visible;
+      transition: all 0.3s ease;
+    }
+
+    .login-overlay.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .login-card {
+      background: rgba(18, 24, 38, 0.95);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 2.5rem;
+      max-width: 440px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), 0 0 40px rgba(37, 211, 102, 0.1);
+      text-align: center;
+      animation: modalFadeIn 0.35s ease;
+    }
+
+    @keyframes modalFadeIn {
+      from { transform: scale(0.95); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .login-logo {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, #25d366, #128c7e);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      margin: 0 auto 1.25rem;
+      box-shadow: 0 0 30px var(--primary-glow);
+    }
+
+    .login-card h2 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.4rem;
+    }
+
+    .login-card p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+
+    .login-input-group {
+      position: relative;
+      margin-bottom: 1.25rem;
+      text-align: left;
+    }
+
+    .login-input-group label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .login-input-group input {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
       color: #fff;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.85rem;
-      width: 220px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .login-input-group input:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 15px var(--primary-glow);
+    }
+
+    .login-error {
+      background: rgba(248, 113, 113, 0.15);
+      border: 1px solid rgba(248, 113, 113, 0.3);
+      color: var(--accent-red);
+      font-size: 0.8rem;
+      padding: 0.6rem 0.8rem;
+      border-radius: var(--radius-sm);
+      margin-bottom: 1rem;
+      display: none;
+      text-align: left;
     }
 
     .btn {
@@ -782,6 +905,28 @@
 </head>
 <body>
 
+  <!-- Modal / Tela de Bloqueio & Login -->
+  <div class="login-overlay" id="loginOverlay">
+    <div class="login-card">
+      <div class="login-logo">⚡</div>
+      <h2>Painel 8zap</h2>
+      <p>Digite sua <strong>API_KEY</strong> mestra configurada no servidor para desbloquear o painel.</p>
+
+      <div class="login-error" id="loginErrorMsg"></div>
+
+      <form id="formLogin" onsubmit="realizarLogin(event)">
+        <div class="login-input-group">
+          <label for="loginApiKeyInput">Chave de Acesso (API_KEY):</label>
+          <input type="password" id="loginApiKeyInput" placeholder="Ex: 8zap_segredo_2026" autofocus autocomplete="off" required>
+        </div>
+
+        <button type="submit" class="btn" style="width: 100%; justify-content: center; padding: 0.8rem; font-size: 0.95rem;" id="btnLoginSubmit">
+          🔐 Entrar no Painel
+        </button>
+      </form>
+    </div>
+  </div>
+
   <!-- Topbar -->
   <header>
     <div class="brand">
@@ -792,10 +937,13 @@
       </div>
     </div>
 
-    <div class="auth-bar">
-      <label for="apiKeyInput">API_KEY:</label>
-      <input type="password" id="apiKeyInput" placeholder="Chave da API (.env)" autocomplete="off">
-      <button class="btn btn-sm" id="btnSalvarKey" onclick="salvarApiKey()">Salvar Chave</button>
+    <div class="auth-status-bar">
+      <div class="auth-badge">
+        <span>🔒</span> Autenticado
+      </div>
+      <button class="btn-logout" onclick="fazerLogout()" title="Sair do painel e limpar chave salva">
+        Sair
+      </button>
     </div>
   </header>
 
@@ -1102,7 +1250,7 @@
 
   <script>
     // Estado da Aplicação
-    let apiKey = localStorage.getItem('8zap_api_key') || 'minha_chave_mestra_8zap';
+    let apiKey = localStorage.getItem('8zap_api_key') || '';
     let projetoSelecionado = null;
     let sessoesGlobais = [];
     let pollingQrTimer = null;
@@ -1110,20 +1258,102 @@
 
     // Inicialização
     document.addEventListener('DOMContentLoaded', () => {
-      const inputChave = document.getElementById('apiKeyInput');
-      if (apiKey) {
-        inputChave.value = apiKey;
-      }
-      carregarListaSessoes();
+      verificarAutenticacaoInicial();
     });
 
     // Funções de Autenticação
-    function salvarApiKey() {
-      const input = document.getElementById('apiKeyInput');
-      apiKey = input.value.trim();
-      localStorage.setItem('8zap_api_key', apiKey);
-      mostrarToast('API_KEY salva com sucesso!');
-      carregarListaSessoes();
+    function exibirTelaLogin(mensagemErro = '') {
+      const overlay = document.getElementById('loginOverlay');
+      const errBox = document.getElementById('loginErrorMsg');
+      const input = document.getElementById('loginApiKeyInput');
+
+      if (mensagemErro) {
+        errBox.innerText = mensagemErro;
+        errBox.style.display = 'block';
+      } else {
+        errBox.style.display = 'none';
+      }
+
+      overlay.classList.remove('hidden');
+      input.value = '';
+      setTimeout(() => input.focus(), 150);
+    }
+
+    function ocultarTelaLogin() {
+      const overlay = document.getElementById('loginOverlay');
+      overlay.classList.add('hidden');
+    }
+
+    async function verificarAutenticacaoInicial() {
+      if (!apiKey) {
+        exibirTelaLogin();
+        return;
+      }
+
+      try {
+        const resp = await fetch('/auth/verify', { headers: obterHeaders() });
+        if (resp.ok) {
+          ocultarTelaLogin();
+          carregarListaSessoes();
+        } else {
+          apiKey = '';
+          localStorage.removeItem('8zap_api_key');
+          exibirTelaLogin('Sua sessão expirou ou a chave de acesso é inválida.');
+        }
+      } catch (err) {
+        // Se o servidor estiver indisponível ou erro de rede
+        exibirTelaLogin('Falha ao conectar com o servidor 8zap.');
+      }
+    }
+
+    async function realizarLogin(e) {
+      if (e) e.preventDefault();
+      const input = document.getElementById('loginApiKeyInput');
+      const btn = document.getElementById('btnLoginSubmit');
+      const errBox = document.getElementById('loginErrorMsg');
+      const tentativaKey = input.value.trim();
+
+      if (!tentativaKey) return;
+
+      btn.disabled = true;
+      btn.innerText = 'Validando chave...';
+      errBox.style.display = 'none';
+
+      try {
+        const resp = await fetch('/auth/verify', {
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': tentativaKey
+          }
+        });
+
+        if (resp.ok) {
+          apiKey = tentativaKey;
+          localStorage.setItem('8zap_api_key', apiKey);
+          ocultarTelaLogin();
+          mostrarToast('Acesso concedido com sucesso!');
+          carregarListaSessoes();
+        } else {
+          errBox.innerText = 'Chave de acesso (API_KEY) incorreta. Tente novamente.';
+          errBox.style.display = 'block';
+        }
+      } catch (err) {
+        errBox.innerText = `Erro de conexão: ${err.message}`;
+        errBox.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.innerText = '🔐 Entrar no Painel';
+      }
+    }
+
+    function fazerLogout() {
+      if (!confirm('Deseja realmente sair e bloquear o painel?')) return;
+      apiKey = '';
+      localStorage.removeItem('8zap_api_key');
+      projetoSelecionado = null;
+      document.getElementById('painelDetalhes').style.display = 'none';
+      document.getElementById('painelVazio').style.display = 'flex';
+      exibirTelaLogin('Você saiu do painel com sucesso.');
     }
 
     function obterHeaders() {
@@ -1153,7 +1383,7 @@
       try {
         const resp = await fetch('/sessions', { headers: obterHeaders() });
         if (resp.status === 401) {
-          mostrarToast('Não autorizado. Verifique sua API_KEY no topo.', true);
+          exibirTelaLogin('Chave de acesso não autorizada.');
           return;
         }
 
