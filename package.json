@@ -1,0 +1,28 @@
+{
+  "name": "automacao-whatsapp-pessoal",
+  "version": "1.0.0",
+  "description": "Gerenciador multi-sessão de WhatsApp com Baileys, API REST e Agendador de Postagens",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "keywords": [
+    "whatsapp",
+    "baileys",
+    "automation",
+    "multi-session",
+    "scheduler"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@whiskeysockets/baileys": "^6.7.19",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "pino": "^9.6.0",
+    "qrcode": "^1.5.4",
+    "rss-parser": "^3.13.0"
+  }
+}

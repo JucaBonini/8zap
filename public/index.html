@@ -1,0 +1,1965 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>8zap | Painel de Automação Multi-Sessão WhatsApp & RSS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0b0f19;
+      --bg-card: rgba(18, 24, 38, 0.75);
+      --bg-card-hover: rgba(26, 34, 52, 0.85);
+      --bg-input: #121826;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-focus: #25d366;
+      --primary: #25d366;
+      --primary-hover: #1ebd5a;
+      --primary-glow: rgba(37, 211, 102, 0.25);
+      --text-main: #f3f4f6;
+      --text-muted: #94a3b8;
+      --accent-blue: #38bdf8;
+      --accent-yellow: #fbbf24;
+      --accent-red: #f87171;
+      --accent-purple: #a855f7;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 18px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(37, 211, 102, 0.08) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(56, 189, 248, 0.06) 0px, transparent 50%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Topbar */
+    header {
+      background: rgba(11, 15, 25, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand-logo {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #25d366, #128c7e);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      box-shadow: 0 0 20px var(--primary-glow);
+    }
+
+    .brand-text h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: #fff;
+    }
+
+    .brand-text span {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: block;
+    }
+
+    .auth-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      padding: 0.35rem 0.6rem 0.35rem 1rem;
+      border-radius: var(--radius-md);
+    }
+
+    .auth-bar label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .auth-bar input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #fff;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      width: 220px;
+    }
+
+    .btn {
+      background: var(--primary);
+      color: #0b0f19;
+      font-weight: 600;
+      border: none;
+      outline: none;
+      padding: 0.55rem 1.1rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .btn:hover {
+      background: var(--primary-hover);
+      box-shadow: 0 4px 15px var(--primary-glow);
+      transform: translateY(-1px);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.07);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.12);
+      box-shadow: none;
+    }
+
+    .btn-danger {
+      background: rgba(248, 113, 113, 0.15);
+      color: var(--accent-red);
+      border: 1px solid rgba(248, 113, 113, 0.3);
+    }
+
+    .btn-danger:hover {
+      background: rgba(248, 113, 113, 0.25);
+      box-shadow: 0 0 15px rgba(248, 113, 113, 0.2);
+    }
+
+    .btn-sm {
+      padding: 0.35rem 0.7rem;
+      font-size: 0.75rem;
+    }
+
+    /* Main Layout */
+    main {
+      flex: 1;
+      padding: 2rem;
+      max-width: 1440px;
+      width: 100%;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 2rem;
+    }
+
+    @media (max-width: 960px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Sidebar / Projects List */
+    .sidebar-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .sidebar-actions input {
+      flex: 1;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 0.55rem 0.8rem;
+      color: #fff;
+      font-size: 0.85rem;
+      outline: none;
+    }
+
+    .sidebar-actions input:focus {
+      border-color: var(--border-focus);
+    }
+
+    .project-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      max-height: calc(100vh - 250px);
+      overflow-y: auto;
+      padding-right: 0.2rem;
+    }
+
+    .project-item {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 0.85rem 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .project-item:hover {
+      background: var(--bg-card-hover);
+      border-color: rgba(255, 255, 255, 0.15);
+      transform: translateX(3px);
+    }
+
+    .project-item.active {
+      background: rgba(37, 211, 102, 0.1);
+      border-color: var(--primary);
+    }
+
+    .project-info h4 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .project-info p {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* Status Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    .badge-connected {
+      background: rgba(37, 211, 102, 0.15);
+      color: #4ade80;
+      border: 1px solid rgba(37, 211, 102, 0.3);
+    }
+    .badge-connected .badge-dot {
+      background: #4ade80;
+      box-shadow: 0 0 8px #4ade80;
+    }
+
+    .badge-aguardando_qr {
+      background: rgba(251, 191, 36, 0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(251, 191, 36, 0.3);
+    }
+    .badge-aguardando_qr .badge-dot {
+      background: #fbbf24;
+      box-shadow: 0 0 8px #fbbf24;
+    }
+
+    .badge-conectando, .badge-reconectando {
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+    .badge-conectando .badge-dot, .badge-reconectando .badge-dot {
+      background: #38bdf8;
+      animation: pulse 1.5s infinite;
+    }
+
+    .badge-desconectado, .badge-nao_iniciado {
+      background: rgba(148, 163, 184, 0.1);
+      color: #94a3b8;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+    }
+    .badge-desconectado .badge-dot, .badge-nao_iniciado .badge-dot {
+      background: #94a3b8;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.4; }
+      50% { opacity: 1; }
+      100% { opacity: 0.4; }
+    }
+
+    /* Content Area */
+    .content-area {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .session-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 1.25rem;
+    }
+
+    .session-meta h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .session-meta p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+
+    .session-controls {
+      display: flex;
+      gap: 0.6rem;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.5rem;
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 0.6rem 1.2rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .tab-btn.active {
+      color: var(--primary);
+      background: rgba(37, 211, 102, 0.1);
+      font-weight: 600;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.25s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Form Styles */
+    .form-group {
+      margin-bottom: 1.2rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .form-control {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 0.65rem 0.9rem;
+      color: #fff;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    .form-control:focus {
+      border-color: var(--border-focus);
+    }
+
+    textarea.form-control {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    @media (max-width: 768px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Horários Tags */
+    .horarios-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+      margin-top: 0.5rem;
+    }
+
+    .horario-tag {
+      background: rgba(37, 211, 102, 0.12);
+      border: 1px solid rgba(37, 211, 102, 0.3);
+      color: #4ade80;
+      padding: 0.3rem 0.65rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-family: 'JetBrains Mono', monospace;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .horario-tag button {
+      background: transparent;
+      border: none;
+      color: var(--accent-red);
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 0.9rem;
+      line-height: 1;
+    }
+
+    .horario-tag button:hover {
+      color: #fff;
+    }
+
+    .add-horario-box {
+      display: flex;
+      gap: 0.4rem;
+      align-items: center;
+    }
+
+    .add-horario-box input {
+      width: 90px;
+      padding: 0.3rem 0.5rem;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      color: #fff;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      outline: none;
+    }
+
+    /* QR Code Display */
+    .qr-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: var(--radius-md);
+      border: 1px dashed var(--border-color);
+      text-align: center;
+    }
+
+    .qr-img {
+      width: 260px;
+      height: 260px;
+      background: #fff;
+      padding: 10px;
+      border-radius: var(--radius-md);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      margin-bottom: 1rem;
+    }
+
+    .qr-loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .spinner {
+      width: 36px;
+      height: 36px;
+      border: 3px solid rgba(255, 255, 255, 0.1);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Queue & Stats Tables */
+    .table-responsive {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    th {
+      text-align: left;
+      padding: 0.75rem 1rem;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border-color);
+      font-weight: 500;
+    }
+
+    td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      color: var(--text-main);
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--border-color);
+      padding: 1rem;
+      border-radius: var(--radius-md);
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+
+    /* Destinos Checklist */
+    .destinos-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 0.75rem;
+      max-height: 250px;
+      overflow-y: auto;
+      padding: 0.5rem;
+      background: rgba(0, 0, 0, 0.15);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+      margin-top: 0.5rem;
+    }
+
+    .destino-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 0.5rem 0.75rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+      font-size: 0.85rem;
+    }
+
+    .destino-item input[type="checkbox"] {
+      accent-color: var(--primary);
+    }
+
+    .destino-info {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .destino-nome {
+      font-weight: 600;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .destino-jid {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Switch */
+    .switch-container {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(255, 255, 255, 0.1);
+      transition: .3s;
+      border-radius: 24px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: var(--primary);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(20px);
+    }
+
+    /* Logs Terminal */
+    .logs-terminal {
+      background: #060911;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: #94a3b8;
+      max-height: 400px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      line-height: 1.6;
+    }
+
+    /* Toast Notification */
+    .toast-container {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .toast {
+      background: #1e293b;
+      border-left: 4px solid var(--primary);
+      padding: 0.9rem 1.4rem;
+      border-radius: var(--radius-sm);
+      color: #fff;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      font-size: 0.85rem;
+      animation: slideIn 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .toast-error {
+      border-left-color: var(--accent-red);
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Topbar -->
+  <header>
+    <div class="brand">
+      <div class="brand-logo">⚡</div>
+      <div class="brand-text">
+        <h1>8zap Automation</h1>
+        <span>Gerenciador Multi-Sessão & RSS WhatsApp</span>
+      </div>
+    </div>
+
+    <div class="auth-bar">
+      <label for="apiKeyInput">API_KEY:</label>
+      <input type="password" id="apiKeyInput" placeholder="Chave da API (.env)" autocomplete="off">
+      <button class="btn btn-sm" id="btnSalvarKey" onclick="salvarApiKey()">Salvar Chave</button>
+    </div>
+  </header>
+
+  <!-- Layout Principal -->
+  <main>
+    <!-- Coluna Esquerda: Lista de Projetos -->
+    <aside class="card">
+      <div class="card-title">
+        <span>Meus Projetos</span>
+        <button class="btn btn-secondary btn-sm" onclick="carregarListaSessoes()" title="Atualizar lista">🔄</button>
+      </div>
+
+      <div class="sidebar-actions">
+        <input type="text" id="novoProjectId" placeholder="ID do Projeto (ex: loja-x)">
+        <button class="btn btn-sm" onclick="criarOuIniciarProjeto()">+ Iniciar</button>
+      </div>
+
+      <div class="project-list" id="listaProjetos">
+        <div class="empty-state">
+          <p>Nenhum projeto encontrado.</p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Coluna Direita: Detalhes do Projeto Ativo -->
+    <section class="card content-area" id="painelDetalhes" style="display: none;">
+      <!-- Header do Projeto Selecionado -->
+      <div class="session-header">
+        <div class="session-meta">
+          <h2 id="tituloProjeto">Projeto</h2>
+          <p id="subtituloProjeto">Status: <span id="badgeStatusHeader">...</span></p>
+        </div>
+        <div class="session-controls">
+          <button class="btn btn-sm" id="btnConectar" onclick="conectarProjetoAtual()">▶ Conectar / QR</button>
+          <button class="btn btn-secondary btn-sm" onclick="desconectarProjetoAtual()">⏸ Pausar</button>
+          <button class="btn btn-danger btn-sm" onclick="excluirProjetoAtual()">🗑 Excluir</button>
+        </div>
+      </div>
+
+      <!-- Abas de Navegação -->
+      <div class="tabs">
+        <button class="tab-btn active" onclick="trocarAba('aba-qr', event)">QR Code & Conexão</button>
+        <button class="tab-btn" onclick="trocarAba('aba-rss', event)">📰 RSS Automático</button>
+        <button class="tab-btn" onclick="trocarAba('aba-envio', event)">Enviar Mensagem</button>
+        <button class="tab-btn" onclick="trocarAba('aba-fila', event)">Fila Manual</button>
+        <button class="tab-btn" onclick="trocarAba('aba-logs', event)">Logs</button>
+      </div>
+
+      <!-- Aba 1: QR Code & Conexão -->
+      <div id="aba-qr" class="tab-content active">
+        <div class="qr-container" id="containerQr">
+          <div class="qr-loading">
+            <div class="spinner"></div>
+            <p id="qrTextoStatus">Verificando status da sessão...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Aba 2: RSS Automático -->
+      <div id="aba-rss" class="tab-content">
+        <!-- Card 1: Configuração do Feed -->
+        <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+            <h3>Configuração do Feed RSS</h3>
+            <div class="switch-container">
+              <span style="font-size: 0.85rem; color: var(--text-muted);">Automação RSS:</span>
+              <label class="switch">
+                <input type="checkbox" id="rssAtivo">
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="rssUrl">URL do Feed RSS / Atom:</label>
+            <input type="url" id="rssUrl" class="form-control" placeholder="https://exemplo.com/feed ou https://news.google.com/rss...">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="rssQtdDia">Quantidade Máxima de Posts / Dia:</label>
+              <input type="number" id="rssQtdDia" class="form-control" min="1" max="100" value="5">
+            </div>
+            <div class="form-group">
+              <label for="rssCooldown">Cooldown por Destino (Horas sem repetir):</label>
+              <input type="number" id="rssCooldown" class="form-control" min="1" max="720" value="24">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Horários Fixos de Postagem (HH:MM):</label>
+            <div class="horarios-container" id="containerHorarios"></div>
+            <div class="add-horario-box" style="margin-top: 0.75rem;">
+              <input type="time" id="novoHorarioInput" value="12:00">
+              <button class="btn btn-secondary btn-sm" onclick="adicionarHorarioRss()">+ Adicionar Horário</button>
+            </div>
+          <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem;">
+            <button class="btn" onclick="salvarConfiguracaoRss()">💾 Salvar Configurações RSS</button>
+            <button class="btn btn-secondary" id="btnTestarRss" onclick="testarDisparoRssAgora()">🚀 Testar Disparo Agora</button>
+          </div>
+        </div>
+
+        <!-- Card 2: Destinos (Canais e Grupos) -->
+        <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+            <div>
+              <h3>Destinos Elegíveis para Sorteio</h3>
+              <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">
+                Se nenhum destino estiver marcado com checkbox, o sorteio utilizará todos os destinos disponíveis.
+              </p>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="carregarDestinosRss(true)">🔍 Buscar Canais/Grupos Agora</button>
+          </div>
+
+          <div class="destinos-list" id="listaDestinosRss">
+            <p style="color: var(--text-muted); font-size: 0.8rem; padding: 0.5rem;">Clique em "Buscar Canais/Grupos" para carregar.</p>
+          </div>
+
+          <!-- Adicionar Destino Manual / Por Link de Convite -->
+          <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color); display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: flex-end;">
+            <div style="flex: 3; min-width: 260px;">
+              <label style="font-size: 0.75rem; color: var(--text-muted);">Link do Canal/Grupo ou JID:</label>
+              <input type="text" id="manualJid" class="form-control" placeholder="Cole o link (https://whatsapp.com/channel/...) ou JID (@newsletter)">
+            </div>
+            <div style="flex: 2; min-width: 150px;">
+              <label style="font-size: 0.75rem; color: var(--text-muted);">Nome (Opcional):</label>
+              <input type="text" id="manualNome" class="form-control" placeholder="Auto-detectado se link">
+            </div>
+            <button class="btn btn-secondary btn-sm" id="btnAdicionarDestino" onclick="adicionarDestinoManualBtn()">+ Adicionar Destino</button>
+          </div>
+        </div>
+
+        <!-- Card 3: Pool de Artigos e Histórico -->
+        <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h3>Estatísticas do Pool de Artigos</h3>
+            <button class="btn btn-sm" onclick="forcarSincronizacaoRss()">⚡ Buscar Novos Artigos no Feed</button>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-value" id="statTotalArtigos">0</div>
+              <div class="stat-label">Total Extraído</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" style="color: var(--accent-blue);" id="statDisponiveis">0</div>
+              <div class="stat-label">Disponíveis (Novos)</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" style="color: #4ade80;" id="statUsados">0</div>
+              <div class="stat-label">Já Postados</div>
+            </div>
+          </div>
+
+          <h4 style="margin-bottom: 0.75rem; font-size: 0.95rem;">Histórico Recente de Postagens RSS</h4>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Data/Hora</th>
+                  <th>Destino Sorteado</th>
+                  <th>Artigo Publicado</th>
+                </tr>
+              </thead>
+              <tbody id="tabelaHistoricoRssCorpo">
+                <tr><td colspan="3" style="text-align: center; color: var(--text-muted);">Nenhum post de RSS disparado ainda.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Aba 3: Envio Avulso Imediato -->
+      <div id="aba-envio" class="tab-content">
+        <form id="formEnvioAvulso" onsubmit="enviarMensagemAvulsa(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="envioTo">Destinatário (Telefone ou ID do Canal):</label>
+              <input type="text" id="envioTo" class="form-control" placeholder="5511999999999 ou 1203630...@newsletter" required>
+            </div>
+            <div class="form-group">
+              <label for="envioTipo">Tipo de Mensagem:</label>
+              <select id="envioTipo" class="form-control" onchange="aoMudarTipoEnvio()">
+                <option value="texto">Texto</option>
+                <option value="imagem">Imagem (URL)</option>
+                <option value="video">Vídeo (URL)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group" id="grupoEnvioUrl" style="display: none;">
+            <label for="envioUrl">URL da Mídia (Imagem ou Vídeo):</label>
+            <input type="url" id="envioUrl" class="form-control" placeholder="https://exemplo.com/foto.jpg">
+          </div>
+
+          <div class="form-group" id="grupoEnvioTexto">
+            <label for="envioTexto">Texto da Mensagem:</label>
+            <textarea id="envioTexto" class="form-control" placeholder="Digite sua mensagem aqui..."></textarea>
+          </div>
+
+          <div class="form-group" id="grupoEnvioLegenda" style="display: none;">
+            <label for="envioLegenda">Legenda da Mídia (Opcional):</label>
+            <textarea id="envioLegenda" class="form-control" placeholder="Legenda para a foto/vídeo..."></textarea>
+          </div>
+
+          <button type="submit" class="btn" id="btnEnviarMensagem">🚀 Enviar Mensagem Agora</button>
+        </form>
+      </div>
+
+      <!-- Aba 4: Fila de Agendamentos Manuais -->
+      <div id="aba-fila" class="tab-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+          <h3>Agendar Nova Postagem Manual</h3>
+          <button class="btn btn-secondary btn-sm" onclick="carregarFilaProjeto()">🔄 Atualizar Fila</button>
+        </div>
+
+        <form id="formAgendamento" onsubmit="adicionarAgendamento(event)" style="background: rgba(0,0,0,0.15); padding: 1.25rem; border-radius: var(--radius-md); margin-bottom: 1.5rem; border: 1px solid var(--border-color);">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="agendaTo">Destinatário / Canal:</label>
+              <input type="text" id="agendaTo" class="form-control" placeholder="5511999999999 ou canal@newsletter" required>
+            </div>
+            <div class="form-group">
+              <label for="agendaData">Data e Hora do Disparo:</label>
+              <input type="datetime-local" id="agendaData" class="form-control" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="agendaTipo">Tipo:</label>
+              <select id="agendaTipo" class="form-control" onchange="aoMudarTipoAgenda()">
+                <option value="texto">Texto</option>
+                <option value="imagem">Imagem</option>
+                <option value="video">Vídeo</option>
+              </select>
+            </div>
+            <div class="form-group" id="grupoAgendaUrl" style="display: none;">
+              <label for="agendaUrl">URL da Mídia:</label>
+              <input type="url" id="agendaUrl" class="form-control" placeholder="https://exemplo.com/midia.mp4">
+            </div>
+          </div>
+
+          <div class="form-group" id="grupoAgendaTexto">
+            <label for="agendaTexto">Texto do Post:</label>
+            <textarea id="agendaTexto" class="form-control" placeholder="Conteúdo do post..."></textarea>
+          </div>
+
+          <div class="form-group" id="grupoAgendaLegenda" style="display: none;">
+            <label for="agendaLegenda">Legenda:</label>
+            <textarea id="agendaLegenda" class="form-control" placeholder="Legenda do post..."></textarea>
+          </div>
+
+          <button type="submit" class="btn">📅 Agendar Post</button>
+        </form>
+
+        <h3 style="margin-bottom: 1rem;">Itens na Fila</h3>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Status</th>
+                <th>Tipo</th>
+                <th>Destinatário</th>
+                <th>Agendado Para</th>
+                <th>Conteúdo</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tabelaFilaCorpo">
+              <tr>
+                <td colspan="6" style="text-align: center; color: var(--text-muted);">Nenhum post agendado na fila.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Aba 5: Logs do Projeto -->
+      <div id="aba-logs" class="tab-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <h3>Logs em Tempo Real (<span id="logsContador">0</span> linhas)</h3>
+          <button class="btn btn-secondary btn-sm" onclick="carregarLogsProjeto()">🔄 Atualizar Logs</button>
+        </div>
+        <div class="logs-terminal" id="terminalLogs">Carregando logs...</div>
+      </div>
+
+    </section>
+
+    <!-- Estado Inicial / Sem Seleção -->
+    <section class="card content-area" id="painelVazio" style="display: flex; align-items: center; justify-content: center;">
+      <div class="empty-state">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">📱</div>
+        <h2>Selecione ou crie um projeto</h2>
+        <p style="margin-top: 0.5rem; max-width: 400px;">
+          Escolha um projeto na barra lateral ou digite um novo ID acima para iniciar uma sessão do WhatsApp.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <!-- Container de Toasts -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script>
+    // Estado da Aplicação
+    let apiKey = localStorage.getItem('8zap_api_key') || 'minha_chave_mestra_8zap';
+    let projetoSelecionado = null;
+    let sessoesGlobais = [];
+    let pollingQrTimer = null;
+    let configRssAtual = null;
+
+    // Inicialização
+    document.addEventListener('DOMContentLoaded', () => {
+      const inputChave = document.getElementById('apiKeyInput');
+      if (apiKey) {
+        inputChave.value = apiKey;
+      }
+      carregarListaSessoes();
+    });
+
+    // Funções de Autenticação
+    function salvarApiKey() {
+      const input = document.getElementById('apiKeyInput');
+      apiKey = input.value.trim();
+      localStorage.setItem('8zap_api_key', apiKey);
+      mostrarToast('API_KEY salva com sucesso!');
+      carregarListaSessoes();
+    }
+
+    function obterHeaders() {
+      return {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey
+      };
+    }
+
+    // Notificações Toast
+    function mostrarToast(mensagem, erro = false) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${erro ? 'toast-error' : ''}`;
+      toast.innerHTML = `<span>${erro ? '⚠️' : '✅'}</span> <div>${mensagem}</div>`;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100%)';
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    // Listagem de Sessões / Projetos
+    async function carregarListaSessoes() {
+      try {
+        const resp = await fetch('/sessions', { headers: obterHeaders() });
+        if (resp.status === 401) {
+          mostrarToast('Não autorizado. Verifique sua API_KEY no topo.', true);
+          return;
+        }
+
+        const data = await resp.json();
+        if (data.sucesso) {
+          sessoesGlobais = data.sessoes || [];
+          renderizarListaProjetos();
+
+          if (projetoSelecionado) {
+            const atual = sessoesGlobais.find(s => s.projectId === projetoSelecionado);
+            if (atual) {
+              atualizarCabecalhoProjeto(atual);
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Erro ao listar sessões:', err);
+      }
+    }
+
+    function renderizarListaProjetos() {
+      const container = document.getElementById('listaProjetos');
+      if (sessoesGlobais.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <p>Nenhum projeto ativo.</p>
+            <span style="font-size:0.75rem; color:var(--text-muted);">Crie um acima para conectar.</span>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = sessoesGlobais.map(s => {
+        const ativo = s.projectId === projetoSelecionado ? 'active' : '';
+        const badgeClasse = `badge-${s.status}`;
+        const badgeTexto = formatarNomeStatus(s.status);
+
+        return `
+          <div class="project-item ${ativo}" onclick="selecionarProjeto('${s.projectId}')">
+            <div class="project-info">
+              <h4>${s.projectId}</h4>
+              <p>${s.usuarioConectado ? s.usuarioConectado.split('@')[0] : 'Não conectado'}</p>
+            </div>
+            <span class="badge ${badgeClasse}">
+              <span class="badge-dot"></span>
+              ${badgeTexto}
+            </span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function formatarNomeStatus(status) {
+      const map = {
+        'connected': 'Conectado',
+        'aguardando_qr': 'Aguardando QR',
+        'conectando': 'Conectando',
+        'reconectando': 'Reconectando',
+        'desconectado': 'Desconectado',
+        'nao_iniciado': 'Não Iniciado'
+      };
+      return map[status] || status;
+    }
+
+    // Seleção de Projeto
+    function selecionarProjeto(projectId) {
+      projetoSelecionado = projectId;
+      document.getElementById('painelVazio').style.display = 'none';
+      document.getElementById('painelDetalhes').style.display = 'flex';
+
+      renderizarListaProjetos();
+
+      const sessao = sessoesGlobais.find(s => s.projectId === projectId) || {
+        projectId,
+        status: 'desconectado',
+        usuarioConectado: null
+      };
+
+      atualizarCabecalhoProjeto(sessao);
+      trocarAba('aba-qr');
+      verificarStatusEQr();
+      carregarConfiguracaoRss();
+      carregarFilaProjeto();
+      carregarLogsProjeto();
+    }
+
+    function atualizarCabecalhoProjeto(sessao) {
+      document.getElementById('tituloProjeto').innerText = `Projeto: ${sessao.projectId}`;
+      const badgeElem = document.getElementById('badgeStatusHeader');
+      badgeElem.innerHTML = `
+        <span class="badge badge-${sessao.status}">
+          <span class="badge-dot"></span>
+          ${formatarNomeStatus(sessao.status)}
+        </span>
+      `;
+
+      const btnConectar = document.getElementById('btnConectar');
+      if (sessao.status === 'connected') {
+        btnConectar.style.display = 'none';
+      } else {
+        btnConectar.style.display = 'inline-flex';
+      }
+    }
+
+    // Criar / Iniciar Projeto
+    async function criarOuIniciarProjeto() {
+      const input = document.getElementById('novoProjectId');
+      const projectId = input.value.trim().replace(/[^a-zA-Z0-9_-]/g, '_');
+
+      if (!projectId) {
+        mostrarToast('Digite um ID de projeto válido (letras, números, hífen).', true);
+        return;
+      }
+
+      try {
+        mostrarToast(`Iniciando sessão "${projectId}"...`);
+        const resp = await fetch(`/sessions/${projectId}/start`, {
+          method: 'POST',
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+
+        if (data.sucesso) {
+          input.value = '';
+          await carregarListaSessoes();
+          selecionarProjeto(projectId);
+        } else {
+          mostrarToast(`Erro: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Falha de conexão: ${err.message}`, true);
+      }
+    }
+
+    async function conectarProjetoAtual() {
+      if (!projetoSelecionado) return;
+      await criarOuIniciarProjetoPorId(projetoSelecionado);
+    }
+
+    async function criarOuIniciarProjetoPorId(projectId) {
+      try {
+        const resp = await fetch(`/sessions/${projectId}/start`, {
+          method: 'POST',
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+        if (data.sucesso) {
+          mostrarToast(`Sessão iniciada para ${projectId}.`);
+          verificarStatusEQr();
+          carregarListaSessoes();
+        } else {
+          mostrarToast(`Erro: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro: ${err.message}`, true);
+      }
+    }
+
+    async function desconectarProjetoAtual() {
+      if (!projetoSelecionado) return;
+      if (!confirm(`Deseja pausar a sessão "${projetoSelecionado}"?`)) return;
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/stop`, {
+          method: 'POST',
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+        if (data.sucesso) {
+          mostrarToast('Sessão pausada com sucesso.');
+          carregarListaSessoes();
+          verificarStatusEQr();
+        }
+      } catch (err) {
+        mostrarToast(`Erro: ${err.message}`, true);
+      }
+    }
+
+    async function excluirProjetoAtual() {
+      if (!projetoSelecionado) return;
+      if (!confirm(`ATENÇÃO: Deseja apagar todas as credenciais do projeto "${projetoSelecionado}"? Você precisará ler o QR Code novamente.`)) return;
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}`, {
+          method: 'DELETE',
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+        if (data.sucesso) {
+          mostrarToast('Sessão excluída com sucesso.');
+          projetoSelecionado = null;
+          document.getElementById('painelDetalhes').style.display = 'none';
+          document.getElementById('painelVazio').style.display = 'flex';
+          carregarListaSessoes();
+        }
+      } catch (err) {
+        mostrarToast(`Erro: ${err.message}`, true);
+      }
+    }
+
+    // Gestão de Abas
+    function trocarAba(idAba, evt) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+
+      if (evt && evt.target) {
+        evt.target.classList.add('active');
+      } else {
+        const btn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick')?.includes(idAba));
+        if (btn) btn.classList.add('active');
+      }
+
+      document.getElementById(idAba).classList.add('active');
+
+      if (idAba === 'aba-qr') {
+        iniciarPollingQr();
+      } else {
+        pararPollingQr();
+      }
+
+      if (idAba === 'aba-rss') {
+        carregarConfiguracaoRss();
+        carregarDestinosRss();
+        carregarArtigosERssStats();
+        carregarHistoricoRss();
+      }
+
+      if (idAba === 'aba-fila') {
+        carregarFilaProjeto();
+      }
+
+      if (idAba === 'aba-logs') {
+        carregarLogsProjeto();
+      }
+    }
+
+    // Polling e Exibição de QR Code
+    function iniciarPollingQr() {
+      pararPollingQr();
+      verificarStatusEQr();
+      pollingQrTimer = setInterval(verificarStatusEQr, 3000);
+    }
+
+    function pararPollingQr() {
+      if (pollingQrTimer) {
+        clearInterval(pollingQrTimer);
+        pollingQrTimer = null;
+      }
+    }
+
+    async function verificarStatusEQr() {
+      if (!projetoSelecionado) return;
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/qr`, {
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+
+        const container = document.getElementById('containerQr');
+
+        if (data.status === 'connected') {
+          container.innerHTML = `
+            <div style="font-size: 3.5rem; margin-bottom: 0.5rem;">🎉</div>
+            <h3 style="color: var(--primary); margin-bottom: 0.5rem;">WhatsApp Conectado!</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Esta sessão está pronta para envio imediato, agendador e RSS automático.</p>
+          `;
+          carregarListaSessoes();
+        } else if (data.qr) {
+          container.innerHTML = `
+            <img src="${data.qr}" alt="QR Code WhatsApp" class="qr-img">
+            <h4 style="margin-bottom: 0.4rem;">Escaneie com o seu WhatsApp</h4>
+            <p style="color: var(--text-muted); font-size: 0.8rem; max-width: 320px;">
+              Abra o WhatsApp no celular > Aparelhos Conectados > Conectar um aparelho.
+            </p>
+          `;
+        } else {
+          container.innerHTML = `
+            <div class="qr-loading">
+              <div class="spinner"></div>
+              <p>Status: <strong>${formatarNomeStatus(data.status)}</strong>. Aguardando geração do QR Code...</p>
+              <button class="btn btn-secondary btn-sm" onclick="criarOuIniciarProjetoPorId('${projetoSelecionado}')">▶ Iniciar Sessão</button>
+            </div>
+          `;
+        }
+      } catch (err) {
+        console.error('Erro ao checar QR:', err);
+      }
+    }
+
+    // ==========================================
+    // GESTÃO DO MÓDULO RSS
+    // ==========================================
+
+    async function carregarConfiguracaoRss() {
+      if (!projetoSelecionado) return;
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/rss/config`, {
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+
+        if (data.sucesso && data.config) {
+          configRssAtual = data.config;
+          document.getElementById('rssAtivo').checked = !!configRssAtual.ativo;
+          document.getElementById('rssUrl').value = configRssAtual.rssUrl || '';
+          document.getElementById('rssQtdDia').value = configRssAtual.quantidadePorDia || 5;
+          document.getElementById('rssCooldown').value = configRssAtual.cooldownHorasPorDestino || 24;
+
+          renderizarHorariosRss(configRssAtual.horarios || []);
+        }
+      } catch (err) {
+        console.error('Erro ao carregar config RSS:', err);
+      }
+    }
+
+    function renderizarHorariosRss(horarios) {
+      const container = document.getElementById('containerHorarios');
+      if (!horarios || horarios.length === 0) {
+        container.innerHTML = `<span style="font-size: 0.8rem; color: var(--text-muted);">Nenhum horário cadastrado.</span>`;
+        return;
+      }
+
+      container.innerHTML = horarios.map(h => `
+        <span class="horario-tag">
+          ⏰ ${h}
+          <button type="button" onclick="removerHorarioRss('${h}')" title="Remover horário">&times;</button>
+        </span>
+      `).join('');
+    }
+
+    function adicionarHorarioRss() {
+      const input = document.getElementById('novoHorarioInput');
+      const val = input.value;
+      if (!val) return;
+
+      if (!configRssAtual) configRssAtual = { horarios: [] };
+      if (!Array.isArray(configRssAtual.horarios)) configRssAtual.horarios = [];
+
+      if (!configRssAtual.horarios.includes(val)) {
+        configRssAtual.horarios.push(val);
+        configRssAtual.horarios.sort();
+        renderizarHorariosRss(configRssAtual.horarios);
+      }
+    }
+
+    function removerHorarioRss(h) {
+      if (!configRssAtual || !Array.isArray(configRssAtual.horarios)) return;
+      configRssAtual.horarios = configRssAtual.horarios.filter(item => item !== h);
+      renderizarHorariosRss(configRssAtual.horarios);
+    }
+
+    async function salvarConfiguracaoRss() {
+      if (!projetoSelecionado) return;
+
+      const ativo = document.getElementById('rssAtivo').checked;
+      const rssUrl = document.getElementById('rssUrl').value.trim();
+      const quantidadePorDia = parseInt(document.getElementById('rssQtdDia').value, 10) || 5;
+      const cooldownHorasPorDestino = parseInt(document.getElementById('rssCooldown').value, 10) || 24;
+      const horarios = configRssAtual?.horarios || ['09:00', '12:00', '15:00', '18:00', '21:00'];
+
+      // Coleta destinos permitidos marcados
+      const checkboxes = document.querySelectorAll('.destino-checkbox:checked');
+      const destinosPermitidos = Array.from(checkboxes).map(cb => cb.value);
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/rss/config`, {
+          method: 'POST',
+          headers: obterHeaders(),
+          body: JSON.stringify({
+            ativo,
+            rssUrl,
+            quantidadePorDia,
+            cooldownHorasPorDestino,
+            horarios,
+            destinosPermitidos
+          })
+        });
+
+        const data = await resp.json();
+        if (data.sucesso) {
+          mostrarToast('Configurações do RSS salvas com sucesso!');
+          configRssAtual = data.config;
+        } else {
+          mostrarToast(`Erro: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro: ${err.message}`, true);
+      }
+    }
+
+    async function testarDisparoRssAgora() {
+      if (!projetoSelecionado) return;
+
+      const btn = document.getElementById('btnTestarRss');
+      const textoOrig = btn.innerText;
+      btn.disabled = true;
+      btn.innerText = 'Disparando...';
+
+      mostrarToast('Executando disparo de teste RSS...');
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/rss/disparar-agora`, {
+          method: 'POST',
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+
+        if (data.sucesso) {
+          mostrarToast(`Disparo realizado com sucesso para "${data.resultado?.destino?.nome || 'destino'}"!`);
+          carregarArtigosERssStats();
+          carregarHistoricoRss();
+        } else {
+          mostrarToast(`Falha no teste: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro: ${err.message}`, true);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = textoOrig;
+      }
+    }
+
+    async function carregarDestinosRss(forcar = false) {
+      if (!projetoSelecionado) return;
+
+      const container = document.getElementById('listaDestinosRss');
+      if (forcar) {
+        container.innerHTML = `<p style="color: var(--text-muted); font-size: 0.8rem; padding: 0.5rem;">Buscando grupos e canais via Baileys...</p>`;
+      }
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/rss/destinos?forcar=${forcar}`, {
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+
+        if (data.sucesso && data.destinos) {
+          const permitidos = new Set(configRssAtual?.destinosPermitidos || []);
+
+          if (data.destinos.length === 0) {
+            container.innerHTML = `
+              <p style="color: var(--text-muted); font-size: 0.8rem; padding: 0.5rem; grid-column: 1 / -1;">
+                Nenhum destino detectado automaticamente. Cadastre um canal ou grupo manualmente abaixo.
+              </p>
+            `;
+            return;
+          }
+
+          container.innerHTML = data.destinos.map(d => {
+            const marcado = permitidos.has(d.jid) ? 'checked' : '';
+            const icone = d.tipo === 'canal' ? '📢' : d.tipo === 'grupo' ? '👥' : '📱';
+
+            return `
+              <label class="destino-item">
+                <input type="checkbox" class="destino-checkbox" value="${d.jid}" ${marcado}>
+                <div class="destino-info">
+                  <div class="destino-nome">${icone} ${d.nome}</div>
+                  <div class="destino-jid">${d.jid}</div>
+                </div>
+                ${d.manual ? `<button type="button" class="btn btn-danger btn-sm" onclick="removerDestinoManualBtn('${d.jid}')" style="padding:0.15rem 0.4rem;">&times;</button>` : ''}
+              </label>
+            `;
+          }).join('');
+        }
+      } catch (err) {
+        console.error('Erro ao carregar destinos:', err);
+      }
+    }
+
+    async function adicionarDestinoManualBtn() {
+      if (!projetoSelecionado) return;
+
+      const entrada = document.getElementById('manualJid').value.trim();
+      const nome = document.getElementById('manualNome').value.trim();
+
+      if (!entrada) {
+        mostrarToast('Cole o link do canal/grupo ou o JID.', true);
+        return;
+      }
+
+      const btn = document.getElementById('btnAdicionarDestino');
+      const textoOriginal = btn.innerText;
+      btn.disabled = true;
+      btn.innerText = 'Resolvendo...';
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/rss/destinos/manual`, {
+          method: 'POST',
+          headers: obterHeaders(),
+          body: JSON.stringify({ jid: entrada, nome })
+        });
+        const data = await resp.json();
+
+        if (data.sucesso) {
+          mostrarToast(data.mensagem || 'Destino adicionado com sucesso!');
+          document.getElementById('manualJid').value = '';
+          document.getElementById('manualNome').value = '';
+          carregarDestinosRss(true);
+        } else {
+          mostrarToast(`Erro: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro: ${err.message}`, true);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = textoOriginal;
+      }
+    }
+
+    async function removerDestinoManualBtn(jid) {
+      if (!projetoSelecionado) return;
+      if (!confirm(`Deseja remover o destino manual ${jid}?`)) return;
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/rss/destinos/manual/${encodeURIComponent(jid)}`, {
+          method: 'DELETE',
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+        if (data.sucesso) {
+          mostrarToast('Destino removido.');
+          carregarDestinosRss(true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro: ${err.message}`, true);
+      }
+    }
+
+    async function forcarSincronizacaoRss() {
+      if (!projetoSelecionado) return;
+
+      mostrarToast('Buscando novos artigos no feed RSS...');
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/rss/fetch`, {
+          method: 'POST',
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+
+        if (data.sucesso) {
+          mostrarToast(`Busca concluída! ${data.resultado.novos || 0} novo(s) artigo(s) adicionado(s).`);
+          carregarArtigosERssStats();
+        } else {
+          mostrarToast(`Erro: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro: ${err.message}`, true);
+      }
+    }
+
+    async function carregarArtigosERssStats() {
+      if (!projetoSelecionado) return;
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/rss/artigos`, {
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+
+        if (data.sucesso) {
+          document.getElementById('statTotalArtigos').innerText = data.total || 0;
+          document.getElementById('statDisponiveis').innerText = data.disponiveis || 0;
+          document.getElementById('statUsados').innerText = data.usados || 0;
+        }
+      } catch (err) {
+        console.error('Erro ao carregar stats do RSS:', err);
+      }
+    }
+
+    async function carregarHistoricoRss() {
+      if (!projetoSelecionado) return;
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/rss/historico`, {
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+
+        const tbody = document.getElementById('tabelaHistoricoRssCorpo');
+        if (!data.historico || data.historico.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: var(--text-muted);">Nenhum post de RSS disparado ainda.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = data.historico.map(h => {
+          const dataFmt = new Date(h.usado_em).toLocaleString('pt-BR');
+          return `
+            <tr>
+              <td><code>${dataFmt}</code></td>
+              <td><strong>${h.nome || h.jid}</strong> <span style="font-size:0.7rem; color:var(--text-muted);">(${h.tipo})</span></td>
+              <td>${h.tituloArtigo || 'Artigo'}</td>
+            </tr>
+          `;
+        }).join('');
+      } catch (err) {
+        console.error('Erro ao carregar histórico RSS:', err);
+      }
+    }
+
+    // Formulário de Envio Avulso
+    function aoMudarTipoEnvio() {
+      const tipo = document.getElementById('envioTipo').value;
+      const grupoUrl = document.getElementById('grupoEnvioUrl');
+      const grupoTexto = document.getElementById('grupoEnvioTexto');
+      const grupoLegenda = document.getElementById('grupoEnvioLegenda');
+
+      if (tipo === 'texto') {
+        grupoUrl.style.display = 'none';
+        grupoTexto.style.display = 'block';
+        grupoLegenda.style.display = 'none';
+      } else {
+        grupoUrl.style.display = 'block';
+        grupoTexto.style.display = 'none';
+        grupoLegenda.style.display = 'block';
+      }
+    }
+
+    async function enviarMensagemAvulsa(e) {
+      e.preventDefault();
+      if (!projetoSelecionado) return;
+
+      const to = document.getElementById('envioTo').value.trim();
+      const type = document.getElementById('envioTipo').value;
+      const url = document.getElementById('envioUrl').value.trim();
+      const texto = document.getElementById('envioTexto').value.trim();
+      const legenda = document.getElementById('envioLegenda').value.trim();
+
+      const btn = document.getElementById('btnEnviarMensagem');
+      btn.disabled = true;
+      btn.innerText = 'Enviando...';
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/send`, {
+          method: 'POST',
+          headers: obterHeaders(),
+          body: JSON.stringify({ to, type, url, texto, legenda })
+        });
+
+        const data = await resp.json();
+        if (data.sucesso) {
+          mostrarToast('Mensagem enviada com sucesso!');
+          document.getElementById('envioTexto').value = '';
+          document.getElementById('envioUrl').value = '';
+          document.getElementById('envioLegenda').value = '';
+        } else {
+          mostrarToast(`Erro ao enviar: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro: ${err.message}`, true);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = '🚀 Enviar Mensagem Agora';
+      }
+    }
+
+    // Formulário de Agendamento Manual
+    function aoMudarTipoAgenda() {
+      const tipo = document.getElementById('agendaTipo').value;
+      const grupoUrl = document.getElementById('grupoAgendaUrl');
+      const grupoTexto = document.getElementById('grupoAgendaTexto');
+      const grupoLegenda = document.getElementById('grupoAgendaLegenda');
+
+      if (tipo === 'texto') {
+        grupoUrl.style.display = 'none';
+        grupoTexto.style.display = 'block';
+        grupoLegenda.style.display = 'none';
+      } else {
+        grupoUrl.style.display = 'block';
+        grupoTexto.style.display = 'none';
+        grupoLegenda.style.display = 'block';
+      }
+    }
+
+    async function adicionarAgendamento(e) {
+      e.preventDefault();
+      if (!projetoSelecionado) return;
+
+      const to = document.getElementById('agendaTo').value.trim();
+      const tipo = document.getElementById('agendaTipo').value;
+      const dataInput = document.getElementById('agendaData').value;
+      const url = document.getElementById('agendaUrl').value.trim();
+      const texto = document.getElementById('agendaTexto').value.trim();
+      const legenda = document.getElementById('agendaLegenda').value.trim();
+
+      if (!dataInput) {
+        mostrarToast('Selecione a data e hora do agendamento.', true);
+        return;
+      }
+
+      const agendado_para = new Date(dataInput).toISOString();
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/fila`, {
+          method: 'POST',
+          headers: obterHeaders(),
+          body: JSON.stringify({ to, tipo, url, texto, legenda, agendado_para })
+        });
+
+        const data = await resp.json();
+        if (data.sucesso) {
+          mostrarToast('Post agendado com sucesso!');
+          document.getElementById('agendaTexto').value = '';
+          document.getElementById('agendaUrl').value = '';
+          document.getElementById('agendaLegenda').value = '';
+          carregarFilaProjeto();
+        } else {
+          mostrarToast(`Erro: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro: ${err.message}`, true);
+      }
+    }
+
+    async function carregarFilaProjeto() {
+      if (!projetoSelecionado) return;
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/fila`, {
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+
+        const tbody = document.getElementById('tabelaFilaCorpo');
+        if (!data.fila || data.fila.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Nenhum post agendado na fila.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = data.fila.map(item => {
+          const statusBadge = item.enviado 
+            ? `<span class="badge badge-connected"><span class="badge-dot"></span>Enviado</span>`
+            : item.erro 
+            ? `<span class="badge badge-desconectado" title="${item.erro}"><span class="badge-dot" style="background:#f87171;"></span>Erro</span>`
+            : `<span class="badge badge-aguardando_qr"><span class="badge-dot"></span>Pendente</span>`;
+
+          const conteudo = item.tipo === 'texto' 
+            ? (item.texto.length > 40 ? item.texto.substring(0, 40) + '...' : item.texto)
+            : `<a href="${item.url}" target="_blank" style="color:var(--accent-blue); text-decoration:none;">🔗 Ver Mídia</a> ${item.legenda ? ' - ' + item.legenda.substring(0, 20) : ''}`;
+
+          const dataFormatada = new Date(item.agendado_para).toLocaleString('pt-BR');
+
+          return `
+            <tr>
+              <td>${statusBadge}</td>
+              <td><strong style="text-transform: capitalize;">${item.tipo}</strong></td>
+              <td><code>${item.to}</code></td>
+              <td>${dataFormatada}</td>
+              <td>${conteudo}</td>
+              <td>
+                <button class="btn btn-danger btn-sm" onclick="removerItemFila('${item.id}')">Excluir</button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      } catch (err) {
+        console.error('Erro ao carregar fila:', err);
+      }
+    }
+
+    async function removerItemFila(id) {
+      if (!confirm('Deseja remover este item da fila de agendamento?')) return;
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/fila/${id}`, {
+          method: 'DELETE',
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+        if (data.sucesso) {
+          mostrarToast('Item removido da fila.');
+          carregarFilaProjeto();
+        } else {
+          mostrarToast(`Erro: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro: ${err.message}`, true);
+      }
+    }
+
+    // Logs
+    async function carregarLogsProjeto() {
+      if (!projetoSelecionado) return;
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/logs?limite=150`, {
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+
+        const terminal = document.getElementById('terminalLogs');
+        const contador = document.getElementById('logsContador');
+
+        if (data.logs && data.logs.length > 0) {
+          contador.innerText = data.logs.length;
+          terminal.innerText = data.logs.join('\n');
+          terminal.scrollTop = terminal.scrollHeight;
+        } else {
+          contador.innerText = '0';
+          terminal.innerText = 'Nenhum log registrado para este projeto ainda.';
+        }
+      } catch (err) {
+        console.error('Erro ao carregar logs:', err);
+      }
+    }
+  </script>
+</body>
+</html>
