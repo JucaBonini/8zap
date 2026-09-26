@@ -1023,14 +1023,18 @@
           </div>
 
           <div class="form-row">
-            <div class="form-group">
+            <div class="form-group" style="flex: 1;">
               <label for="rssQtdDia">Quantidade Máxima de Posts / Dia:</label>
               <input type="number" id="rssQtdDia" class="form-control" min="1" max="100" value="5">
             </div>
-            <div class="form-group">
-              <label for="rssCooldown">Cooldown por Destino (Horas sem repetir):</label>
-              <input type="number" id="rssCooldown" class="form-control" min="1" max="720" value="24">
-            </div>
+          </div>
+
+          <div class="form-group" style="margin-top: 0.5rem;">
+            <label for="rssTemplateMensagem">Template Personalizado da Mensagem (Opcional):</label>
+            <textarea id="rssTemplateMensagem" class="form-control" style="min-height: 110px; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; line-height: 1.5;" placeholder="{abertura}&#10;&#10;🍲 *{titulo}*&#10;&#10;{resumo}&#10;&#10;👉 *Toque no link abaixo para ver os ingredientes e o modo de preparo completo:*&#10;🔗 {link}"></textarea>
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.4rem; line-height: 1.4;">
+              💡 <strong>Tags disponíveis:</strong> <code>{abertura}</code> (frase variada sorteada), <code>{titulo}</code> (título da receita), <code>{resumo}</code> (descrição da receita), <code>{link}</code> (link direto). Deixe em branco para usar o formato padrão automático.
+            </p>
           </div>
 
           <div class="form-group">
@@ -1040,6 +1044,8 @@
               <input type="time" id="novoHorarioInput" value="12:00">
               <button class="btn btn-secondary btn-sm" onclick="adicionarHorarioRss()">+ Adicionar Horário</button>
             </div>
+          </div>
+
           <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem;">
             <button class="btn" onclick="salvarConfiguracaoRss()">💾 Salvar Configurações RSS</button>
             <button class="btn btn-secondary" id="btnTestarRss" onclick="testarDisparoRssAgora()">🚀 Testar Disparo Agora</button>
@@ -1050,9 +1056,9 @@
         <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
             <div>
-              <h3>Destinos Elegíveis para Sorteio</h3>
+              <h3>Destinos Selecionados para Postagem (Broadcast)</h3>
               <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">
-                Se nenhum destino estiver marcado com checkbox, o sorteio utilizará todos os destinos disponíveis.
+                Marque com ✅ os canais e grupos que receberão as postagens automáticas em cada horário.
               </p>
             </div>
             <button class="btn btn-secondary btn-sm" onclick="carregarDestinosRss(true)">🔍 Buscar Canais/Grupos Agora</button>
@@ -1692,7 +1698,7 @@
           document.getElementById('rssAtivo').checked = !!configRssAtual.ativo;
           document.getElementById('rssUrl').value = configRssAtual.rssUrl || '';
           document.getElementById('rssQtdDia').value = configRssAtual.quantidadePorDia || 5;
-          document.getElementById('rssCooldown').value = configRssAtual.cooldownHorasPorDestino || 24;
+          document.getElementById('rssTemplateMensagem').value = configRssAtual.templateMensagem || '';
 
           renderizarHorariosRss(configRssAtual.horarios || []);
         }
@@ -1743,7 +1749,7 @@
       const ativo = document.getElementById('rssAtivo').checked;
       const rssUrl = document.getElementById('rssUrl').value.trim();
       const quantidadePorDia = parseInt(document.getElementById('rssQtdDia').value, 10) || 5;
-      const cooldownHorasPorDestino = parseInt(document.getElementById('rssCooldown').value, 10) || 24;
+      const templateMensagem = document.getElementById('rssTemplateMensagem').value;
       const horarios = configRssAtual?.horarios || ['09:00', '12:00', '15:00', '18:00', '21:00'];
 
       // Coleta destinos permitidos marcados
@@ -1758,7 +1764,7 @@
             ativo,
             rssUrl,
             quantidadePorDia,
-            cooldownHorasPorDestino,
+            templateMensagem,
             horarios,
             destinosPermitidos
           })

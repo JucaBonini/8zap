@@ -288,50 +288,6 @@ async function buscarCanaisBaileys(projectId) {
 }
 
 /**
- * Filtra a lista de destinos aplicando permissões e regra de cooldown anti-repetição
- * @param {Array<object>} todosDestinos
- * @param {Array<object>} historicoUso
- * @param {number} cooldownHoras
- * @param {Array<string>} destinosPermitidos
- * @returns {Array<object>}
- */
-function filtrarDestinosElegiveis(todosDestinos, historicoUso, cooldownHoras = 24, destinosPermitidos = []) {
-  const agora = Date.now();
-  const cooldownMs = cooldownHoras * 60 * 60 * 1000;
-
-  // Mapa com o timestamp do último uso por JID
-  const ultimoUsoPorJid = new Map();
-  historicoUso.forEach((reg) => {
-    if (reg.jid && reg.usado_em) {
-      const tempo = new Date(reg.usado_em).getTime();
-      const tempoAnterior = ultimoUsoPorJid.get(reg.jid) || 0;
-      if (tempo > tempoAnterior) {
-        ultimoUsoPorJid.set(reg.jid, tempo);
-      }
-    }
-  });
-
-  const permitidosSet = Array.isArray(destinosPermitidos) && destinosPermitidos.length > 0 
-    ? new Set(destinosPermitidos) 
-    : null;
-
-  return todosDestinos.filter((d) => {
-    // 1. Checa se está na lista de destinos permitidos (se configurada)
-    if (permitidosSet && !permitidosSet.has(d.jid)) {
-      return false;
-    }
-
-    // 2. Checa o cooldown (não pode ter sido usado nas últimas X horas)
-    const ultimoUso = ultimoUsoPorJid.get(d.jid);
-    if (ultimoUso && (agora - ultimoUso < cooldownMs)) {
-      return false;
-    }
-
-    return true;
-  });
-}
-
-/**
  * Resolve e descobre o JID e nome de um canal ou grupo a partir do link de convite
  * @param {string} projectId
  * @param {string} linkOuCodigo
@@ -412,6 +368,5 @@ module.exports = {
   adicionarDestinoManual,
   removerDestinoManual,
   listarDestinosDisponiveis,
-  filtrarDestinosElegiveis,
   resolverDestinoPorLink
 };

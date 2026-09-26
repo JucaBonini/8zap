@@ -49,6 +49,52 @@ function obterDataHojeFormatada(fuso = process.env.TIMEZONE || 'America/Sao_Paul
 }
 
 /**
+ * Lista de aberturas dinâmicas para alternância a cada postagem
+ */
+const ABERTURAS_PADRAO = [
+  '🍽️ Receita de hoje:',
+  '👩‍🍳 Bora cozinhar?',
+  '🍝 Direto da cozinha:',
+  '😋 Se joga nessa receita:',
+  '🍲 Receita do dia:',
+  'Olá, meninas(os)! Como vão? 💛 Trouxe uma receita boa pra vocês:'
+];
+
+/**
+ * Sorteia uma frase de abertura dinâmica
+ * @returns {string}
+ */
+function sortearAbertura() {
+  const index = Math.floor(Math.random() * ABERTURAS_PADRAO.length);
+  return ABERTURAS_PADRAO[index];
+}
+
+/**
+ * Formata o texto final da mensagem aplicando o template customizado ou o padrão dinâmico
+ * @param {object} artigo
+ * @param {object} [config]
+ * @returns {string}
+ */
+function formatarMensagemArtigo(artigo, config = {}) {
+  const abertura = sortearAbertura();
+  const titulo = artigo.titulo || '';
+  const resumo = artigo.resumo || '';
+  const link = artigo.link || '';
+
+  if (config.templateMensagem && typeof config.templateMensagem === 'string' && config.templateMensagem.trim().length > 0) {
+    return config.templateMensagem
+      .replace(/\{abertura\}/gi, abertura)
+      .replace(/\{titulo\}/gi, titulo)
+      .replace(/\{resumo\}/gi, resumo)
+      .replace(/\{link\}/gi, link);
+  }
+
+  // Formato padrão estruturado com abertura sorteada
+  const blocoResumo = resumo ? `\n\n${resumo}` : '';
+  return `${abertura}\n\n🍲 *${titulo}*${blocoResumo}\n\n👉 *Toque no link abaixo para ver os ingredientes e o modo de preparo completo:*\n🔗 ${link}`;
+}
+
+/**
  * Retorna a hora atual no formato HH:MM no fuso configurado (padrão America/Sao_Paulo)
  * @param {string} [fuso]
  * @returns {string}
@@ -325,8 +371,8 @@ async function processarDisparoArtigoRss(projectId, config, horarioAtual) {
       } catch (_) {}
     }
 
-    // Monta a mensagem profissional com Título, Resumo, Chamada para Ação (CTA) e Link
-    const textoMensagem = `🍲 *${artigo.titulo}*\n\n${artigo.resumo}\n\n👉 *Toque no link abaixo para ver os ingredientes e o modo de preparo completo:*\n🔗 ${artigo.link}`;
+    // Monta a mensagem profissional com Abertura, Título, Resumo, Chamada para Ação (CTA) e Link
+    const textoMensagem = formatarMensagemArtigo(artigo, config);
 
     logProjeto(
       projectId,

@@ -163,7 +163,7 @@ function obterConfigRss(projectId) {
     quantidadePorDia: 5,
     horarios: ['09:00', '12:00', '15:00', '18:00', '21:00'],
     destinosPermitidos: [],
-    cooldownHorasPorDestino: 24,
+    templateMensagem: '',
     destinosManuais: []
   };
 
@@ -193,11 +193,14 @@ function salvarConfigRss(projectId, novaConfig) {
     ...configAtual,
     ...novaConfig,
     quantidadePorDia: parseInt(novaConfig.quantidadePorDia, 10) || configAtual.quantidadePorDia || 5,
-    cooldownHorasPorDestino: parseInt(novaConfig.cooldownHorasPorDestino, 10) || configAtual.cooldownHorasPorDestino || 24,
     horarios: Array.isArray(novaConfig.horarios) ? novaConfig.horarios : configAtual.horarios,
     destinosPermitidos: Array.isArray(novaConfig.destinosPermitidos) ? novaConfig.destinosPermitidos : configAtual.destinosPermitidos,
+    templateMensagem: typeof novaConfig.templateMensagem === 'string' ? novaConfig.templateMensagem : (configAtual.templateMensagem || ''),
     destinosManuais: Array.isArray(novaConfig.destinosManuais) ? novaConfig.destinosManuais : configAtual.destinosManuais
   };
+
+  // Remove campos legados que não são mais usados
+  delete configFinal.cooldownHorasPorDestino;
 
   const caminho = obterCaminhoConfigRss(projectId);
   fs.writeFileSync(caminho, JSON.stringify(configFinal, null, 2), 'utf8');
