@@ -1946,9 +1946,12 @@
       btn.disabled = true;
       btn.innerText = 'Disparando...';
 
-      mostrarToast('Executando disparo de teste RSS...');
+      mostrarToast('Salvando seleção e executando disparo de teste...');
 
       try {
+        // Salva automaticamente as preferências e canais marcados na tela antes do teste
+        await salvarConfiguracaoRss();
+
         const resp = await fetch(`/sessions/${projetoSelecionado}/rss/disparar-agora`, {
           method: 'POST',
           headers: obterHeaders()
