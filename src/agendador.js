@@ -308,6 +308,14 @@ async function executarCicloAgendador() {
     } catch (rssErr) {
       console.error('[Agendador] Erro no módulo de RSS:', rssErr.message);
     }
+
+    // 3. Executa a checagem e disparo do módulo de Campanhas (Shopee / Imagens / Dicas)
+    try {
+      const agendadorCampanhas = require('./agendadorCampanhas');
+      await agendadorCampanhas.verificarEDispararCampanhas();
+    } catch (campErr) {
+      console.error('[Agendador] Erro no módulo de Campanhas:', campErr.message);
+    }
   } catch (cicloErr) {
     console.error('[Agendador] Erro no ciclo de verificação:', cicloErr.message);
   }

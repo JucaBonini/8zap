@@ -480,4 +480,139 @@ router.post('/sessions/:projectId/rss/disparar-agora', async (req, res) => {
   }
 });
 
+// ==========================================
+// ROTAS DE CAMPANHAS & OFERTAS (SHOPEE / IMAGENS / DICAS)
+// ==========================================
+
+const campanhasManager = require('./campanhasManager');
+const agendadorCampanhas = require('./agendadorCampanhas');
+
+/**
+ * GET /sessions/:projectId/campanhas/config
+ * Retorna as configurações de horários e modos de campanhas
+ */
+router.get('/sessions/:projectId/campanhas/config', (req, res) => {
+  const { projectId } = req.params;
+  try {
+    const config = campanhasManager.obterConfigCampanhas(projectId);
+    res.json({
+      sucesso: true,
+      projectId,
+      config
+    });
+  } catch (err) {
+    res.status(500).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * POST /sessions/:projectId/campanhas/config
+ * Atualiza as configurações de horários e preferências de campanhas
+ */
+router.post('/sessions/:projectId/campanhas/config', async (req, res) => {
+  const { projectId } = req.params;
+  try {
+    const novaConfig = await campanhasManager.salvarConfigCampanhas(projectId, req.body);
+    res.json({
+      sucesso: true,
+      mensagem: 'Configurações de campanhas salvas com sucesso!',
+      config: novaConfig
+    });
+  } catch (err) {
+    res.status(400).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * GET /sessions/:projectId/campanhas/itens
+ * Lista todos os itens de campanhas (Shopee, Imagens, etc) cadastrados
+ */
+router.get('/sessions/:projectId/campanhas/itens', (req, res) => {
+  const { projectId } = req.params;
+  try {
+    const itens = campanhasManager.obterItensCampanhas(projectId);
+    res.json({
+      sucesso: true,
+      projectId,
+      total: itens.length,
+      itens
+    });
+  } catch (err) {
+    res.status(500).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * POST /sessions/:projectId/campanhas/itens
+ * Adiciona um novo item de campanha (Shopee ou Imagem)
+ */
+router.post('/sessions/:projectId/campanhas/itens', async (req, res) => {
+  const { projectId } = req.params;
+  try {
+    const novoItem = await campanhasManager.adicionarItemCampanha(projectId, req.body);
+    res.json({
+      sucesso: true,
+      mensagem: `Item "${novoItem.titulo}" adicionado com sucesso!`,
+      item: novoItem
+    });
+  } catch (err) {
+    res.status(400).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * PUT /sessions/:projectId/campanhas/itens/:id
+ * Atualiza um item de campanha existente
+ */
+router.put('/sessions/:projectId/campanhas/itens/:id', async (req, res) => {
+  const { projectId, id } = req.params;
+  try {
+    const itemAtualizado = await campanhasManager.atualizarItemCampanha(projectId, id, req.body);
+    res.json({
+      sucesso: true,
+      mensagem: 'Item atualizado com sucesso!',
+      item: itemAtualizado
+    });
+  } catch (err) {
+    res.status(400).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * DELETE /sessions/:projectId/campanhas/itens/:id
+ * Remove um item de campanha
+ */
+router.delete('/sessions/:projectId/campanhas/itens/:id', async (req, res) => {
+  const { projectId, id } = req.params;
+  try {
+    const removido = await campanhasManager.removerItemCampanha(projectId, id);
+    res.json({
+      sucesso: true,
+      mensagem: `Item "${removido.titulo}" removido com sucesso.`,
+      removido
+    });
+  } catch (err) {
+    res.status(400).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * POST /sessions/:projectId/campanhas/disparar-agora
+ * Força o disparo manual imediato de um item de teste para os canais
+ */
+router.post('/sessions/:projectId/campanhas/disparar-agora', async (req, res) => {
+  const { projectId } = req.params;
+  const { itemId } = req.body || {};
+  try {
+    const resultado = await agendadorCampanhas.dispararCampanhaManual(projectId, itemId || null);
+    res.json({
+      sucesso: true,
+      mensagem: 'Disparo de teste de campanha executado com sucesso!',
+      resultado
+    });
+  } catch (err) {
+    res.status(400).json({ sucesso: false, erro: err.message });
+  }
+});
+
 module.exports = router;

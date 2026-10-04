@@ -987,6 +987,7 @@
       <div class="tabs">
         <button class="tab-btn active" onclick="trocarAba('aba-qr', event)">QR Code & Conexão</button>
         <button class="tab-btn" onclick="trocarAba('aba-rss', event)">📰 RSS Automático</button>
+        <button class="tab-btn" onclick="trocarAba('aba-campanhas', event)">🛍️ Ofertas & Imagens</button>
         <button class="tab-btn" onclick="trocarAba('aba-envio', event)">Enviar Mensagem</button>
         <button class="tab-btn" onclick="trocarAba('aba-fila', event)">Fila Manual</button>
         <button class="tab-btn" onclick="trocarAba('aba-logs', event)">Logs</button>
@@ -1122,7 +1123,156 @@
         </div>
       </div>
 
-      <!-- Aba 3: Envio Avulso Imediato -->
+      <!-- Aba 3: Ofertas Shopee & Imagens Pré-programadas (Horários Vagos) -->
+      <div id="aba-campanhas" class="tab-content">
+        <!-- Card 1: Configurações e Horários Vagos -->
+        <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
+            <div>
+              <h3 style="margin-bottom: 0.2rem;">Automação de Horários Vagos (Ofertas & Imagens)</h3>
+              <p style="font-size: 0.8rem; color: var(--text-muted);">Mescle ofertas da Shopee e imagens de dicas nos horários livres entre os posts do RSS.</p>
+            </div>
+            <div class="switch-container">
+              <span style="font-size: 0.85rem; color: var(--text-muted);">Ativar Automação:</span>
+              <label class="switch">
+                <input type="checkbox" id="campAtivo">
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group" style="flex: 1;">
+              <label for="campModoFila">Modo da Fila:</label>
+              <select id="campModoFila" class="form-control">
+                <option value="rotativo">♻️ Rotativo Infinito (Reutiliza itens após Cooldown)</option>
+                <option value="consumir">🎯 Consumir (Envia 1 vez e desativa o item)</option>
+              </select>
+            </div>
+            <div class="form-group" style="flex: 1;">
+              <label for="campCooldownDias">Cooldown de Repetição (Dias):</label>
+              <input type="number" id="campCooldownDias" class="form-control" min="1" max="90" value="7" title="Dias antes de poder reenviar a mesma oferta/imagem">
+            </div>
+            <div class="form-group" style="flex: 1;">
+              <label for="campQtdDia">Máximo de Posts / Dia:</label>
+              <input type="number" id="campQtdDia" class="form-control" min="1" max="50" value="5">
+            </div>
+          </div>
+
+          <!-- Grade de Horários Vagos -->
+          <div class="form-group" style="margin-top: 0.5rem;">
+            <label>Horários Vagos Agendados:</label>
+            <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem; flex-wrap: wrap;">
+              <input type="time" id="campNovoHorarioHora" class="form-control" style="width: 130px;" value="10:30">
+              <select id="campNovoHorarioTipo" class="form-control" style="width: 170px;">
+                <option value="shopee">🛍️ Oferta Shopee</option>
+                <option value="imagem">🖼️ Imagem / Dica</option>
+                <option value="qualquer">🔄 Qualquer Conteúdo</option>
+              </select>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="adicionarHorarioCampanha()">+ Adicionar Horário</button>
+            </div>
+            <div id="containerHorariosCampanhas" style="display: flex; flex-wrap: wrap; gap: 0.5rem; min-height: 40px; padding: 0.5rem; background: rgba(0,0,0,0.15); border-radius: var(--radius-sm); border: 1px dashed var(--border-color);">
+              <!-- Renderizado dinamicamente via JS -->
+            </div>
+          </div>
+
+          <!-- Template Shopee -->
+          <div class="form-group" style="margin-top: 1rem;">
+            <label for="campTemplateShopee">Template da Mensagem Shopee:</label>
+            <textarea id="campTemplateShopee" class="form-control" style="min-height: 95px; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.4;" placeholder="🔥 *ACHADINHO IMPERDÍVEL!* 🔥&#10;&#10;🛍️ *{titulo}*&#10;{destaque}&#10;{preco}&#10;&#10;👉 *Acesse pelo link oficial para garantir:*&#10;🛒 {link}"></textarea>
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.3rem;">
+              💡 Tags: <code>{titulo}</code>, <code>{destaque}</code>, <code>{preco}</code>, <code>{link}</code>
+            </p>
+          </div>
+
+          <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.25rem; flex-wrap: wrap;">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="dispararCampanhaAgora(null)">⚡ Testar Disparo Agora</button>
+            <button type="button" class="btn btn-sm" onclick="salvarConfiguracoesCampanhas()">💾 Salvar Configurações</button>
+          </div>
+        </div>
+
+        <!-- Card 2: Cadastro de Novo Item (Shopee / Imagem) -->
+        <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
+          <h3 style="margin-bottom: 1rem;">+ Adicionar Nova Oferta ou Imagem à Fila</h3>
+          <form id="formNovoItemCampanha" onsubmit="adicionarNovoItemCampanha(event)">
+            <div class="form-row">
+              <div class="form-group" style="flex: 1;">
+                <label for="itemTipo">Tipo de Conteúdo:</label>
+                <select id="itemTipo" class="form-control" onchange="aoMudarTipoCampanhaForm()">
+                  <option value="shopee">🛍️ Oferta de Afiliado (Shopee)</option>
+                  <option value="imagem">🖼️ Imagem Pré-programada / Dica</option>
+                  <option value="texto">💬 Mensagem de Texto / Aviso</option>
+                </select>
+              </div>
+              <div class="form-group" style="flex: 2;">
+                <label for="itemTitulo">Título / Nome do Produto / Assunto:</label>
+                <input type="text" id="itemTitulo" class="form-control" placeholder="Ex: Frigideira 4 em 1 Antiaderente ou Dica do Dia" required>
+              </div>
+            </div>
+
+            <div class="form-row" id="linhaDetalhesShopee">
+              <div class="form-group" style="flex: 2;">
+                <label for="itemDestaque">Destaque / Chamada (Benefício):</label>
+                <input type="text" id="itemDestaque" class="form-control" placeholder="Ex: Super Desconto 40% OFF + Frete Grátis!">
+              </div>
+              <div class="form-group" style="flex: 1;" id="colunaPreco">
+                <label for="itemPreco">Preço / Condição:</label>
+                <input type="text" id="itemPreco" class="form-control" placeholder="Ex: R$ 39,90 ou 3x sem juros">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group" style="flex: 1;" id="colunaLink">
+                <label for="itemLink">Link de Afiliado / Destino:</label>
+                <input type="url" id="itemLink" class="form-control" placeholder="https://s.shopee.com.br/xxxxx">
+              </div>
+              <div class="form-group" style="flex: 1;">
+                <label for="itemImagem">URL da Foto / Imagem (Opcional):</label>
+                <input type="url" id="itemImagem" class="form-control" placeholder="https://exemplo.com/foto-produto.jpg">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="itemLegenda">Legenda Customizada (Opcional - substitui o template):</label>
+              <textarea id="itemLegenda" class="form-control" style="min-height: 60px;" placeholder="Deixe em branco para usar o layout automático formatado."></textarea>
+            </div>
+
+            <div style="text-align: right; margin-top: 0.75rem;">
+              <button type="submit" class="btn btn-sm">➕ Salvar Item na Fila</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Card 3: Banco de Itens Cadastrados -->
+        <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+            <h3>📦 Banco de Ofertas & Imagens Cadastradas (<span id="totalItensCampanhas">0</span>)</h3>
+            <button class="btn btn-secondary btn-sm" onclick="carregarItensCampanhas()">🔄 Atualizar Lista</button>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table class="data-table" id="tabelaCampanhas">
+              <thead>
+                <tr>
+                  <th style="width: 60px;">Mídia</th>
+                  <th>Título & Destaque</th>
+                  <th>Tipo</th>
+                  <th>Preço</th>
+                  <th>Status & Envios</th>
+                  <th style="width: 160px; text-align: right;">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="corpoTabelaCampanhas">
+                <tr>
+                  <td colspan="6" style="text-align: center; color: var(--text-muted);">Carregando itens cadastrados...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Aba 4: Envio Avulso Imediato -->
       <div id="aba-envio" class="tab-content">
         <form id="formEnvioAvulso" onsubmit="enviarMensagemAvulsa(event)">
           <div class="form-row">
@@ -1615,6 +1765,11 @@
         carregarDestinosRss();
         carregarArtigosERssStats();
         carregarHistoricoRss();
+      }
+
+      if (idAba === 'aba-campanhas') {
+        carregarConfiguracaoCampanhas();
+        carregarItensCampanhas();
       }
 
       if (idAba === 'aba-fila') {
@@ -2194,6 +2349,350 @@
         }
       } catch (err) {
         console.error('Erro ao carregar logs:', err);
+      }
+    }
+
+    // ==========================================
+    // GESTÃO DE CAMPANHAS & OFERTAS SHOPEE
+    // ==========================================
+    let configCampanhasAtual = {
+      ativo: true,
+      modoFila: 'rotativo',
+      cooldownDias: 7,
+      quantidadePorDia: 5,
+      horarios: [],
+      templateShopee: '',
+      templateImagem: ''
+    };
+
+    async function carregarConfiguracaoCampanhas() {
+      if (!projetoSelecionado) return;
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/campanhas/config`, {
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+
+        if (data.sucesso && data.config) {
+          configCampanhasAtual = data.config;
+          document.getElementById('campAtivo').checked = !!configCampanhasAtual.ativo;
+          document.getElementById('campModoFila').value = configCampanhasAtual.modoFila || 'rotativo';
+          document.getElementById('campCooldownDias').value = configCampanhasAtual.cooldownDias || 7;
+          document.getElementById('campQtdDia').value = configCampanhasAtual.quantidadePorDia || 5;
+          document.getElementById('campTemplateShopee').value = configCampanhasAtual.templateShopee || '';
+
+          renderizarHorariosCampanhas(configCampanhasAtual.horarios || []);
+        }
+      } catch (err) {
+        console.error('Erro ao carregar config de campanhas:', err);
+      }
+    }
+
+    function renderizarHorariosCampanhas(horarios) {
+      const container = document.getElementById('containerHorariosCampanhas');
+      if (!horarios || horarios.length === 0) {
+        container.innerHTML = `<span style="font-size: 0.8rem; color: var(--text-muted); padding: 0.3rem;">Nenhum horário cadastrado. Adicione um acima.</span>`;
+        return;
+      }
+
+      container.innerHTML = horarios.map((h, idx) => {
+        const hora = typeof h === 'string' ? h : h.hora;
+        const tipo = typeof h === 'object' && h.tipo ? h.tipo : 'qualquer';
+        const icone = tipo === 'shopee' ? '🛍️' : tipo === 'imagem' ? '🖼️' : '🔄';
+        const labelTipo = tipo === 'shopee' ? 'Shopee' : tipo === 'imagem' ? 'Imagem' : 'Qualquer';
+
+        return `
+          <span class="horario-tag" style="display: inline-flex; align-items: center; gap: 0.4rem; background: rgba(37, 211, 102, 0.15); border: 1px solid var(--primary); padding: 0.3rem 0.6rem; border-radius: var(--radius-sm); font-size: 0.85rem;">
+            <span>⏰ <strong>${hora}</strong> (${icone} ${labelTipo})</span>
+            <button type="button" onclick="removerHorarioCampanha(${idx})" style="background: none; border: none; color: #ff5555; cursor: pointer; font-weight: bold; font-size: 1.1rem; line-height: 1; padding: 0 0.2rem;" title="Remover">&times;</button>
+          </span>
+        `;
+      }).join('');
+    }
+
+    function adicionarHorarioCampanha() {
+      const horaInput = document.getElementById('campNovoHorarioHora').value;
+      const tipoInput = document.getElementById('campNovoHorarioTipo').value;
+
+      if (!horaInput) {
+        mostrarToast('Selecione um horário válido (HH:MM).', true);
+        return;
+      }
+
+      if (!configCampanhasAtual.horarios) {
+        configCampanhasAtual.horarios = [];
+      }
+
+      // Normaliza
+      const existente = configCampanhasAtual.horarios.some(h => (typeof h === 'string' ? h : h.hora) === horaInput);
+      if (existente) {
+        mostrarToast(`O horário ${horaInput} já está cadastrado.`, true);
+        return;
+      }
+
+      configCampanhasAtual.horarios.push({
+        hora: horaInput,
+        tipo: tipoInput,
+        rotulo: `Disparo ${horaInput}`
+      });
+
+      configCampanhasAtual.horarios.sort((a, b) => {
+        const hA = typeof a === 'string' ? a : a.hora;
+        const hB = typeof b === 'string' ? b : b.hora;
+        return hA.localeCompare(hB);
+      });
+
+      renderizarHorariosCampanhas(configCampanhasAtual.horarios);
+    }
+
+    function removerHorarioCampanha(index) {
+      if (configCampanhasAtual.horarios && configCampanhasAtual.horarios[index]) {
+        configCampanhasAtual.horarios.splice(index, 1);
+        renderizarHorariosCampanhas(configCampanhasAtual.horarios);
+      }
+    }
+
+    async function salvarConfiguracoesCampanhas() {
+      if (!projetoSelecionado) return;
+
+      const ativo = document.getElementById('campAtivo').checked;
+      const modoFila = document.getElementById('campModoFila').value;
+      const cooldownDias = parseInt(document.getElementById('campCooldownDias').value, 10) || 7;
+      const quantidadePorDia = parseInt(document.getElementById('campQtdDia').value, 10) || 5;
+      const templateShopee = document.getElementById('campTemplateShopee').value;
+
+      const payload = {
+        ativo,
+        modoFila,
+        cooldownDias,
+        quantidadePorDia,
+        templateShopee,
+        horarios: configCampanhasAtual.horarios || []
+      };
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/campanhas/config`, {
+          method: 'POST',
+          headers: obterHeaders(),
+          body: JSON.stringify(payload)
+        });
+        const data = await resp.json();
+
+        if (data.sucesso) {
+          mostrarToast('Configurações de campanhas salvas com sucesso!');
+          configCampanhasAtual = data.config;
+        } else {
+          mostrarToast(`Erro: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro: ${err.message}`, true);
+      }
+    }
+
+    function aoMudarTipoCampanhaForm() {
+      const tipo = document.getElementById('itemTipo').value;
+      const colPreco = document.getElementById('colunaPreco');
+      const colLink = document.getElementById('colunaLink');
+
+      if (tipo === 'imagem') {
+        colPreco.style.display = 'none';
+        colLink.style.display = 'block';
+      } else if (tipo === 'texto') {
+        colPreco.style.display = 'none';
+      } else {
+        colPreco.style.display = 'block';
+        colLink.style.display = 'block';
+      }
+    }
+
+    async function carregarItensCampanhas() {
+      if (!projetoSelecionado) return;
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/campanhas/itens`, {
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+
+        if (data.sucesso && Array.isArray(data.itens)) {
+          document.getElementById('totalItensCampanhas').innerText = data.itens.length;
+          renderizarListaCampanhas(data.itens);
+        }
+      } catch (err) {
+        console.error('Erro ao carregar itens:', err);
+      }
+    }
+
+    function renderizarListaCampanhas(itens) {
+      const corpo = document.getElementById('corpoTabelaCampanhas');
+      if (!itens || itens.length === 0) {
+        corpo.innerHTML = `
+          <tr>
+            <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">
+              Nenhum produto ou imagem cadastrado. Adicione sua primeira oferta no formulário acima!
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      corpo.innerHTML = itens.map(item => {
+        const badgeTipo = item.tipo === 'shopee'
+          ? `<span style="background: rgba(238, 77, 45, 0.2); color: #ff5722; border: 1px solid #ff5722; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.75rem; font-weight: bold;">🛍️ Shopee</span>`
+          : item.tipo === 'imagem'
+          ? `<span style="background: rgba(0, 188, 212, 0.2); color: #00e5ff; border: 1px solid #00bcd4; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.75rem; font-weight: bold;">🖼️ Imagem</span>`
+          : `<span style="background: rgba(255, 255, 255, 0.1); color: #fff; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.75rem;">💬 Texto</span>`;
+
+        const thumb = item.imagem
+          ? `<img src="${item.imagem}" style="width: 44px; height: 44px; object-fit: cover; border-radius: 4px; border: 1px solid var(--border-color);" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'44\' height=\'44\'><rect width=\'100%\' height=\'100%\' fill=\'%23333\'/></svg>'">`
+          : `<div style="width: 44px; height: 44px; background: rgba(255,255,255,0.05); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">📄</div>`;
+
+        const statusTag = item.ativo
+          ? `<span style="color: #4caf50; font-weight: bold; font-size: 0.8rem;">● Ativo</span>`
+          : `<span style="color: #888; font-size: 0.8rem;">○ Inativo</span>`;
+
+        const ultimoEnvioFormatado = item.ultimoEnvioEm
+          ? new Date(item.ultimoEnvioEm).toLocaleString('pt-BR')
+          : 'Nunca enviado';
+
+        return `
+          <tr>
+            <td>${thumb}</td>
+            <td>
+              <strong style="color: var(--text-primary); font-size: 0.9rem;">${item.titulo}</strong>
+              ${item.destaque ? `<div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">${item.destaque}</div>` : ''}
+              ${item.link ? `<div style="font-size: 0.72rem; color: var(--primary); margin-top: 2px; word-break: break-all;"><a href="${item.link}" target="_blank" style="color: inherit;">${item.link}</a></div>` : ''}
+            </td>
+            <td>${badgeTipo}</td>
+            <td style="font-weight: 500; color: #ffeb3b; font-size: 0.85rem;">${item.preco || '-'}</td>
+            <td>
+              <div>${statusTag}</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">Enviado: <strong>${item.vezesEnviado || 0}x</strong></div>
+              <div style="font-size: 0.7rem; color: var(--text-muted);">Último: ${ultimoEnvioFormatado}</div>
+            </td>
+            <td style="text-align: right;">
+              <button class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.45rem; font-size: 0.75rem; margin-right: 4px;" onclick="dispararCampanhaAgora('${item.id}')" title="Disparar teste deste item agora">⚡ Testar</button>
+              <button class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.45rem; font-size: 0.75rem; margin-right: 4px;" onclick="alternarStatusItemCampanha('${item.id}', ${item.ativo})" title="${item.ativo ? 'Pausar' : 'Ativar'}">${item.ativo ? '⏸' : '▶'}</button>
+              <button class="btn btn-danger btn-sm" style="padding: 0.25rem 0.45rem; font-size: 0.75rem;" onclick="excluirItemCampanha('${item.id}', '${item.titulo.replace(/'/g, "\\'")}')" title="Excluir">🗑</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function adicionarNovoItemCampanha(event) {
+      event.preventDefault();
+      if (!projetoSelecionado) return;
+
+      const tipo = document.getElementById('itemTipo').value;
+      const titulo = document.getElementById('itemTitulo').value.trim();
+      const destaque = document.getElementById('itemDestaque').value.trim();
+      const preco = document.getElementById('itemPreco').value.trim();
+      const link = document.getElementById('itemLink').value.trim();
+      const imagem = document.getElementById('itemImagem').value.trim();
+      const legenda = document.getElementById('itemLegenda').value.trim();
+
+      const payload = {
+        tipo,
+        titulo,
+        destaque,
+        preco,
+        link,
+        imagem,
+        legenda,
+        ativo: true
+      };
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/campanhas/itens`, {
+          method: 'POST',
+          headers: obterHeaders(),
+          body: JSON.stringify(payload)
+        });
+        const data = await resp.json();
+
+        if (data.sucesso) {
+          mostrarToast(`Item "${titulo}" adicionado à fila!`);
+          document.getElementById('formNovoItemCampanha').reset();
+          aoMudarTipoCampanhaForm();
+          carregarItensCampanhas();
+        } else {
+          mostrarToast(`Erro: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro: ${err.message}`, true);
+      }
+    }
+
+    async function alternarStatusItemCampanha(id, statusAtual) {
+      if (!projetoSelecionado) return;
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/campanhas/itens/${id}`, {
+          method: 'PUT',
+          headers: obterHeaders(),
+          body: JSON.stringify({ ativo: !statusAtual })
+        });
+        const data = await resp.json();
+
+        if (data.sucesso) {
+          mostrarToast(statusAtual ? 'Item pausado.' : 'Item reativado na fila!');
+          carregarItensCampanhas();
+        } else {
+          mostrarToast(`Erro: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro: ${err.message}`, true);
+      }
+    }
+
+    async function excluirItemCampanha(id, titulo) {
+      if (!confirm(`Deseja realmente excluir "${titulo}"?`)) return;
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/campanhas/itens/${id}`, {
+          method: 'DELETE',
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+
+        if (data.sucesso) {
+          mostrarToast('Item excluído com sucesso.');
+          carregarItensCampanhas();
+        } else {
+          mostrarToast(`Erro: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro: ${err.message}`, true);
+      }
+    }
+
+    async function dispararCampanhaAgora(itemId) {
+      if (!projetoSelecionado) return;
+
+      if (!confirm('Deseja executar um disparo de teste desta campanha agora para os destinos cadastrados?')) {
+        return;
+      }
+
+      mostrarToast('Enviando disparo de teste...');
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/campanhas/disparar-agora`, {
+          method: 'POST',
+          headers: obterHeaders(),
+          body: JSON.stringify({ itemId })
+        });
+        const data = await resp.json();
+
+        if (data.sucesso) {
+          mostrarToast(`Disparo de teste concluído com sucesso! (${data.resultado.totalEnviados} enviados)`);
+          carregarItensCampanhas();
+        } else {
+          mostrarToast(`Falha no disparo: ${data.erro || 'Verifique se o WhatsApp está conectado.'}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro: ${err.message}`, true);
       }
     }
   </script>
