@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const campanhasManager = require('./campanhasManager');
+const rssFetcher = require('./rssFetcher');
 const destinosManager = require('./destinos');
 const sessionManager = require('./sessionManager');
 const { logProjeto } = require('./logger');
@@ -142,15 +143,35 @@ async function processarDisparoCampanha(projectId, config, horarioAtual, tipoSlo
       };
     }
 
-    // Filtra destinos permitidos ou usa todos
-    let destinosAlvos = [];
-    const permitidos = Array.isArray(config.destinosPermitidos) ? config.destinosPermitidos : [];
-
-    if (permitidos.length > 0) {
-      destinosAlvos = todosDestinos.filter((d) => permitidos.includes(d.jid));
-    } else {
-      destinosAlvos = todosDestinos;
+    // Filtra destinos permitidos (com herança automática do RSS e trava fail-safe)
+    let permitidos = Array.isArray(config.destinosPermitidos) ? config.destinosPermitidos : [];
+    
+    // Herança inteligente: se a campanha não tem destinos específicos, herda os destinos do RSS
+    if (permitidos.length === 0) {
+      const configRss = rssFetcher.obterConfigRss(projectId);
+      if (Array.isArray(configRss.destinosPermitidos) && configRss.destinosPermitidos.length > 0) {
+        permitidos = configRss.destinosPermitidos;
+      }
     }
+
+    // TRAVA DE SEGURANÇA (FAIL-SAFE): Se nada foi selecionado, NUNCA disparar para todos os grupos
+    if (permitidos.length === 0) {
+      logProjeto(
+        projectId,
+        'CAMPANHA_SEM_DESTINOS_SELECIONADOS',
+        'Nenhum canal ou grupo foi selecionado para receber ofertas/campanhas. Disparo cancelado por segurança.',
+        'warn'
+      );
+      controle.horariosDisparados.add(horarioAtual);
+      await campanhasManager.salvarControleDiarioCampanhas(projectId, controle);
+      return {
+        sucesso: false,
+        motivo: 'sem_destinos_selecionados',
+        horario: horarioAtual
+      };
+    }
+
+    const destinosAlvos = todosDestinos.filter((d) => permitidos.includes(d.jid));
 
     if (destinosAlvos.length === 0) {
       logProjeto(

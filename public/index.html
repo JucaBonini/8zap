@@ -1191,6 +1191,26 @@
           </div>
         </div>
 
+        <!-- Card: Destinos para Ofertas & Imagens -->
+        <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+            <div>
+              <h3 style="margin-bottom: 0.2rem;">Destinos Selecionados para Ofertas & Imagens (Broadcast)</h3>
+              <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">
+                Marque com ✅ os canais e grupos que receberão as ofertas e achadinhos. (Dica: Deixe apenas o Canal marcado se não quiser postar ofertas nos grupos).
+              </p>
+            </div>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <button type="button" class="btn btn-secondary btn-sm" onclick="copiarDestinosDoRssParaCampanhas()">📋 Copiar Destinos do RSS</button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="carregarDestinosCampanhas(true)">🔍 Buscar Canais/Grupos</button>
+            </div>
+          </div>
+
+          <div class="destinos-list" id="listaDestinosCampanhas">
+            <p style="color: var(--text-muted); font-size: 0.8rem; padding: 0.5rem;">Carregando destinos...</p>
+          </div>
+        </div>
+
         <!-- Card 2: Cadastro / Edição de Item (Shopee / Imagem) -->
         <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
           <h3 id="tituloFormCampanha" style="margin-bottom: 1rem;">+ Adicionar Nova Oferta ou Imagem à Fila</h3>
@@ -1770,6 +1790,7 @@
 
       if (idAba === 'aba-campanhas') {
         carregarConfiguracaoCampanhas();
+        carregarDestinosCampanhas();
         carregarItensCampanhas();
       }
 
@@ -2387,10 +2408,85 @@
           document.getElementById('campTemplateShopee').value = configCampanhasAtual.templateShopee || '';
 
           renderizarHorariosCampanhas(configCampanhasAtual.horarios || []);
+          carregarDestinosCampanhas();
         }
       } catch (err) {
         console.error('Erro ao carregar config de campanhas:', err);
       }
+    }
+
+    async function carregarDestinosCampanhas(forcar = false) {
+      if (!projetoSelecionado) return;
+
+      const container = document.getElementById('listaDestinosCampanhas');
+      if (!container) return;
+
+      if (forcar) {
+        container.innerHTML = `<p style="color: var(--text-muted); font-size: 0.8rem; padding: 0.5rem;">Buscando canais e grupos...</p>`;
+      }
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/rss/destinos?forcar=${forcar}`, {
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+
+        if (data.sucesso && data.destinos) {
+          // Se a campanha tiver seleção própria, usa ela; se ainda não tiver e o RSS tiver, sugere a seleção do RSS
+          let permitidos = new Set(Array.isArray(configCampanhasAtual?.destinosPermitidos) ? configCampanhasAtual.destinosPermitidos : []);
+          if (permitidos.size === 0 && configRssAtual?.destinosPermitidos?.length > 0) {
+            permitidos = new Set(configRssAtual.destinosPermitidos);
+          }
+
+          if (data.destinos.length === 0) {
+            container.innerHTML = `
+              <p style="color: var(--text-muted); font-size: 0.8rem; padding: 0.5rem; grid-column: 1 / -1;">
+                Nenhum canal ou grupo detectado automaticamente. Adicione na aba RSS Automático.
+              </p>
+            `;
+            return;
+          }
+
+          container.innerHTML = data.destinos.map(d => {
+            const marcado = permitidos.has(d.jid) ? 'checked' : '';
+            const icone = d.tipo === 'canal' ? '📢' : d.tipo === 'grupo' ? '👥' : '📱';
+
+            return `
+              <label class="destino-item">
+                <input type="checkbox" class="camp-destino-checkbox" value="${d.jid}" ${marcado}>
+                <div class="destino-info">
+                  <div class="destino-nome">${icone} ${d.nome}</div>
+                  <div class="destino-jid">${d.jid}</div>
+                </div>
+              </label>
+            `;
+          }).join('');
+        }
+      } catch (err) {
+        console.error('Erro ao carregar destinos de campanhas:', err);
+      }
+    }
+
+    function copiarDestinosDoRssParaCampanhas() {
+      const rssCheckboxes = document.querySelectorAll('.destino-checkbox:checked');
+      const rrsJids = new Set(Array.from(rssCheckboxes).map(cb => cb.value));
+
+      if (rrsJids.size === 0 && configRssAtual?.destinosPermitidos) {
+        configRssAtual.destinosPermitidos.forEach(jid => rrsJids.add(jid));
+      }
+
+      const campCheckboxes = document.querySelectorAll('.camp-destino-checkbox');
+      let totalMarcados = 0;
+      campCheckboxes.forEach(cb => {
+        if (rrsJids.has(cb.value)) {
+          cb.checked = true;
+          totalMarcados++;
+        } else {
+          cb.checked = false;
+        }
+      });
+
+      mostrarToast(`Seleção de destinos copiada do RSS (${totalMarcados} destino(s) marcado(s))!`);
     }
 
     function renderizarHorariosCampanhas(horarios) {
@@ -2466,13 +2562,18 @@
       const quantidadePorDia = parseInt(document.getElementById('campQtdDia').value, 10) || 5;
       const templateShopee = document.getElementById('campTemplateShopee').value;
 
+      // Coleta destinos marcados na tela de campanhas
+      const checkboxes = document.querySelectorAll('.camp-destino-checkbox:checked');
+      const destinosPermitidos = Array.from(checkboxes).map(cb => cb.value);
+
       const payload = {
         ativo,
         modoFila,
         cooldownDias,
         quantidadePorDia,
         templateShopee,
-        horarios: configCampanhasAtual.horarios || []
+        horarios: configCampanhasAtual.horarios || [],
+        destinosPermitidos
       };
 
       try {
@@ -2727,13 +2828,16 @@
     async function dispararCampanhaAgora(itemId) {
       if (!projetoSelecionado) return;
 
-      if (!confirm('Deseja executar um disparo de teste desta campanha agora para os destinos cadastrados?')) {
+      if (!confirm('Deseja executar um disparo de teste desta campanha agora para os destinos selecionados?')) {
         return;
       }
 
-      mostrarToast('Enviando disparo de teste...');
+      mostrarToast('Salvando seleção e executando disparo de teste...');
 
       try {
+        // Salva as configurações e destinos marcados antes de disparar o teste
+        await salvarConfiguracoesCampanhas();
+
         const resp = await fetch(`/sessions/${projetoSelecionado}/campanhas/disparar-agora`, {
           method: 'POST',
           headers: obterHeaders(),
@@ -2745,7 +2849,7 @@
           mostrarToast(`Disparo de teste concluído com sucesso! (${data.resultado.totalEnviados} enviados)`);
           carregarItensCampanhas();
         } else {
-          mostrarToast(`Falha no disparo: ${data.erro || 'Verifique se o WhatsApp está conectado.'}`, true);
+          mostrarToast(`Falha no disparo: ${data.erro || 'Verifique se o WhatsApp está conectado e se há canais selecionados.'}`, true);
         }
       } catch (err) {
         mostrarToast(`Erro: ${err.message}`, true);

@@ -341,21 +341,29 @@ async function processarDisparoArtigoRss(projectId, config, horarioAtual) {
       return;
     }
 
-    // 3. Determina a lista de destinos selecionados para envio (Broadcast)
-    let destinosAlvos = [];
+    // 3. Determina a lista de destinos selecionados para envio (Broadcast com Trava Fail-Safe)
     const permitidos = Array.isArray(config.destinosPermitidos) ? config.destinosPermitidos : [];
 
-    if (permitidos.length > 0) {
-      destinosAlvos = todosDestinos.filter((d) => permitidos.includes(d.jid));
-    } else {
-      destinosAlvos = todosDestinos;
+    // TRAVA DE SEGURANÇA (FAIL-SAFE): Se nada foi marcado, NUNCA disparar em massa para todos os grupos
+    if (permitidos.length === 0) {
+      logProjeto(
+        projectId,
+        'RSS_SEM_DESTINOS_SELECIONADOS',
+        'Nenhum canal ou grupo foi selecionado com ✅ para postagens RSS. Disparo cancelado por segurança.',
+        'warn'
+      );
+      controle.horariosDisparados.add(horarioAtual);
+      await salvarControleDiario(projectId, controle);
+      return;
     }
+
+    const destinosAlvos = todosDestinos.filter((d) => permitidos.includes(d.jid));
 
     if (destinosAlvos.length === 0) {
       logProjeto(
         projectId,
-        'RSS_SEM_DESTINOS_SELECIONADOS',
-        'Nenhum dos destinos cadastrados está marcado como ativo no painel. Post pulado.',
+        'RSS_SEM_DESTINOS_ATIVOS',
+        'Nenhum dos destinos selecionados está disponível no momento. Post pulado.',
         'warn'
       );
       controle.horariosDisparados.add(horarioAtual);

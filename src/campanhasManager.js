@@ -192,10 +192,15 @@ async function salvarConfigCampanhas(projectId, novaConfig) {
       horariosNormalizados = atual.horarios;
     }
 
+    const destinosPermitidos = Array.isArray(novaConfig.destinosPermitidos)
+      ? novaConfig.destinosPermitidos
+      : (Array.isArray(atual.destinosPermitidos) ? atual.destinosPermitidos : []);
+
     const configFinal = {
       ...atual,
       ...novaConfig,
       horarios: horariosNormalizados,
+      destinosPermitidos,
       quantidadePorDia: parseInt(novaConfig.quantidadePorDia, 10) || atual.quantidadePorDia || 5,
       cooldownDias: parseInt(novaConfig.cooldownDias, 10) || atual.cooldownDias || 7,
       modoFila: ['rotativo', 'consumir'].includes(novaConfig.modoFila) ? novaConfig.modoFila : 'rotativo',
