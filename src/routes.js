@@ -265,6 +265,54 @@ router.delete('/sessions/:projectId/fila/:id', async (req, res) => {
   }
 });
 
+/**
+ * PUT /sessions/:projectId/fila/:id
+ * Edita um item existente na fila de postagens
+ */
+router.put('/sessions/:projectId/fila/:id', async (req, res) => {
+  const { projectId, id } = req.params;
+  const { tipo, to, texto, url, legenda, agendado_para } = req.body;
+
+  try {
+    const itemAtualizado = await agendador.editarItemFila(projectId, id, {
+      tipo,
+      to,
+      texto,
+      url,
+      legenda,
+      agendado_para
+    });
+
+    res.json({
+      sucesso: true,
+      mensagem: 'Item da fila atualizado com sucesso.',
+      item: itemAtualizado
+    });
+  } catch (err) {
+    res.status(400).json({
+      sucesso: false,
+      erro: err.message
+    });
+  }
+});
+
+/**
+ * POST /sessions/:projectId/fila/:id/reenviar
+ * Dispara o reenvio imediato de um item da fila
+ */
+router.post('/sessions/:projectId/fila/:id/reenviar', async (req, res) => {
+  const { projectId, id } = req.params;
+  try {
+    const resultado = await agendador.reenviarItemFila(projectId, id);
+    res.json(resultado);
+  } catch (err) {
+    res.status(400).json({
+      sucesso: false,
+      erro: err.message
+    });
+  }
+});
+
 // ==========================================
 // ROTAS DE LOGS DO PROJETO
 // ==========================================

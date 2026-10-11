@@ -198,6 +198,123 @@ async function removerItemFila(projectId, idItem) {
 }
 
 /**
+ * Edita um item da fila de um projeto (Thread-safe com Lock)
+ * @param {string} projectId
+ * @param {string} idItem
+ * @param {object} novosDados
+ * @returns {Promise<object>}
+ */
+async function editarItemFila(projectId, idItem, novosDados) {
+  const { tipo, to, texto, url, legenda, agendado_para } = novosDados;
+
+  return comLockProjeto(projectId, async () => {
+    const filaAtual = lerArquivoFila(projectId);
+    const item = filaAtual.find((i) => i.id === idItem);
+
+    if (!item) {
+      throw new Error(`Item com ID "${idItem}" não encontrado na fila.`);
+    }
+
+    if (to !== undefined && to.trim()) item.to = to.trim();
+    if (tipo !== undefined) {
+      const tipoNormalizado = (tipo || 'texto').toLowerCase();
+      if (!['texto', 'imagem', 'video'].includes(tipoNormalizado)) {
+        throw new Error('O "tipo" deve ser "texto", "imagem" ou "video".');
+      }
+      item.tipo = tipoNormalizado;
+    }
+    if (texto !== undefined) item.texto = texto;
+    if (url !== undefined) item.url = url;
+    if (legenda !== undefined) item.legenda = legenda;
+    if (agendado_para !== undefined) {
+      const dataAgendada = new Date(agendado_para);
+      if (isNaN(dataAgendada.getTime())) {
+        throw new Error('O campo "agendado_para" contém uma data/hora inválida.');
+      }
+      item.agendado_para = dataAgendada.toISOString();
+    }
+
+    // Limpa status de erro prévio ao editar para permitir novo disparo
+    item.erro = null;
+    item.atualizado_em = new Date().toISOString();
+
+    gravarArquivoFila(projectId, filaAtual);
+
+    logProjeto(projectId, 'AGENDAMENTO_EDITADO', `Item atualizado na fila: ID ${idItem}`, 'info');
+    return item;
+  });
+}
+
+/**
+ * Força o reenvio imediato de um item da fila
+ * @param {string} projectId
+ * @param {string} idItem
+ * @returns {Promise<object>}
+ */
+async function reenviarItemFila(projectId, idItem) {
+  const fila = await obterFila(projectId);
+  const item = fila.find((i) => i.id === idItem);
+
+  if (!item) {
+    throw new Error(`Item com ID "${idItem}" não encontrado na fila.`);
+  }
+
+  const statusSessao = sessionManager.obterStatusSessao(projectId);
+  if (statusSessao.status !== 'connected') {
+    throw new Error(`Sessão do WhatsApp não está conectada (Status atual: "${statusSessao.status}").`);
+  }
+
+  logProjeto(
+    projectId,
+    'AGENDADOR_REENVIANDO',
+    `Reenviando post ID: ${item.id} para ${item.to}...`,
+    'info'
+  );
+
+  try {
+    await sessionManager.enviarMensagem(projectId, {
+      to: item.to,
+      type: item.tipo,
+      texto: item.texto,
+      url: item.url,
+      legenda: item.legenda
+    });
+
+    await atualizarStatusItem(projectId, item.id, {
+      enviado: true,
+      enviado_em: new Date().toISOString(),
+      erro: null
+    });
+
+    logProjeto(
+      projectId,
+      'AGENDADOR_SUCESSO',
+      `Post ID ${item.id} reenviado com sucesso!`,
+      'success'
+    );
+
+    return {
+      sucesso: true,
+      mensagem: 'Post reenviado com sucesso!'
+    };
+  } catch (err) {
+    await atualizarStatusItem(projectId, item.id, {
+      erro: err.message,
+      tentativas: (item.tentativas || 0) + 1
+    });
+
+    logProjeto(
+      projectId,
+      'AGENDADOR_ERRO',
+      `Falha ao reenviar post agendado ID ${item.id}: ${err.message}`,
+      'error'
+    );
+
+    throw err;
+  }
+}
+
+/**
  * Atualiza o status de um item específico na fila com garantia de lock atômico
  * @param {string} projectId
  * @param {string} idItem
@@ -355,6 +472,8 @@ module.exports = {
   comLockProjeto,
   obterFila,
   adicionarItemFila,
+  editarItemFila,
+  reenviarItemFila,
   removerItemFila,
   atualizarStatusItem,
   executarCicloAgendador,

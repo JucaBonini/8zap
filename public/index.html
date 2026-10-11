@@ -1333,7 +1333,7 @@
       <!-- Aba 4: Fila de Agendamentos Manuais -->
       <div id="aba-fila" class="tab-content">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-          <h3>Agendar Nova Postagem Manual</h3>
+          <h3 id="tituloFormFila">Agendar Nova Postagem Manual</h3>
           <button class="btn btn-secondary btn-sm" onclick="carregarFilaProjeto()">🔄 Atualizar Fila</button>
         </div>
 
@@ -1374,7 +1374,10 @@
             <textarea id="agendaLegenda" class="form-control" placeholder="Legenda do post..."></textarea>
           </div>
 
-          <button type="submit" class="btn">📅 Agendar Post</button>
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <button type="submit" id="btnSalvarFila" class="btn">📅 Agendar Post</button>
+            <button type="button" id="btnCancelarEdicaoFila" class="btn btn-secondary" style="display: none;" onclick="cancelarEdicaoItemFila()">✕ Cancelar Edição</button>
+          </div>
         </form>
 
         <h3 style="margin-bottom: 1rem;">Itens na Fila</h3>
@@ -2245,6 +2248,70 @@
       }
     }
 
+    let itensFilaCache = [];
+    let idItemFilaEmEdicao = null;
+
+    function prepararEdicaoItemFila(id) {
+      const item = itensFilaCache.find(i => i.id === id);
+      if (!item) return;
+
+      idItemFilaEmEdicao = id;
+      document.getElementById('tituloFormFila').innerText = '✏️ Editando Post Agendado';
+      document.getElementById('btnSalvarFila').innerText = '💾 Salvar Alterações';
+      document.getElementById('btnCancelarEdicaoFila').style.display = 'inline-block';
+
+      document.getElementById('agendaTo').value = item.to || '';
+      document.getElementById('agendaTipo').value = item.tipo || 'texto';
+      document.getElementById('agendaTexto').value = item.texto || '';
+      document.getElementById('agendaUrl').value = item.url || '';
+      document.getElementById('agendaLegenda').value = item.legenda || '';
+
+      if (item.agendado_para) {
+        try {
+          const d = new Date(item.agendado_para);
+          const tzOffset = d.getTimezoneOffset() * 60000;
+          const localISOTime = (new Date(d.getTime() - tzOffset)).toISOString().slice(0, 16);
+          document.getElementById('agendaData').value = localISOTime;
+        } catch (e) {
+          // ignora formatação se inválida
+        }
+      }
+
+      aoMudarTipoAgenda();
+      document.getElementById('formAgendamento').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function cancelarEdicaoItemFila() {
+      idItemFilaEmEdicao = null;
+      document.getElementById('tituloFormFila').innerText = 'Agendar Nova Postagem Manual';
+      document.getElementById('btnSalvarFila').innerText = '📅 Agendar Post';
+      document.getElementById('btnCancelarEdicaoFila').style.display = 'none';
+      document.getElementById('formAgendamento').reset();
+      aoMudarTipoAgenda();
+    }
+
+    async function reenviarItemFila(id) {
+      if (!projetoSelecionado) return;
+      mostrarToast('⏳ Disparando reenvio imediato...', false);
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/fila/${id}/reenviar`, {
+          method: 'POST',
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+        if (data.sucesso) {
+          mostrarToast('✅ Post reenviado com sucesso!');
+        } else {
+          mostrarToast(`❌ Erro no reenvio: ${data.erro}`, true);
+        }
+        carregarFilaProjeto();
+      } catch (err) {
+        mostrarToast(`Erro ao reenviar: ${err.message}`, true);
+        carregarFilaProjeto();
+      }
+    }
+
     async function adicionarAgendamento(e) {
       e.preventDefault();
       if (!projetoSelecionado) return;
@@ -2264,21 +2331,38 @@
       const agendado_para = new Date(dataInput).toISOString();
 
       try {
-        const resp = await fetch(`/sessions/${projetoSelecionado}/fila`, {
-          method: 'POST',
-          headers: obterHeaders(),
-          body: JSON.stringify({ to, tipo, url, texto, legenda, agendado_para })
-        });
+        if (idItemFilaEmEdicao) {
+          const resp = await fetch(`/sessions/${projetoSelecionado}/fila/${idItemFilaEmEdicao}`, {
+            method: 'PUT',
+            headers: obterHeaders(),
+            body: JSON.stringify({ to, tipo, url, texto, legenda, agendado_para })
+          });
 
-        const data = await resp.json();
-        if (data.sucesso) {
-          mostrarToast('Post agendado com sucesso!');
-          document.getElementById('agendaTexto').value = '';
-          document.getElementById('agendaUrl').value = '';
-          document.getElementById('agendaLegenda').value = '';
-          carregarFilaProjeto();
+          const data = await resp.json();
+          if (data.sucesso) {
+            mostrarToast('Post atualizado com sucesso!');
+            cancelarEdicaoItemFila();
+            carregarFilaProjeto();
+          } else {
+            mostrarToast(`Erro: ${data.erro}`, true);
+          }
         } else {
-          mostrarToast(`Erro: ${data.erro}`, true);
+          const resp = await fetch(`/sessions/${projetoSelecionado}/fila`, {
+            method: 'POST',
+            headers: obterHeaders(),
+            body: JSON.stringify({ to, tipo, url, texto, legenda, agendado_para })
+          });
+
+          const data = await resp.json();
+          if (data.sucesso) {
+            mostrarToast('Post agendado com sucesso!');
+            document.getElementById('agendaTexto').value = '';
+            document.getElementById('agendaUrl').value = '';
+            document.getElementById('agendaLegenda').value = '';
+            carregarFilaProjeto();
+          } else {
+            mostrarToast(`Erro: ${data.erro}`, true);
+          }
         }
       } catch (err) {
         mostrarToast(`Erro: ${err.message}`, true);
@@ -2296,15 +2380,19 @@
 
         const tbody = document.getElementById('tabelaFilaCorpo');
         if (!data.fila || data.fila.length === 0) {
+          itensFilaCache = [];
           tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Nenhum post agendado na fila.</td></tr>`;
           return;
         }
+
+        itensFilaCache = data.fila;
 
         tbody.innerHTML = data.fila.map(item => {
           const statusBadge = item.enviado 
             ? `<span class="badge badge-connected"><span class="badge-dot"></span>Enviado</span>`
             : item.erro 
-            ? `<span class="badge badge-desconectado" title="${item.erro}"><span class="badge-dot" style="background:#f87171;"></span>Erro</span>`
+            ? `<span class="badge badge-desconectado" title="${item.erro}"><span class="badge-dot" style="background:#f87171;"></span>Erro</span>
+               <div style="font-size: 0.72rem; color: #f87171; max-width: 140px; word-break: break-word; margin-top: 4px; line-height: 1.1;" title="${item.erro}">${item.erro.length > 40 ? item.erro.substring(0, 40) + '...' : item.erro}</div>`
             : `<span class="badge badge-aguardando_qr"><span class="badge-dot"></span>Pendente</span>`;
 
           const conteudo = item.tipo === 'texto' 
@@ -2320,8 +2408,10 @@
               <td><code>${item.to}</code></td>
               <td>${dataFormatada}</td>
               <td>${conteudo}</td>
-              <td>
-                <button class="btn btn-danger btn-sm" onclick="removerItemFila('${item.id}')">Excluir</button>
+              <td style="white-space: nowrap;">
+                <button class="btn btn-secondary btn-sm" onclick="reenviarItemFila('${item.id}')" title="Disparar este item agora" style="margin-right: 4px; padding: 0.25rem 0.5rem; font-size: 0.78rem;">🔄 Reenviar</button>
+                <button class="btn btn-secondary btn-sm" onclick="prepararEdicaoItemFila('${item.id}')" title="Editar este agendamento" style="margin-right: 4px; padding: 0.25rem 0.5rem; font-size: 0.78rem;">✏️ Editar</button>
+                <button class="btn btn-danger btn-sm" onclick="removerItemFila('${item.id}')" title="Remover da fila" style="padding: 0.25rem 0.5rem; font-size: 0.78rem;">🗑 Excluir</button>
               </td>
             </tr>
           `;
