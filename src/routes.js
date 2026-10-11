@@ -456,12 +456,13 @@ router.delete('/sessions/:projectId/rss/destinos/manual/:jid', (req, res) => {
 
 /**
  * POST /sessions/:projectId/rss/fetch
- * Força a busca imediata de novos artigos do feed RSS
+ * Força a busca imediata de novos artigos do feed RSS (com suporte a busca profunda)
  */
 router.post('/sessions/:projectId/rss/fetch', async (req, res) => {
   const { projectId } = req.params;
+  const { profunda } = req.body || {};
   try {
-    const resultado = await rssFetcher.buscarNovosArtigos(projectId);
+    const resultado = await rssFetcher.buscarNovosArtigos(projectId, { profunda: Boolean(profunda) });
     res.json({
       sucesso: true,
       mensagem: 'Busca de artigos RSS concluída.',

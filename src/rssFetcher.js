@@ -239,52 +239,190 @@ function salvarPoolArtigos(projectId, artigos) {
 }
 
 /**
+ * Extrai artigos estruturados de uma página HTML de listagem do site
+ * @param {string} html
+ * @param {string} baseUrl
+ * @returns {Array<object>}
+ */
+function extrairArtigosDaPaginaHtml(html, baseUrl) {
+  const artigos = [];
+  const articleBlocks = html.match(/<article[\s\S]*?<\/article>/gi) || [];
+
+  for (const block of articleBlocks) {
+    const linkMatch = block.match(/<a[^>]+href="(\/[a-z0-9-]+(?:\/)?)"/i);
+    const titleMatch = block.match(/<h3[^>]*>[\s\S]*?<a[^>]*>([\s\S]*?)<\/a>/i);
+    const imgMatch = block.match(/<img[^>]+src="([^"]+)"/i);
+    const excerptMatch = block.match(/<p class="[^"]*line-clamp-2[^"]*"[^>]*>([\s\S]*?)<\/p>/i);
+    const dateMatch = block.match(/<span>([^<]*\b\d{4}\b[^<]*)<\/span>/i);
+
+    if (linkMatch && titleMatch) {
+      try {
+        const link = new URL(linkMatch[1], baseUrl).toString();
+        const titulo = titleMatch[1].replace(/<[^>]+>/g, '').trim();
+        const resumo = excerptMatch ? excerptMatch[1].replace(/<[^>]+>/g, '').trim() : '';
+        let imagem = null;
+        if (imgMatch && imgMatch[1] && !imgMatch[1].startsWith('data:')) {
+          imagem = new URL(imgMatch[1], baseUrl).toString();
+        }
+
+        artigos.push({
+          link,
+          titulo,
+          resumo,
+          imagem,
+          publicado_em: dateMatch ? dateMatch[1].trim() : null
+        });
+      } catch (_) {}
+    }
+  }
+
+  return artigos;
+}
+
+/**
+ * Varre páginas HTML paginadas do site (/page/2/, /page/3/...) para capturar o acervo histórico
+ * @param {string} baseUrl
+ * @param {number} maxPaginas
+ * @returns {Promise<Array<object>>}
+ */
+async function rasparPaginasDoSite(baseUrl, maxPaginas = 45) {
+  const encontrados = [];
+  const linksVistos = new Set();
+
+  for (let p = 1; p <= maxPaginas; p++) {
+    const url = p === 1 ? baseUrl : `${baseUrl}/page/${p}/`;
+    try {
+      const resp = await fetch(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        }
+      });
+      if (!resp.ok) break;
+
+      const html = await resp.text();
+
+      // Checa canonical para ver se redirecionou para a home (indicando fim das páginas)
+      const canMatch = (html.match(/rel=["']canonical["']\s+href=["']([^"']+)["']/i) ||
+                        html.match(/href=["']([^"']+)["']\s+rel=["']canonical["']/i) || [])[1];
+      if (p > 1 && canMatch && !canMatch.includes(`/page/${p}/`)) {
+        break;
+      }
+
+      const artigos = extrairArtigosDaPaginaHtml(html, baseUrl);
+      if (artigos.length === 0) {
+        break;
+      }
+
+      let novosNaPagina = 0;
+      for (const a of artigos) {
+        if (!linksVistos.has(a.link)) {
+          linksVistos.add(a.link);
+          encontrados.push(a);
+          novosNaPagina++;
+        }
+      }
+
+      if (novosNaPagina === 0 && p > 1) {
+        break;
+      }
+    } catch (_) {
+      break;
+    }
+  }
+
+  return encontrados;
+}
+
+/**
  * Busca novos artigos do feed RSS configurado e alimenta o pool
+ * Suporta busca rápida recente e busca paginada completa do acervo histórico
  * @param {string} projectId
+ * @param {object} [opcoes]
  * @returns {Promise<object>}
  */
-async function buscarNovosArtigos(projectId) {
+async function buscarNovosArtigos(projectId, opcoes = {}) {
+  const { profunda = false, maxPaginas = 45 } = opcoes;
   const config = obterConfigRss(projectId);
 
   if (!config.rssUrl || typeof config.rssUrl !== 'string' || !config.rssUrl.trim()) {
     return { novos: 0, total: 0, aviso: 'Nenhuma URL de RSS configurada para este projeto.' };
   }
 
-  logProjeto(projectId, 'RSS_FETCH', `Buscando artigos do feed: ${config.rssUrl}...`, 'info');
+  logProjeto(
+    projectId,
+    'RSS_FETCH',
+    `Buscando artigos do feed: ${config.rssUrl}${profunda ? ' (Modo Acervo Completo / Paginação Ativada)' : ''}...`,
+    'info'
+  );
 
   try {
-    const feed = await parser.parseURL(config.rssUrl.trim());
     const artigosAtuais = lerPoolArtigos(projectId);
     const idsExistentes = new Set(artigosAtuais.map((a) => a.id));
-
     let novosAdicionados = 0;
 
-    for (const item of feed.items || []) {
-      const link = item.link || item.guid || '';
-      if (!link) continue;
+    // 1. Busca padrão da URL RSS (página principal de novidades)
+    try {
+      const feed = await parser.parseURL(config.rssUrl.trim());
+      for (const item of feed.items || []) {
+        const link = item.link || item.guid || '';
+        if (!link) continue;
 
-      const id = gerarHash(link);
+        const id = gerarHash(link);
 
-      if (!idsExistentes.has(id)) {
-        const textoBruto = item['content:encoded'] || item.content || item.summary || item.description || '';
-        const textoLimpo = limparHtml(textoBruto);
-        const resumo = textoLimpo.length > 300 ? textoLimpo.substring(0, 300) + '...' : textoLimpo;
-        const imagem = extrairImagem(item);
+        if (!idsExistentes.has(id)) {
+          const textoBruto = item['content:encoded'] || item.content || item.summary || item.description || '';
+          const textoLimpo = limparHtml(textoBruto);
+          const resumo = textoLimpo.length > 300 ? textoLimpo.substring(0, 300) + '...' : textoLimpo;
+          const imagem = extrairImagem(item);
 
-        const novoArtigo = {
-          id,
-          titulo: item.title ? item.title.trim() : 'Sem título',
-          link: link.trim(),
-          resumo,
-          imagem,
-          publicado_em: item.pubDate || item.isoDate || new Date().toISOString(),
-          usado: false,
-          usado_em: null
-        };
+          const novoArtigo = {
+            id,
+            titulo: item.title ? item.title.trim() : 'Sem título',
+            link: link.trim(),
+            resumo,
+            imagem,
+            publicado_em: item.pubDate || item.isoDate || new Date().toISOString(),
+            usado: false,
+            usado_em: null
+          };
 
-        artigosAtuais.push(novoArtigo);
-        idsExistentes.add(id);
-        novosAdicionados++;
+          artigosAtuais.push(novoArtigo);
+          idsExistentes.add(id);
+          novosAdicionados++;
+        }
+      }
+    } catch (errFeed) {
+      logProjeto(projectId, 'AVISO_FEED_RSS', `Aviso ao ler XML do feed: ${errFeed.message}`, 'warn');
+    }
+
+    // 2. Se modo acervo completo / paginação profunda estiver ativado
+    if (profunda) {
+      let baseUrl = '';
+      try {
+        const parsedUrl = new URL(config.rssUrl.trim());
+        baseUrl = `${parsedUrl.protocol}//${parsedUrl.host}`;
+      } catch (_) {}
+
+      if (baseUrl) {
+        logProjeto(projectId, 'RSS_PAGINACAO_INICIO', `Varrendo páginas do site em ${baseUrl} para importar acervo histórico...`, 'info');
+        const artigosPaginados = await rasparPaginasDoSite(baseUrl, maxPaginas);
+        for (const item of artigosPaginados) {
+          const id = gerarHash(item.link);
+          if (!idsExistentes.has(id)) {
+            artigosAtuais.push({
+              id,
+              titulo: item.titulo,
+              link: item.link,
+              resumo: item.resumo,
+              imagem: item.imagem,
+              publicado_em: item.publicado_em || new Date().toISOString(),
+              usado: false,
+              usado_em: null
+            });
+            idsExistentes.add(id);
+            novosAdicionados++;
+          }
+        }
       }
     }
 
@@ -313,7 +451,7 @@ async function buscarNovosArtigos(projectId) {
 
 /**
  * Obtém um artigo aleatório que ainda não foi usado
- * Se não houver, força uma busca no feed antes de desistir
+ * Se não houver, força uma busca completa no feed/site antes de desistir
  * @param {string} projectId
  * @returns {Promise<object|null>}
  */
@@ -321,11 +459,11 @@ async function obterArtigoAleatorioNaoUsado(projectId) {
   let pool = lerPoolArtigos(projectId);
   let disponiveis = pool.filter((a) => !a.usado);
 
-  // Se não houver artigos disponíveis, tenta buscar novos no feed agora
+  // Se não houver artigos disponíveis, tenta buscar novos no feed e histórico
   if (disponiveis.length === 0) {
-    logProjeto(projectId, 'RSS_POOL_VAZIO', 'Nenhum artigo não usado no pool. Tentando buscar novos no feed...', 'warn');
+    logProjeto(projectId, 'RSS_POOL_VAZIO', 'Nenhum artigo não usado no pool. Tentando busca completa no acervo...', 'warn');
     try {
-      await buscarNovosArtigos(projectId);
+      await buscarNovosArtigos(projectId, { profunda: true });
       pool = lerPoolArtigos(projectId);
       disponiveis = pool.filter((a) => !a.usado);
     } catch (e) {

@@ -1085,9 +1085,12 @@
 
         <!-- Card 3: Pool de Artigos e Histórico -->
         <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-            <h3>Estatísticas do Pool de Artigos</h3>
-            <button class="btn btn-sm" onclick="forcarSincronizacaoRss()">⚡ Buscar Novos Artigos no Feed</button>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+            <h3 style="margin: 0;">Estatísticas do Pool de Artigos</h3>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <button class="btn btn-sm" onclick="forcarSincronizacaoRss(false)" title="Busca as novidades recentes do feed">⚡ Buscar Recentes</button>
+              <button class="btn btn-sm btn-primary" onclick="forcarSincronizacaoRss(true)" title="Varre as páginas do site para importar todo o acervo histórico de receitas">📚 Importar Acervo Completo</button>
+            </div>
           </div>
 
           <div class="stats-grid">
@@ -2103,19 +2106,26 @@
       }
     }
 
-    async function forcarSincronizacaoRss() {
+    async function forcarSincronizacaoRss(profunda = false) {
       if (!projetoSelecionado) return;
 
-      mostrarToast('Buscando novos artigos no feed RSS...');
+      const mensagem = profunda
+        ? 'Varrendo páginas do site e importando acervo completo de receitas... Aguarde alguns instantes.'
+        : 'Buscando novos artigos no feed RSS...';
+      mostrarToast(mensagem);
+
       try {
         const resp = await fetch(`/sessions/${projetoSelecionado}/rss/fetch`, {
           method: 'POST',
-          headers: obterHeaders()
+          headers: obterHeaders(),
+          body: JSON.stringify({ profunda })
         });
         const data = await resp.json();
 
         if (data.sucesso) {
-          mostrarToast(`Busca concluída! ${data.resultado.novos || 0} novo(s) artigo(s) adicionado(s).`);
+          const adicionados = data.resultado.novos || 0;
+          const totalDisponiveis = data.resultado.disponiveis || 0;
+          mostrarToast(`Concluído! ${adicionados} nova(s) receita(s) adicionada(s). Total disponível: ${totalDisponiveis}.`);
           carregarArtigosERssStats();
         } else {
           mostrarToast(`Erro: ${data.erro}`, true);
