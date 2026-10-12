@@ -122,6 +122,18 @@ async function adicionarItemFila(projectId, dadosItem) {
     throw new Error('O campo "to" (destinatário) é obrigatório.');
   }
 
+  // Suporte a múltiplos destinatários (Array ou string separada por vírgula/ponto-e-vírgula/linha)
+  let listaDestinatarios = [];
+  if (Array.isArray(to)) {
+    listaDestinatarios = to.map((d) => String(d).trim()).filter(Boolean);
+  } else if (typeof to === 'string') {
+    listaDestinatarios = to.split(/[,;\n]+/).map((d) => d.trim()).filter(Boolean);
+  }
+
+  if (listaDestinatarios.length === 0) {
+    throw new Error('Nenhum destinatário válido informado.');
+  }
+
   if (!agendado_para) {
     throw new Error('O campo "agendado_para" (data/hora ISO ou string válida) é obrigatório.');
   }
@@ -144,10 +156,10 @@ async function adicionarItemFila(projectId, dadosItem) {
     throw new Error(`O campo "url" é obrigatório para mensagens do tipo ${tipoNormalizado}.`);
   }
 
-  const novoItem = {
+  const novosItens = listaDestinatarios.map((dest) => ({
     id: crypto.randomUUID ? crypto.randomUUID() : `item_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
     tipo: tipoNormalizado,
-    to: to.trim(),
+    to: dest,
     texto: texto || '',
     url: url || '',
     legenda: legenda || '',
@@ -156,21 +168,23 @@ async function adicionarItemFila(projectId, dadosItem) {
     enviado_em: null,
     criado_em: new Date().toISOString(),
     erro: null
-  };
+  }));
 
   return comLockProjeto(projectId, async () => {
     const filaAtual = lerArquivoFila(projectId);
-    filaAtual.push(novoItem);
+    novosItens.forEach((item) => filaAtual.push(item));
     gravarArquivoFila(projectId, filaAtual);
 
-    logProjeto(
-      projectId,
-      'AGENDAMENTO_CRIADO',
-      `Post agendado para ${novoItem.agendado_para} para ${novoItem.to} (ID: ${novoItem.id})`,
-      'info'
-    );
+    novosItens.forEach((item) => {
+      logProjeto(
+        projectId,
+        'AGENDAMENTO_CRIADO',
+        `Post agendado para ${item.agendado_para} para ${item.to} (ID: ${item.id})`,
+        'info'
+      );
+    });
 
-    return novoItem;
+    return novosItens.length === 1 ? novosItens[0] : novosItens;
   });
 }
 

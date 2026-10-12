@@ -1557,12 +1557,47 @@
         </div>
 
         <form id="formAgendamento" onsubmit="adicionarAgendamento(event)" style="background: rgba(0,0,0,0.15); padding: 1.25rem; border-radius: var(--radius-md); margin-bottom: 1.5rem; border: 1px solid var(--border-color);">
-          <div class="form-row">
-            <div class="form-group">
-              <label for="agendaTo">Destinatário / Canal:</label>
-              <input type="text" id="agendaTo" class="form-control" placeholder="5511999999999 ou canal@newsletter" required>
+          <!-- Seleção de Canais com Checkbox -->
+          <div class="form-group" style="margin-bottom: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem; flex-wrap: wrap; gap: 0.5rem;">
+              <div>
+                <label style="margin-bottom: 0; font-weight: 600; font-size: 0.9rem;">📢 Canais de Destino da Postagem:</label>
+                <span style="font-size: 0.75rem; color: var(--text-muted); display: block;">Marque os canais que devem receber o post (1, 2 ou todos)</span>
+              </div>
+              <div style="display: flex; gap: 0.4rem; align-items: center;">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="marcarTodosCanaisFila(true)" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">Marcar Todos</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="marcarTodosCanaisFila(false)" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">Desmarcar</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="carregarCanaisFila(true)" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">🔄 Atualizar Canais</button>
+              </div>
             </div>
-            <div class="form-group">
+
+            <!-- Lista de Checkboxes de Canais -->
+            <div id="containerCheckboxesCanaisFila" style="background: rgba(0,0,0,0.25); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.75rem; max-height: 190px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.45rem;">
+              <p style="color: var(--text-muted); font-size: 0.8rem; padding: 0.4rem;">Carregando canais disponíveis...</p>
+            </div>
+
+            <div style="margin-top: 0.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+              <span id="contadorCanaisFila" style="font-size: 0.75rem; color: var(--primary); font-weight: 500;">0 canal(is) selecionado(s)</span>
+              <button type="button" class="btn btn-link btn-sm" onclick="toggleEntradaManualFila()" style="background:none; border:none; color:var(--accent-blue); cursor:pointer; font-size:0.75rem; text-decoration:underline; padding:0;">
+                ➕ + Adicionar Outro Canal por Link ou JID
+              </button>
+            </div>
+
+            <!-- Adicionar outro canal por link ou manual -->
+            <div id="boxEntradaManualFila" style="display: none; margin-top: 0.6rem; background: rgba(0,0,0,0.2); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+              <label style="font-size: 0.75rem; color: var(--text-muted);">Cole o Link do Canal (https://whatsapp.com/channel/...) ou JID (@newsletter):</label>
+              <div style="display: flex; gap: 0.5rem; margin-top: 0.3rem;">
+                <input type="text" id="agendaToManualInput" class="form-control" placeholder="Cole o link ou ID do canal">
+                <button type="button" id="btnAdicionarCanalManualFila" class="btn btn-secondary btn-sm" onclick="adicionarCanalManualFilaBtn()" style="white-space: nowrap;">Adicionar à Lista</button>
+              </div>
+            </div>
+
+            <!-- Campo oculto para compatibilidade e edição -->
+            <input type="hidden" id="agendaTo">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group" style="flex: 1;">
               <label for="agendaData">Data e Hora do Disparo:</label>
               <input type="datetime-local" id="agendaData" class="form-control" required>
             </div>
@@ -2062,6 +2097,7 @@
 
       if (idAba === 'aba-fila') {
         carregarFilaProjeto();
+        carregarCanaisFila();
       }
 
       if (idAba === 'aba-logs') {
@@ -2707,6 +2743,129 @@
       }
     }
 
+    // ==========================================
+    // CANAIS E DESTINATÁRIOS DA FILA MANUAL
+    // ==========================================
+
+    let canaisFilaCache = [];
+
+    async function carregarCanaisFila(forcar = false) {
+      if (!projetoSelecionado) return;
+      const container = document.getElementById('containerCheckboxesCanaisFila');
+      if (!container) return;
+
+      if (forcar) {
+        container.innerHTML = `<p style="color: var(--text-muted); font-size: 0.8rem; padding: 0.4rem;">Buscando canais atualizados no WhatsApp...</p>`;
+      }
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/rss/destinos?forcar=${forcar}`, {
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+
+        if (data.sucesso && data.destinos) {
+          canaisFilaCache = data.destinos;
+
+          if (data.destinos.length === 0) {
+            container.innerHTML = `
+              <p style="color: var(--text-muted); font-size: 0.8rem; padding: 0.4rem;">
+                Nenhum canal detectado automaticamente. Clique abaixo para adicionar pelo link ou JID.
+              </p>
+            `;
+            atualizarContadorCanaisFila();
+            return;
+          }
+
+          container.innerHTML = data.destinos.map(d => {
+            const icone = d.tipo === 'canal' ? '📢' : d.tipo === 'grupo' ? '👥' : '📱';
+            return `
+              <label class="destino-canal-item" style="display: flex; align-items: center; gap: 0.65rem; padding: 0.5rem 0.75rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: var(--radius-sm); cursor: pointer; transition: background 0.2s ease;">
+                <input type="checkbox" class="checkbox-canal-fila" value="${d.jid}" data-nome="${d.nome}" onchange="atualizarContadorCanaisFila()" style="width: 17px; height: 17px; accent-color: var(--primary); cursor: pointer;">
+                <div style="flex: 1; min-width: 0;">
+                  <div style="font-size: 0.85rem; font-weight: 600; color: #fff;">${icone} ${d.nome}</div>
+                  <div style="font-size: 0.72rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; word-break: break-all;">${d.jid}</div>
+                </div>
+              </label>
+            `;
+          }).join('');
+
+          atualizarContadorCanaisFila();
+        }
+      } catch (err) {
+        console.error('Erro ao carregar canais para fila:', err);
+      }
+    }
+
+    function atualizarContadorCanaisFila() {
+      const marcados = document.querySelectorAll('.checkbox-canal-fila:checked');
+      const contador = document.getElementById('contadorCanaisFila');
+      if (contador) {
+        contador.innerText = `${marcados.length} canal(is) selecionado(s)`;
+      }
+    }
+
+    function marcarTodosCanaisFila(marcar) {
+      document.querySelectorAll('.checkbox-canal-fila').forEach(cb => {
+        cb.checked = marcar;
+      });
+      atualizarContadorCanaisFila();
+    }
+
+    function toggleEntradaManualFila() {
+      const box = document.getElementById('boxEntradaManualFila');
+      if (box) {
+        box.style.display = box.style.display === 'none' ? 'block' : 'none';
+        if (box.style.display === 'block') {
+          const input = document.getElementById('agendaToManualInput');
+          if (input) input.focus();
+        }
+      }
+    }
+
+    async function adicionarCanalManualFilaBtn() {
+      if (!projetoSelecionado) return;
+      const input = document.getElementById('agendaToManualInput');
+      const val = input ? input.value.trim() : '';
+
+      if (!val) {
+        mostrarToast('Informe o link ou ID do canal.', true);
+        return;
+      }
+
+      const btn = document.getElementById('btnAdicionarCanalManualFila');
+      const textoOrig = btn.innerText;
+      btn.disabled = true;
+      btn.innerText = 'Resolvendo...';
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/rss/destinos/manual`, {
+          method: 'POST',
+          headers: obterHeaders(),
+          body: JSON.stringify({ jid: val })
+        });
+        const data = await resp.json();
+
+        if (data.sucesso) {
+          mostrarToast('Canal adicionado à lista com sucesso!');
+          input.value = '';
+          await carregarCanaisFila(true);
+          if (data.destino && data.destino.jid) {
+            const cb = document.querySelector(`.checkbox-canal-fila[value="${data.destino.jid}"]`);
+            if (cb) cb.checked = true;
+            atualizarContadorCanaisFila();
+          }
+        } else {
+          mostrarToast(`Erro ao resolver canal: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro: ${err.message}`, true);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = textoOrig;
+      }
+    }
+
     // Formulário de Agendamento Manual
     function aoMudarTipoAgenda() {
       const tipo = document.getElementById('agendaTipo').value;
@@ -2746,6 +2905,12 @@
       document.getElementById('agendaUrl').value = item.url || '';
       document.getElementById('agendaLegenda').value = item.legenda || '';
 
+      // Marca a caixinha correspondente na lista
+      document.querySelectorAll('.checkbox-canal-fila').forEach(cb => {
+        cb.checked = (cb.value === item.to);
+      });
+      atualizarContadorCanaisFila();
+
       if (item.url) {
         exibirPreviewMidia('agenda', {
           url: item.url,
@@ -2777,6 +2942,8 @@
       document.getElementById('btnSalvarFila').innerText = '📅 Agendar Post';
       document.getElementById('btnCancelarEdicaoFila').style.display = 'none';
       document.getElementById('formAgendamento').reset();
+      document.querySelectorAll('.checkbox-canal-fila').forEach(cb => cb.checked = false);
+      atualizarContadorCanaisFila();
       removerMidia('agenda');
       aoMudarTipoAgenda();
     }
@@ -2807,7 +2974,6 @@
       e.preventDefault();
       if (!projetoSelecionado) return;
 
-      const to = document.getElementById('agendaTo').value.trim();
       const tipo = document.getElementById('agendaTipo').value;
       const dataInput = document.getElementById('agendaData').value;
       const url = document.getElementById('agendaUrl').value.trim();
@@ -2821,12 +2987,28 @@
 
       const agendado_para = new Date(dataInput).toISOString();
 
+      // Coleta todos os canais selecionados nos checkboxes
+      const selecionados = Array.from(document.querySelectorAll('.checkbox-canal-fila:checked')).map(cb => cb.value);
+
+      // Adiciona canal manual se digitado
+      const manualInput = document.getElementById('agendaToManualInput');
+      const manualValor = manualInput ? manualInput.value.trim() : '';
+      if (manualValor) {
+        selecionados.push(manualValor);
+      }
+
       try {
         if (idItemFilaEmEdicao) {
+          const toFinal = selecionados[0] || document.getElementById('agendaTo').value.trim();
+          if (!toFinal) {
+            mostrarToast('Selecione pelo menos um canal para atualizar o post.', true);
+            return;
+          }
+
           const resp = await fetch(`/sessions/${projetoSelecionado}/fila/${idItemFilaEmEdicao}`, {
             method: 'PUT',
             headers: obterHeaders(),
-            body: JSON.stringify({ to, tipo, url, texto, legenda, agendado_para })
+            body: JSON.stringify({ to: toFinal, tipo, url, texto, legenda, agendado_para })
           });
 
           const data = await resp.json();
@@ -2838,17 +3020,25 @@
             mostrarToast(`Erro: ${data.erro}`, true);
           }
         } else {
+          if (selecionados.length === 0) {
+            mostrarToast('Selecione pelo menos um canal com checkbox para agendar o post.', true);
+            return;
+          }
+
           const resp = await fetch(`/sessions/${projetoSelecionado}/fila`, {
             method: 'POST',
             headers: obterHeaders(),
-            body: JSON.stringify({ to, tipo, url, texto, legenda, agendado_para })
+            body: JSON.stringify({ to: selecionados, tipo, url, texto, legenda, agendado_para })
           });
 
           const data = await resp.json();
           if (data.sucesso) {
-            mostrarToast('Post agendado com sucesso!');
+            mostrarToast(data.mensagem || 'Post(s) agendado(s) com sucesso!');
             document.getElementById('agendaTexto').value = '';
             document.getElementById('agendaLegenda').value = '';
+            if (manualInput) manualInput.value = '';
+            document.querySelectorAll('.checkbox-canal-fila').forEach(cb => cb.checked = false);
+            atualizarContadorCanaisFila();
             removerMidia('agenda');
             carregarFilaProjeto();
           } else {

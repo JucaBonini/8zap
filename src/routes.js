@@ -5,6 +5,7 @@ const express = require('express');
 const router = express.Router();
 const sessionManager = require('./sessionManager');
 const agendador = require('./agendador');
+const destinosManager = require('./destinos');
 const { obterLogsProjeto } = require('./logger');
 
 // Garante que o diretório de uploads exista
@@ -318,18 +319,57 @@ router.post('/sessions/:projectId/fila', async (req, res) => {
   const { tipo, to, texto, url, legenda, agendado_para } = req.body;
 
   try {
+    let destinosFinais = to;
+
+    // Se for string ou array contendo links do tipo https://whatsapp.com/channel/..., resolve para o @newsletter oficial
+    if (typeof to === 'string') {
+      const partes = to.split(/[,;\n]+/).map((d) => d.trim()).filter(Boolean);
+      const resolvidas = await Promise.all(
+        partes.map(async (d) => {
+          if (d.includes('whatsapp.com/channel/') || d.startsWith('0029')) {
+            try {
+              const info = await destinosManager.resolverDestinoPorEntrada(projectId, d);
+              return info.jid;
+            } catch (_) {
+              return d;
+            }
+          }
+          return d;
+        })
+      );
+      destinosFinais = resolvidas;
+    } else if (Array.isArray(to)) {
+      const resolvidas = await Promise.all(
+        to.map(async (d) => {
+          if (typeof d === 'string' && (d.includes('whatsapp.com/channel/') || d.startsWith('0029'))) {
+            try {
+              const info = await destinosManager.resolverDestinoPorEntrada(projectId, d);
+              return info.jid;
+            } catch (_) {
+              return d;
+            }
+          }
+          return d;
+        })
+      );
+      destinosFinais = resolvidas;
+    }
+
     const novoItem = await agendador.adicionarItemFila(projectId, {
       tipo,
-      to,
+      to: destinosFinais,
       texto,
       url,
       legenda,
       agendado_para
     });
 
+    const totalAdicionados = Array.isArray(novoItem) ? novoItem.length : 1;
     res.status(201).json({
       sucesso: true,
-      mensagem: 'Item adicionado à fila com sucesso.',
+      mensagem: totalAdicionados > 1
+        ? `${totalAdicionados} postagens agendadas com sucesso (uma para cada canal)!`
+        : 'Item adicionado à fila com sucesso.',
       item: novoItem
     });
   } catch (err) {
@@ -439,7 +479,6 @@ router.get('/sessions/:projectId/logs', (req, res) => {
 // ==========================================
 
 const rssFetcher = require('./rssFetcher');
-const destinosManager = require('./destinos');
 
 /**
  * GET /sessions/:projectId/rss/config
