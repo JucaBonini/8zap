@@ -489,13 +489,16 @@ async function processarDisparoArtigoRss(projectId, config, horarioAtual) {
  * @param {boolean} ignorarCooldown
  * @returns {Promise<object>}
  */
-async function dispararArtigoManual(projectId, ignorarCooldown = true) {
+async function dispararArtigoManual(projectId, ignorarCooldown = true, destinosSobrescritos = null) {
   const config = rssFetcher.obterConfigRss(projectId);
   const horaAtual = obterHoraAtualFormatada();
 
   const configParaTeste = {
     ...config,
-    cooldownHorasPorDestino: ignorarCooldown ? 0 : config.cooldownHorasPorDestino
+    cooldownHorasPorDestino: ignorarCooldown ? 0 : config.cooldownHorasPorDestino,
+    destinosPermitidos: Array.isArray(destinosSobrescritos) && destinosSobrescritos.length > 0
+      ? destinosSobrescritos
+      : config.destinosPermitidos
   };
 
   return processarDisparoArtigoRss(projectId, configParaTeste, `MANUAL_${horaAtual}`);

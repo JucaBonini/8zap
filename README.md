@@ -31,8 +31,10 @@ Projetado para **uso pessoal** para conectar múltiplos números, projetos, loja
 ├── sessions/              # Credenciais multi-dispositivo Baileys (por projeto)
 │   └── <projectId>/
 ├── data/
-│   ├── fila-<projectId>.json         # Fila de posts manuais agendados em JSON
+│   ├── fila-<projectId>.json         # Fila de posts manuais agendados em JSON (com suporte a Esteira)
+│   ├── grade-<projectId>.json        # Configuração da Grade Diária Mestra e Timeline de horários
 │   ├── config-rss-<projectId>.json   # Configurações de RSS por projeto
+│   ├── campanhas-<projectId>.json    # Catálogo de ofertas, cupons Shopee e imagens
 │   ├── artigos-<projectId>.json      # Pool de artigos extraídos do feed
 │   └── destinos-uso-<projectId>.json # Histórico de destinos utilizados (anti-repetição)
 ├── logs/
@@ -41,12 +43,15 @@ Projetado para **uso pessoal** para conectar múltiplos números, projetos, loja
 │   ├── server.js          # Inicialização do Express, middlewares e graceful shutdown
 │   ├── routes.js          # Definição e autenticação das rotas REST
 │   ├── sessionManager.js  # Gerenciamento de N sessões, sockets, QR code e rate limiting
-│   ├── agendador.js       # Worker em loop que verifica e dispara posts da fila manual
+│   ├── gradeManager.js    # Motor da Grade Diária Mestra (unifica Manual, RSS e Campanhas)
+│   ├── agendador.js       # Worker em loop da fila manual e modo esteira
 │   ├── agendadorRss.js    # Motor de seleção aleatória e disparo programado de RSS
+│   ├── agendadorCampanhas.js # Motor de publicação de ofertas Shopee e produtos
 │   ├── rssFetcher.js      # Extração, limpeza e pool de artigos do feed RSS
-│   ├── destinos.js        # Descoberta, cache e controle de cooldown de canais/grupos
+│   ├── destinos.js        # Descoberta, cache e controle de canais (@newsletter) e grupos
 │   └── logger.js          # Logger persistente por projeto e no console
 └── public/
+    ├── uploads/           # Armazenamento de imagens enviadas por arrastar e soltar
     └── index.html         # Painel Web SPA moderno em Dark Mode
 ```
 

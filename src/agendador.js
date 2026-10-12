@@ -116,7 +116,7 @@ async function obterFila(projectId) {
  * @returns {Promise<object>}
  */
 async function adicionarItemFila(projectId, dadosItem) {
-  const { tipo = 'texto', to, texto, url, legenda, agendado_para } = dadosItem;
+  const { tipo = 'texto', to, texto, url, legenda, agendado_para, esteira = false } = dadosItem;
 
   if (!to) {
     throw new Error('O campo "to" (destinatário) é obrigatório.');
@@ -134,13 +134,20 @@ async function adicionarItemFila(projectId, dadosItem) {
     throw new Error('Nenhum destinatário válido informado.');
   }
 
-  if (!agendado_para) {
-    throw new Error('O campo "agendado_para" (data/hora ISO ou string válida) é obrigatório.');
-  }
+  let dataAgendadaISO = null;
+  const isEsteira = Boolean(esteira) || !agendado_para;
 
-  const dataAgendada = new Date(agendado_para);
-  if (isNaN(dataAgendada.getTime())) {
-    throw new Error('O campo "agendado_para" contém uma data/hora inválida.');
+  if (agendado_para) {
+    const dataAgendada = new Date(agendado_para);
+    if (isNaN(dataAgendada.getTime())) {
+      if (!isEsteira) {
+        throw new Error('O campo "agendado_para" contém uma data/hora inválida.');
+      }
+    } else {
+      dataAgendadaISO = dataAgendada.toISOString();
+    }
+  } else if (!isEsteira) {
+    throw new Error('O campo "agendado_para" (data/hora ISO ou string válida) é obrigatório quando não estiver em modo Esteira.');
   }
 
   const tipoNormalizado = (tipo || 'texto').toLowerCase();
@@ -163,7 +170,8 @@ async function adicionarItemFila(projectId, dadosItem) {
     texto: texto || '',
     url: url || '',
     legenda: legenda || '',
-    agendado_para: dataAgendada.toISOString(),
+    agendado_para: dataAgendadaISO,
+    esteira: isEsteira,
     enviado: false,
     enviado_em: null,
     criado_em: new Date().toISOString(),
@@ -176,10 +184,11 @@ async function adicionarItemFila(projectId, dadosItem) {
     gravarArquivoFila(projectId, filaAtual);
 
     novosItens.forEach((item) => {
+      const modoDesc = item.esteira ? 'Modo Esteira da Grade' : `Data ${item.agendado_para}`;
       logProjeto(
         projectId,
         'AGENDAMENTO_CRIADO',
-        `Post agendado para ${item.agendado_para} para ${item.to} (ID: ${item.id})`,
+        `Post adicionado à fila [${modoDesc}] para ${item.to} (ID: ${item.id})`,
         'info'
       );
     });
@@ -366,8 +375,8 @@ async function executarCicloAgendador() {
       const fila = await obterFila(projectId);
 
       for (const item of fila) {
-        // Verifica se ainda não foi enviado e se a hora de envio já chegou
-        if (!item.enviado && item.agendado_para) {
+        // Verifica se ainda não foi enviado e se a hora de envio já chegou (ignora itens da esteira que são disparados pela grade)
+        if (!item.enviado && item.agendado_para && !item.esteira) {
           const dataAgendada = new Date(item.agendado_para);
 
           if (dataAgendada <= agora) {
@@ -447,9 +456,117 @@ async function executarCicloAgendador() {
     } catch (campErr) {
       console.error('[Agendador] Erro no módulo de Campanhas:', campErr.message);
     }
+
+    // 4. Executa a checagem e disparo da Grade Diária Mestra
+    try {
+      const gradeManager = require('./gradeManager');
+      await gradeManager.verificarEDispararGrade();
+    } catch (gradeErr) {
+      console.error('[Agendador] Erro no módulo da Grade Diária:', gradeErr.message);
+    }
   } catch (cicloErr) {
     console.error('[Agendador] Erro no ciclo de verificação:', cicloErr.message);
   }
+}
+
+/**
+ * Pega o próximo post da esteira manual que ainda não foi enviado e dispara
+ * @param {string} projectId
+ * @param {Array<string>} [destinosSobrescritos]
+ * @returns {Promise<object>}
+ */
+async function dispararProximoItemEsteira(projectId, destinosSobrescritos = null) {
+  const statusSessao = sessionManager.obterStatusSessao(projectId);
+  if (statusSessao.status !== 'connected') {
+    throw new Error(`Sessão do WhatsApp não está conectada (Status atual: "${statusSessao.status}").`);
+  }
+
+  return comLockProjeto(projectId, async () => {
+    const filaAtual = lerArquivoFila(projectId);
+    // Prioriza itens marcados explicitamente como esteira ou sem data fixa, depois qualquer não enviado
+    const item = filaAtual.find((i) => !i.enviado && (i.esteira || !i.agendado_para)) || filaAtual.find((i) => !i.enviado);
+
+    if (!item) {
+      logProjeto(
+        projectId,
+        'ESTEIRA_VAZIA',
+        'Horário da Esteira Manual atingido, mas não há posts pendentes na fila.',
+        'warn'
+      );
+      return {
+        sucesso: false,
+        motivo: 'esteira_vazia',
+        mensagem: 'A Esteira Manual está vazia. Adicione novos posts para disparar neste horário.'
+      };
+    }
+
+    let alvos = [];
+    if (Array.isArray(destinosSobrescritos) && destinosSobrescritos.length > 0) {
+      alvos = destinosSobrescritos;
+    } else if (item.to) {
+      alvos = item.to.split(/[,;\n]+/).map((d) => d.trim()).filter(Boolean);
+    }
+
+    if (alvos.length === 0) {
+      throw new Error(`Item ${item.id} não possui destinatários válidos.`);
+    }
+
+    logProjeto(
+      projectId,
+      'ESTEIRA_DISPARANDO',
+      `Disparando post da esteira (ID: ${item.id}) para ${alvos.length} destino(s)...`,
+      'info'
+    );
+
+    let sucessoPeloMenosUm = false;
+    let ultimoErro = null;
+
+    for (const destino of alvos) {
+      try {
+        await sessionManager.enviarMensagem(projectId, {
+          to: destino,
+          type: item.tipo,
+          texto: item.texto,
+          url: item.url,
+          legenda: item.legenda
+        });
+        sucessoPeloMenosUm = true;
+      } catch (errEnvio) {
+        ultimoErro = errEnvio.message;
+        logProjeto(
+          projectId,
+          'ESTEIRA_ERRO_DESTINO',
+          `Erro ao enviar post da esteira para ${destino}: ${errEnvio.message}`,
+          'error'
+        );
+      }
+    }
+
+    if (sucessoPeloMenosUm) {
+      item.enviado = true;
+      item.enviado_em = new Date().toISOString();
+      item.erro = null;
+      gravarArquivoFila(projectId, filaAtual);
+
+      logProjeto(
+        projectId,
+        'ESTEIRA_SUCESSO',
+        `Post da esteira ID ${item.id} enviado com sucesso!`,
+        'success'
+      );
+
+      return {
+        sucesso: true,
+        item,
+        destinos: alvos
+      };
+    } else {
+      item.erro = ultimoErro || 'Falha ao entregar para todos os destinos';
+      item.tentativas = (item.tentativas || 0) + 1;
+      gravarArquivoFila(projectId, filaAtual);
+      throw new Error(item.erro);
+    }
+  });
 }
 
 /**
@@ -490,6 +607,7 @@ module.exports = {
   reenviarItemFila,
   removerItemFila,
   atualizarStatusItem,
+  dispararProximoItemEsteira,
   executarCicloAgendador,
   iniciarAgendador,
   pararAgendador

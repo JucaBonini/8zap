@@ -316,7 +316,7 @@ router.get('/sessions/:projectId/fila', async (req, res) => {
  */
 router.post('/sessions/:projectId/fila', async (req, res) => {
   const { projectId } = req.params;
-  const { tipo, to, texto, url, legenda, agendado_para } = req.body;
+  const { tipo, to, texto, url, legenda, agendado_para, esteira } = req.body;
 
   try {
     let destinosFinais = to;
@@ -361,7 +361,8 @@ router.post('/sessions/:projectId/fila', async (req, res) => {
       texto,
       url,
       legenda,
-      agendado_para
+      agendado_para,
+      esteira: Boolean(esteira)
     });
 
     const totalAdicionados = Array.isArray(novoItem) ? novoItem.length : 1;
@@ -792,6 +793,106 @@ router.post('/sessions/:projectId/campanhas/disparar-agora', async (req, res) =>
     res.json({
       sucesso: true,
       mensagem: 'Disparo de teste de campanha executado com sucesso!',
+      resultado
+    });
+  } catch (err) {
+    res.status(400).json({ sucesso: false, erro: err.message });
+  }
+});
+
+// ==========================================
+// ROTAS DA GRADE DIÁRIA MESTRA (TIMELINE)
+// ==========================================
+
+const gradeManager = require('./gradeManager');
+
+/**
+ * GET /sessions/:projectId/grade
+ * Retorna a configuração da Grade Diária
+ */
+router.get('/sessions/:projectId/grade', async (req, res) => {
+  const { projectId } = req.params;
+  try {
+    const config = gradeManager.obterConfigGrade(projectId);
+    const fila = await agendador.obterFila(projectId);
+    const totalEsteira = fila.filter((i) => !i.enviado && (i.esteira || !i.agendado_para)).length;
+    res.json({
+      sucesso: true,
+      projectId,
+      config,
+      totalEsteira
+    });
+  } catch (err) {
+    res.status(500).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * POST /sessions/:projectId/grade
+ * Salva a configuração da Grade Diária
+ */
+router.post('/sessions/:projectId/grade', (req, res) => {
+  const { projectId } = req.params;
+  try {
+    const salva = gradeManager.salvarConfigGrade(projectId, req.body);
+    res.json({
+      sucesso: true,
+      mensagem: 'Grade Diária salva com sucesso!',
+      config: salva
+    });
+  } catch (err) {
+    res.status(400).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * POST /sessions/:projectId/grade/slots
+ * Adiciona um novo horário à Grade Diária
+ */
+router.post('/sessions/:projectId/grade/slots', (req, res) => {
+  const { projectId } = req.params;
+  const { hora, origem } = req.body;
+  try {
+    const atualizada = gradeManager.adicionarSlotGrade(projectId, { hora, origem });
+    res.json({
+      sucesso: true,
+      mensagem: `Horário ${hora} adicionado à Grade!`,
+      config: atualizada
+    });
+  } catch (err) {
+    res.status(400).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * DELETE /sessions/:projectId/grade/slots/:slotId
+ * Remove um horário da Grade Diária
+ */
+router.delete('/sessions/:projectId/grade/slots/:slotId', (req, res) => {
+  const { projectId, slotId } = req.params;
+  try {
+    const atualizada = gradeManager.removerSlotGrade(projectId, slotId);
+    res.json({
+      sucesso: true,
+      mensagem: 'Horário removido da Grade com sucesso.',
+      config: atualizada
+    });
+  } catch (err) {
+    res.status(400).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * POST /sessions/:projectId/grade/slots/:slotId/testar
+ * Força o disparo de teste de um slot específico da Grade Diária
+ */
+router.post('/sessions/:projectId/grade/slots/:slotId/testar', async (req, res) => {
+  const { projectId, slotId } = req.params;
+  try {
+    const resultado = await gradeManager.dispararSlotManual(projectId, slotId);
+    res.json({
+      sucesso: true,
+      mensagem: 'Disparo de teste da Grade executado com sucesso!',
       resultado
     });
   } catch (err) {

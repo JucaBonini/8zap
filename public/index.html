@@ -1074,6 +1074,110 @@
       background: var(--accent-red);
       color: #fff;
     }
+
+    /* ========================================== */
+    /* Grade Diária Mestra Timeline Styles        */
+    /* ========================================== */
+    .grade-timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .grade-slot-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.85rem 1.15rem;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      transition: all 0.2s ease;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .grade-slot-card:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.15);
+      transform: translateX(2px);
+    }
+
+    .grade-slot-left {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      flex: 1;
+      min-width: 250px;
+    }
+
+    .grade-slot-hora {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #fff;
+      background: rgba(0, 0, 0, 0.35);
+      padding: 0.35rem 0.75rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      letter-spacing: 0.5px;
+      min-width: 82px;
+      text-align: center;
+    }
+
+    .grade-slot-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .grade-slot-origem-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 0.2rem 0.65rem;
+      border-radius: 20px;
+      width: fit-content;
+    }
+
+    .grade-origem-manual {
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.35);
+    }
+
+    .grade-origem-rss {
+      background: rgba(37, 211, 102, 0.15);
+      color: #4ade80;
+      border: 1px solid rgba(37, 211, 102, 0.35);
+    }
+
+    .grade-origem-campanhas {
+      background: rgba(251, 191, 36, 0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(251, 191, 36, 0.35);
+    }
+
+    .grade-slot-desc {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .grade-slot-status {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .grade-slot-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
   </style>
 </head>
 <body>
@@ -1159,10 +1263,11 @@
       <!-- Abas de Navegação -->
       <div class="tabs">
         <button class="tab-btn active" onclick="trocarAba('aba-qr', event)">QR Code & Conexão</button>
+        <button class="tab-btn" onclick="trocarAba('aba-grade', event)">🗓️ Grade Diária</button>
         <button class="tab-btn" onclick="trocarAba('aba-rss', event)">📰 RSS Automático</button>
         <button class="tab-btn" onclick="trocarAba('aba-campanhas', event)">🛍️ Ofertas & Imagens</button>
+        <button class="tab-btn" onclick="trocarAba('aba-fila', event)">📝 Fila Manual</button>
         <button class="tab-btn" onclick="trocarAba('aba-envio', event)">Enviar Mensagem</button>
-        <button class="tab-btn" onclick="trocarAba('aba-fila', event)">Fila Manual</button>
         <button class="tab-btn" onclick="trocarAba('aba-logs', event)">Logs</button>
       </div>
 
@@ -1172,6 +1277,118 @@
           <div class="qr-loading">
             <div class="spinner"></div>
             <p id="qrTextoStatus">Verificando status da sessão...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Aba: Grade Diária Mestra & Esteira -->
+      <div id="aba-grade" class="tab-content">
+        <!-- Card 1: Status Geral & Ativação -->
+        <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+            <div>
+              <h3 style="display: flex; align-items: center; gap: 0.5rem;">
+                🗓️ Grade Diária Mestra & Esteira
+                <span class="badge" id="badgeGradeStatus" style="font-size: 0.75rem; padding: 0.2rem 0.5rem; background: rgba(148, 163, 184, 0.2); color: #94a3b8;">Carregando...</span>
+              </h3>
+              <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">
+                Unifica os 3 disparadores (Fila Manual / RSS / Ofertas) em uma única linha do tempo consistente para seus 2 canais.
+              </p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <div class="switch-container">
+                <span style="font-size: 0.85rem; color: var(--text-muted);">Grade Ativa:</span>
+                <label class="switch">
+                  <input type="checkbox" id="gradeAtiva" onchange="salvarGradeProjeto(false)">
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Banner Informativo Esteira -->
+          <div style="background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: var(--radius-sm); padding: 0.85rem 1rem; margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <span style="font-size: 1.7rem;">📦</span>
+              <div>
+                <strong style="color: var(--accent-blue); font-size: 0.95rem;">Modo Esteira (Fila Manual Buffer)</strong>
+                <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">
+                  Status atual: <span id="gradeEsteiraContador" style="color: #fff; font-weight: 600;">0 post(s)</span> aguardando na fila. Cada horário de "Fila Manual" consome o próximo post da esteira em ordem sequencial!
+                </p>
+              </div>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+              <button class="btn btn-secondary btn-sm" onclick="irParaAdicionarEsteira()" style="font-size: 0.8rem; padding: 0.4rem 0.75rem;">
+                ➕ Adicionar Posts à Fila
+              </button>
+            </div>
+          </div>
+
+          <!-- Destinos da Grade Diária (Canais) -->
+          <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem; flex-wrap: wrap; gap: 0.5rem;">
+              <div>
+                <label style="margin-bottom: 0; font-weight: 600; font-size: 0.9rem;">📢 Canais de Destino da Grade (Broadcast):</label>
+                <span style="font-size: 0.75rem; color: var(--text-muted); display: block;">Selecione os canais que devem receber todos os disparos programados da Grade Diária</span>
+              </div>
+              <div style="display: flex; gap: 0.4rem; align-items: center;">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="marcarTodosDestinosGrade(true)" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">Marcar Todos</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="marcarTodosDestinosGrade(false)" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">Desmarcar</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="carregarDestinosGrade(true)" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">🔄 Atualizar Canais</button>
+              </div>
+            </div>
+            <div id="containerCheckboxesDestinosGrade" style="background: rgba(0,0,0,0.25); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.75rem; max-height: 190px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.45rem;">
+              <p style="color: var(--text-muted); font-size: 0.8rem; padding: 0.4rem;">Carregando canais disponíveis...</p>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.25rem;">
+            <button class="btn" onclick="salvarGradeProjeto(true)">💾 Salvar Configurações da Grade</button>
+            <button class="btn btn-secondary" onclick="aplicarGradeSugerida()" title="Aplica a grade recomendada com 7 disparos diários distribuídos">⚡ Aplicar Grade Sugerida (7 Horários)</button>
+          </div>
+        </div>
+
+        <!-- Card 2: Adicionar Novo Horário na Timeline -->
+        <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
+          <h3 style="margin-bottom: 0.75rem;">➕ Adicionar Horário à Grade</h3>
+          <div style="display: flex; gap: 0.75rem; align-items: flex-end; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 140px;">
+              <label for="gradeNovoHorarioInput" style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.3rem;">Horário do Disparo (HH:MM):</label>
+              <input type="time" id="gradeNovoHorarioInput" class="form-control" value="08:00" style="font-family: 'JetBrains Mono', monospace; font-size: 1rem; font-weight: 600;">
+            </div>
+            <div style="flex: 2; min-width: 240px;">
+              <label for="gradeNovaOrigemSelect" style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.3rem;">Tipo / Módulo de Disparo:</label>
+              <select id="gradeNovaOrigemSelect" class="form-control" style="font-weight: 500;">
+                <option value="manual">📝 Fila Manual (Consome o próximo post da esteira)</option>
+                <option value="rss">📰 RSS Automático (Posta próxima receita/artigo do feed)</option>
+                <option value="campanhas">🛍️ Ofertas & Imagens (Posta oferta/promoção Shopee)</option>
+              </select>
+            </div>
+            <div>
+              <button class="btn" onclick="adicionarSlotGradeForm()" style="white-space: nowrap; height: 42px;">
+                ➕ Adicionar Horário
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3: Linha do Tempo Diária (Timeline) -->
+        <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
+            <div>
+              <h3 style="display: flex; align-items: center; gap: 0.5rem;">
+                ⏰ Linha do Tempo Diária
+                <span id="gradeTotalSlotsBadge" class="badge badge-connected" style="font-size: 0.75rem;">0 horários</span>
+              </h3>
+              <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">
+                Os disparos ocorrem automaticamente no fuso horário de Brasília (America/Sao_Paulo).
+              </p>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="carregarGradeProjeto()">🔄 Atualizar Timeline</button>
+          </div>
+
+          <div id="gradeTimelineContainer" class="grade-timeline">
+            <!-- Renderizado dinamicamente -->
           </div>
         </div>
       </div>
@@ -1596,7 +1813,20 @@
             <input type="hidden" id="agendaTo">
           </div>
 
-          <div class="form-row">
+          <!-- Opção Modo Esteira da Grade Diária -->
+          <div style="background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: var(--radius-sm); padding: 0.75rem 1rem; margin-bottom: 1.25rem;">
+            <label style="display: flex; align-items: center; gap: 0.65rem; margin-bottom: 0; cursor: pointer;">
+              <input type="checkbox" id="agendaModoEsteira" onchange="aoAlternarModoEsteiraFila()" style="width: 18px; height: 18px; accent-color: var(--accent-blue);">
+              <div>
+                <strong style="color: var(--accent-blue); font-size: 0.92rem;">📦 Modo Esteira da Grade Diária (Disparo Automático sem data fixa)</strong>
+                <span style="font-size: 0.76rem; color: var(--text-muted); display: block;">
+                  Ao marcar, você não precisa escolher data nem hora! O post entra na esteira e é disparado no próximo horário de Fila Manual da sua Grade Diária.
+                </span>
+              </div>
+            </label>
+          </div>
+
+          <div class="form-row" id="grupoAgendaDataHora">
             <div class="form-group" style="flex: 1;">
               <label for="agendaData">Data e Hora do Disparo:</label>
               <input type="datetime-local" id="agendaData" class="form-control" required>
@@ -1944,6 +2174,7 @@
       trocarAba('aba-qr');
       verificarStatusEQr();
       carregarConfiguracaoRss();
+      carregarGradeProjeto();
       carregarFilaProjeto();
       carregarLogsProjeto();
     }
@@ -2080,6 +2311,11 @@
         iniciarPollingQr();
       } else {
         pararPollingQr();
+      }
+
+      if (idAba === 'aba-grade') {
+        carregarGradeProjeto();
+        carregarDestinosGrade();
       }
 
       if (idAba === 'aba-rss') {
@@ -2921,7 +3157,14 @@
         removerMidia('agenda');
       }
 
-      if (item.agendado_para) {
+      const isEsteira = Boolean(item.esteira || !item.agendado_para);
+      const chkEsteira = document.getElementById('agendaModoEsteira');
+      if (chkEsteira) {
+        chkEsteira.checked = isEsteira;
+      }
+      aoAlternarModoEsteiraFila();
+
+      if (!isEsteira && item.agendado_para) {
         try {
           const d = new Date(item.agendado_para);
           const tzOffset = d.getTimezoneOffset() * 60000;
@@ -2936,12 +3179,40 @@
       document.getElementById('formAgendamento').scrollIntoView({ behavior: 'smooth' });
     }
 
+    function aoAlternarModoEsteiraFila() {
+      const chkEsteira = document.getElementById('agendaModoEsteira');
+      const grupoData = document.getElementById('grupoAgendaDataHora');
+      const inputData = document.getElementById('agendaData');
+      const btnSalvar = document.getElementById('btnSalvarFila');
+
+      const isEsteira = chkEsteira ? chkEsteira.checked : false;
+
+      if (grupoData && inputData) {
+        if (isEsteira) {
+          grupoData.style.display = 'none';
+          inputData.removeAttribute('required');
+          if (!idItemFilaEmEdicao && btnSalvar) {
+            btnSalvar.innerText = '📦 Adicionar à Esteira da Grade';
+          }
+        } else {
+          grupoData.style.display = 'flex';
+          inputData.setAttribute('required', 'required');
+          if (!idItemFilaEmEdicao && btnSalvar) {
+            btnSalvar.innerText = '📅 Agendar Post';
+          }
+        }
+      }
+    }
+
     function cancelarEdicaoItemFila() {
       idItemFilaEmEdicao = null;
       document.getElementById('tituloFormFila').innerText = 'Agendar Nova Postagem Manual';
       document.getElementById('btnSalvarFila').innerText = '📅 Agendar Post';
       document.getElementById('btnCancelarEdicaoFila').style.display = 'none';
       document.getElementById('formAgendamento').reset();
+      const chkEsteira = document.getElementById('agendaModoEsteira');
+      if (chkEsteira) chkEsteira.checked = false;
+      aoAlternarModoEsteiraFila();
       document.querySelectorAll('.checkbox-canal-fila').forEach(cb => cb.checked = false);
       atualizarContadorCanaisFila();
       removerMidia('agenda');
@@ -2964,6 +3235,7 @@
           mostrarToast(`❌ Erro no reenvio: ${data.erro}`, true);
         }
         carregarFilaProjeto();
+        carregarGradeProjeto();
       } catch (err) {
         mostrarToast(`Erro ao reenviar: ${err.message}`, true);
         carregarFilaProjeto();
@@ -2979,13 +3251,16 @@
       const url = document.getElementById('agendaUrl').value.trim();
       const texto = document.getElementById('agendaTexto').value.trim();
       const legenda = document.getElementById('agendaLegenda').value.trim();
+      const isEsteira = Boolean(document.getElementById('agendaModoEsteira')?.checked);
 
-      if (!dataInput) {
-        mostrarToast('Selecione a data e hora do agendamento.', true);
-        return;
+      let agendado_para = null;
+      if (!isEsteira) {
+        if (!dataInput) {
+          mostrarToast('Selecione a data e hora do agendamento ou marque o Modo Esteira.', true);
+          return;
+        }
+        agendado_para = new Date(dataInput).toISOString();
       }
-
-      const agendado_para = new Date(dataInput).toISOString();
 
       // Coleta todos os canais selecionados nos checkboxes
       const selecionados = Array.from(document.querySelectorAll('.checkbox-canal-fila:checked')).map(cb => cb.value);
@@ -3008,7 +3283,7 @@
           const resp = await fetch(`/sessions/${projetoSelecionado}/fila/${idItemFilaEmEdicao}`, {
             method: 'PUT',
             headers: obterHeaders(),
-            body: JSON.stringify({ to: toFinal, tipo, url, texto, legenda, agendado_para })
+            body: JSON.stringify({ to: toFinal, tipo, url, texto, legenda, agendado_para, esteira: isEsteira })
           });
 
           const data = await resp.json();
@@ -3016,6 +3291,7 @@
             mostrarToast('Post atualizado com sucesso!');
             cancelarEdicaoItemFila();
             carregarFilaProjeto();
+            carregarGradeProjeto();
           } else {
             mostrarToast(`Erro: ${data.erro}`, true);
           }
@@ -3028,12 +3304,12 @@
           const resp = await fetch(`/sessions/${projetoSelecionado}/fila`, {
             method: 'POST',
             headers: obterHeaders(),
-            body: JSON.stringify({ to: selecionados, tipo, url, texto, legenda, agendado_para })
+            body: JSON.stringify({ to: selecionados, tipo, url, texto, legenda, agendado_para, esteira: isEsteira })
           });
 
           const data = await resp.json();
           if (data.sucesso) {
-            mostrarToast(data.mensagem || 'Post(s) agendado(s) com sucesso!');
+            mostrarToast(data.mensagem || (isEsteira ? '📦 Post adicionado à esteira da grade com sucesso!' : '📅 Post(s) agendado(s) com sucesso!'));
             document.getElementById('agendaTexto').value = '';
             document.getElementById('agendaLegenda').value = '';
             if (manualInput) manualInput.value = '';
@@ -3041,6 +3317,7 @@
             atualizarContadorCanaisFila();
             removerMidia('agenda');
             carregarFilaProjeto();
+            carregarGradeProjeto();
           } else {
             mostrarToast(`Erro: ${data.erro}`, true);
           }
@@ -3080,7 +3357,9 @@
             ? (item.texto.length > 40 ? item.texto.substring(0, 40) + '...' : item.texto)
             : `<a href="${item.url}" target="_blank" style="color:var(--accent-blue); text-decoration:none;">🔗 Ver Mídia</a> ${item.legenda ? ' - ' + item.legenda.substring(0, 20) : ''}`;
 
-          const dataFormatada = new Date(item.agendado_para).toLocaleString('pt-BR');
+          const dataFormatada = (item.esteira || !item.agendado_para)
+            ? `<span class="badge" style="background:rgba(56, 189, 248, 0.15); color:#38bdf8; border:1px solid rgba(56, 189, 248, 0.35); font-size:0.75rem; font-weight:600;"><span class="badge-dot" style="background:#38bdf8;"></span>📦 Esteira da Grade</span>`
+            : new Date(item.agendado_para).toLocaleString('pt-BR');
 
           return `
             <tr>
@@ -3114,6 +3393,7 @@
         if (data.sucesso) {
           mostrarToast('Item removido da fila.');
           carregarFilaProjeto();
+          carregarGradeProjeto();
         } else {
           mostrarToast(`Erro: ${data.erro}`, true);
         }
@@ -3625,6 +3905,359 @@
       } catch (err) {
         mostrarToast(`Erro: ${err.message}`, true);
       }
+    }
+
+    // ==========================================
+    // GESTÃO DA GRADE DIÁRIA MESTRA & ESTEIRA
+    // ==========================================
+    let gradeConfigCache = null;
+
+    async function carregarGradeProjeto() {
+      if (!projetoSelecionado) return;
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/grade`, {
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+
+        if (!data.sucesso) {
+          console.error('Erro ao carregar grade:', data.erro);
+          return;
+        }
+
+        gradeConfigCache = data.config;
+
+        // Atualiza switch ativo
+        const switchAtivo = document.getElementById('gradeAtiva');
+        if (switchAtivo) {
+          switchAtivo.checked = Boolean(data.config.ativo);
+        }
+
+        const badgeStatus = document.getElementById('badgeGradeStatus');
+        if (badgeStatus) {
+          if (data.config.ativo) {
+            badgeStatus.className = 'badge badge-connected';
+            badgeStatus.style.background = '';
+            badgeStatus.style.color = '';
+            badgeStatus.innerText = 'Ativa (Disparando)';
+          } else {
+            badgeStatus.className = 'badge';
+            badgeStatus.style.background = 'rgba(148, 163, 184, 0.2)';
+            badgeStatus.style.color = '#94a3b8';
+            badgeStatus.innerText = 'Pausada';
+          }
+        }
+
+        // Atualiza contador de itens na esteira
+        const contadorEsteira = document.getElementById('gradeEsteiraContador');
+        if (contadorEsteira) {
+          contadorEsteira.innerText = `${data.totalEsteira || 0} post(s)`;
+        }
+
+        // Atualiza badge de total de horários
+        const totalBadge = document.getElementById('gradeTotalSlotsBadge');
+        const slots = Array.isArray(data.config.horarios) ? data.config.horarios : [];
+        if (totalBadge) {
+          totalBadge.innerText = `${slots.length} horário(s)`;
+        }
+
+        renderizarTimelineGrade(slots, data.config.historicoDisparos || {});
+      } catch (err) {
+        console.error('Erro ao carregar Grade Diária:', err);
+      }
+    }
+
+    function renderizarTimelineGrade(slots, historicoDisparos) {
+      const container = document.getElementById('gradeTimelineContainer');
+      if (!container) return;
+
+      if (!slots || slots.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 2.5rem 1rem; color: var(--text-muted); background: rgba(0,0,0,0.15); border-radius: var(--radius-md); border: 1px dashed var(--border-color);">
+            <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">🗓️</div>
+            <p style="font-size: 1rem; color: #fff; font-weight: 500;">Nenhum horário configurado na grade ainda.</p>
+            <p style="font-size: 0.8rem; margin-top: 0.4rem;">Adicione horários acima ou clique em <strong>"⚡ Aplicar Grade Sugerida"</strong> para começar com 7 horários distribuídos.</p>
+          </div>
+        `;
+        return;
+      }
+
+      // Obtém data de hoje no formato YYYY-MM-DD
+      const hoje = new Date().toISOString().slice(0, 10);
+      const disparosHoje = Array.isArray(historicoDisparos[hoje]) ? historicoDisparos[hoje] : [];
+
+      const mapaOrigens = {
+        manual: {
+          nome: 'Fila Manual (Esteira)',
+          icone: '📝',
+          classe: 'grade-origem-manual',
+          desc: 'Dispara o próximo post da esteira sequencial para os canais selecionados'
+        },
+        rss: {
+          nome: 'RSS Automático',
+          icone: '📰',
+          classe: 'grade-origem-rss',
+          desc: 'Dispara a próxima receita/artigo do feed RSS'
+        },
+        campanhas: {
+          nome: 'Ofertas & Imagens',
+          icone: '🛍️',
+          classe: 'grade-origem-campanhas',
+          desc: 'Dispara a próxima oferta/promoção Shopee cadastrada'
+        }
+      };
+
+      container.innerHTML = slots.map((slot) => {
+        const infoOrigem = mapaOrigens[slot.origem] || {
+          nome: slot.origem,
+          icone: '⚙️',
+          classe: 'grade-origem-manual',
+          desc: 'Disparo automático'
+        };
+
+        const chaveHoje = `${slot.id}_${slot.hora}`;
+        const jaDisparouHoje = disparosHoje.includes(chaveHoje);
+
+        const statusTag = jaDisparouHoje
+          ? `<span class="badge badge-connected" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;"><span class="badge-dot"></span>Postado Hoje</span>`
+          : `<span class="badge badge-aguardando_qr" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;"><span class="badge-dot"></span>Aguardando Horário</span>`;
+
+        return `
+          <div class="grade-slot-card">
+            <div class="grade-slot-left">
+              <div class="grade-slot-hora">${slot.hora}</div>
+              <div class="grade-slot-meta">
+                <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                  <span class="grade-slot-origem-badge ${infoOrigem.classe}">
+                    ${infoOrigem.icone} ${infoOrigem.nome}
+                  </span>
+                  ${statusTag}
+                </div>
+                <div class="grade-slot-desc">${infoOrigem.desc}</div>
+              </div>
+            </div>
+            <div class="grade-slot-actions">
+              <button class="btn btn-secondary btn-sm" onclick="testarSlotGradeBtn('${slot.id}', '${slot.hora}', '${slot.origem}')" title="Disparar este slot agora para testar" style="font-size: 0.78rem; padding: 0.35rem 0.65rem;">
+                ⚡ Testar Agora
+              </button>
+              <button class="btn btn-danger btn-sm" onclick="removerSlotGradeBtn('${slot.id}', '${slot.hora}')" title="Excluir horário da grade" style="font-size: 0.78rem; padding: 0.35rem 0.65rem;">
+                🗑 Excluir
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function carregarDestinosGrade(forcar = false) {
+      if (!projetoSelecionado) return;
+
+      const container = document.getElementById('containerCheckboxesDestinosGrade');
+      if (!container) return;
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/destinos${forcar ? '?atualizar=true' : ''}`, {
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+
+        if (!data.sucesso || !data.destinos || data.destinos.length === 0) {
+          container.innerHTML = `<p style="color: var(--text-muted); font-size: 0.8rem; padding: 0.4rem;">Nenhum canal ou grupo encontrado. Conecte o WhatsApp ou adicione links de canal na aba RSS.</p>`;
+          return;
+        }
+
+        const destinosAtuais = (gradeConfigCache && Array.isArray(gradeConfigCache.destinos))
+          ? gradeConfigCache.destinos
+          : [];
+
+        container.innerHTML = data.destinos.map(dest => {
+          const marcado = destinosAtuais.length === 0 || destinosAtuais.includes(dest.jid);
+          const iconeTipo = dest.tipo === 'canal' ? '📢' : '👥';
+          return `
+            <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; padding: 0.35rem 0.5rem; border-radius: var(--radius-sm); background: rgba(255,255,255,0.02); transition: background 0.15s ease;" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='rgba(255,255,255,0.02)'">
+              <input type="checkbox" class="checkbox-destino-grade" value="${dest.jid}" ${marcado ? 'checked' : ''} style="accent-color: var(--primary); width: 16px; height: 16px;">
+              <span style="font-size: 0.85rem; font-weight: 500; color: #fff;">${iconeTipo} ${dest.nome}</span>
+              <span style="font-size: 0.72rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; margin-left: auto;">${dest.jid}</span>
+            </label>
+          `;
+        }).join('');
+      } catch (err) {
+        console.error('Erro ao carregar destinos da Grade:', err);
+      }
+    }
+
+    function marcarTodosDestinosGrade(marcar) {
+      document.querySelectorAll('.checkbox-destino-grade').forEach(cb => {
+        cb.checked = Boolean(marcar);
+      });
+    }
+
+    async function salvarGradeProjeto(mostrarAlerta = true) {
+      if (!projetoSelecionado) return;
+
+      const ativo = document.getElementById('gradeAtiva')?.checked || false;
+      const destinos = Array.from(document.querySelectorAll('.checkbox-destino-grade:checked')).map(cb => cb.value);
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/grade`, {
+          method: 'POST',
+          headers: obterHeaders(),
+          body: JSON.stringify({
+            ativo,
+            destinos,
+            horarios: gradeConfigCache ? gradeConfigCache.horarios : undefined
+          })
+        });
+
+        const data = await resp.json();
+        if (data.sucesso) {
+          gradeConfigCache = data.config;
+          if (mostrarAlerta) {
+            mostrarToast('✅ Grade Diária salva com sucesso!');
+          }
+          carregarGradeProjeto();
+        } else {
+          mostrarToast(`Erro ao salvar grade: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro ao salvar grade: ${err.message}`, true);
+      }
+    }
+
+    async function adicionarSlotGradeForm() {
+      if (!projetoSelecionado) return;
+
+      const horaInput = document.getElementById('gradeNovoHorarioInput');
+      const origemSelect = document.getElementById('gradeNovaOrigemSelect');
+
+      const hora = horaInput ? horaInput.value : '';
+      const origem = origemSelect ? origemSelect.value : 'manual';
+
+      if (!hora) {
+        mostrarToast('Selecione o horário para adicionar à grade.', true);
+        return;
+      }
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/grade/slots`, {
+          method: 'POST',
+          headers: obterHeaders(),
+          body: JSON.stringify({ hora, origem })
+        });
+
+        const data = await resp.json();
+        if (data.sucesso) {
+          mostrarToast(data.mensagem || 'Horário adicionado à grade!');
+          gradeConfigCache = data.config;
+          carregarGradeProjeto();
+        } else {
+          mostrarToast(`Erro: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro: ${err.message}`, true);
+      }
+    }
+
+    async function aplicarGradeSugerida() {
+      if (!projetoSelecionado) return;
+      if (!confirm('Deseja configurar a Grade com a programação recomendada de 7 disparos diários?\n\n07:45 - Fila Manual\n10:15 - RSS Automático\n11:45 - Fila Manual\n15:05 - Ofertas & Imagens\n17:20 - RSS Automático\n19:35 - Fila Manual\n21:00 - Fila Manual')) return;
+
+      const horariosRecomendados = [
+        { id: 'slot_1', hora: '07:45', origem: 'manual' },
+        { id: 'slot_2', hora: '10:15', origem: 'rss' },
+        { id: 'slot_3', hora: '11:45', origem: 'manual' },
+        { id: 'slot_4', hora: '15:05', origem: 'campanhas' },
+        { id: 'slot_5', hora: '17:20', origem: 'rss' },
+        { id: 'slot_6', hora: '19:35', origem: 'manual' },
+        { id: 'slot_7', hora: '21:00', origem: 'manual' }
+      ];
+
+      const destinos = Array.from(document.querySelectorAll('.checkbox-destino-grade:checked')).map(cb => cb.value);
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/grade`, {
+          method: 'POST',
+          headers: obterHeaders(),
+          body: JSON.stringify({
+            ativo: true,
+            destinos: destinos.length > 0 ? destinos : (gradeConfigCache?.destinos || []),
+            horarios: horariosRecomendados
+          })
+        });
+
+        const data = await resp.json();
+        if (data.sucesso) {
+          mostrarToast('✨ Grade Recomendada de 7 horários aplicada com sucesso!');
+          gradeConfigCache = data.config;
+          carregarGradeProjeto();
+        } else {
+          mostrarToast(`Erro: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro: ${err.message}`, true);
+      }
+    }
+
+    async function removerSlotGradeBtn(slotId, hora) {
+      if (!projetoSelecionado) return;
+      if (!confirm(`Deseja remover o horário ${hora} da Grade Diária?`)) return;
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/grade/slots/${slotId}`, {
+          method: 'DELETE',
+          headers: obterHeaders()
+        });
+
+        const data = await resp.json();
+        if (data.sucesso) {
+          mostrarToast(`Horário ${hora} removido da grade.`);
+          gradeConfigCache = data.config;
+          carregarGradeProjeto();
+        } else {
+          mostrarToast(`Erro: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro: ${err.message}`, true);
+      }
+    }
+
+    async function testarSlotGradeBtn(slotId, hora, origem) {
+      if (!projetoSelecionado) return;
+      mostrarToast(`⚡ Disparando teste imediato para o horário ${hora} [${origem.toUpperCase()}]...`, false);
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/grade/slots/${slotId}/testar`, {
+          method: 'POST',
+          headers: obterHeaders()
+        });
+
+        const data = await resp.json();
+        if (data.sucesso) {
+          const motivo = data.resultado?.motivo;
+          if (motivo === 'esteira_vazia') {
+            mostrarToast('⚠️ Esteira manual está vazia. Adicione novos posts na aba Fila Manual!', true);
+          } else {
+            mostrarToast(`✅ Teste do horário ${hora} disparado com sucesso!`);
+          }
+          carregarGradeProjeto();
+          carregarFilaProjeto();
+        } else {
+          mostrarToast(`❌ Erro no teste: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro no teste: ${err.message}`, true);
+      }
+    }
+
+    function irParaAdicionarEsteira() {
+      trocarAba('aba-fila');
+      const chkEsteira = document.getElementById('agendaModoEsteira');
+      if (chkEsteira) {
+        chkEsteira.checked = true;
+        aoAlternarModoEsteiraFila();
+      }
+      document.getElementById('formAgendamento').scrollIntoView({ behavior: 'smooth' });
     }
   </script>
 </body>

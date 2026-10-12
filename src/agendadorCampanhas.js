@@ -290,10 +290,16 @@ async function processarDisparoCampanha(projectId, config, horarioAtual, tipoSlo
  * @param {string} [itemId=null]
  * @returns {Promise<object>}
  */
-async function dispararCampanhaManual(projectId, itemId = null) {
+async function dispararCampanhaManual(projectId, itemId = null, destinosSobrescritos = null) {
   const config = campanhasManager.obterConfigCampanhas(projectId);
   const horaAtual = campanhasManager.obterHoraAtualFormatada();
-  return processarDisparoCampanha(projectId, config, `MANUAL_${horaAtual}`, 'qualquer', itemId);
+  const configParaEnvio = {
+    ...config,
+    destinosPermitidos: Array.isArray(destinosSobrescritos) && destinosSobrescritos.length > 0
+      ? destinosSobrescritos
+      : config.destinosPermitidos
+  };
+  return processarDisparoCampanha(projectId, configParaEnvio, `MANUAL_${horaAtual}`, 'qualquer', itemId);
 }
 
 module.exports = {
