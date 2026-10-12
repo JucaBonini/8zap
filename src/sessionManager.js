@@ -428,6 +428,41 @@ function listarSessoes() {
 }
 
 /**
+ * Resolve a origem de uma mídia: se for um upload local (/uploads/...) ou se o arquivo físico
+ * existir na pasta public/uploads/, utiliza o caminho de arquivo absoluto direto do disco.
+ * Isso garante velocidade máxima e evita falhas de loopback de rede HTTP.
+ * Se for uma URL web externa (http/https externa), mantém a URL intacta para download do Baileys.
+ * @param {string} urlOuCaminho
+ * @returns {string}
+ */
+function resolverOrigemMidia(urlOuCaminho) {
+  if (!urlOuCaminho || typeof urlOuCaminho !== 'string') return urlOuCaminho;
+
+  const urlLimpa = urlOuCaminho.trim();
+
+  // Caso 1: Caminho relativo que começa com /uploads/ ou uploads/
+  if (urlLimpa.startsWith('/uploads/') || urlLimpa.startsWith('uploads/')) {
+    const nomeArquivo = path.basename(urlLimpa.split('?')[0]);
+    const caminhoFisico = path.join(__dirname, '..', 'public', 'uploads', nomeArquivo);
+    if (fs.existsSync(caminhoFisico)) {
+      return caminhoFisico;
+    }
+  }
+
+  // Caso 2: URL completa apontando para /uploads/ no próprio servidor
+  if (urlLimpa.includes('/uploads/')) {
+    const partes = urlLimpa.split('/uploads/');
+    const nomeArquivo = path.basename(partes[1].split('?')[0]);
+    const caminhoFisico = path.join(__dirname, '..', 'public', 'uploads', nomeArquivo);
+    if (fs.existsSync(caminhoFisico)) {
+      return caminhoFisico;
+    }
+  }
+
+  return urlLimpa;
+}
+
+/**
  * Envia uma mensagem pelo WhatsApp através de uma sessão conectada
  * @param {string} projectId - Identificador do projeto
  * @param {object} dadosMensagem - { to, type, texto, url, legenda }
@@ -459,16 +494,18 @@ async function enviarMensagem(projectId, dadosMensagem) {
       if (!url) {
         throw new Error('O campo "url" é obrigatório para mensagens do tipo imagem');
       }
+      const midiaFinal = resolverOrigemMidia(url);
       payload = {
-        image: { url: url },
+        image: { url: midiaFinal },
         caption: legenda || texto || ''
       };
     } else if (tipoNormalizado === 'video') {
       if (!url) {
         throw new Error('O campo "url" é obrigatório para mensagens do tipo video');
       }
+      const midiaFinal = resolverOrigemMidia(url);
       payload = {
-        video: { url: url },
+        video: { url: midiaFinal },
         caption: legenda || texto || ''
       };
     } else {

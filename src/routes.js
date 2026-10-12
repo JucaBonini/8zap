@@ -1,8 +1,17 @@
+const fs = require('fs');
+const path = require('path');
+const crypto = require('crypto');
 const express = require('express');
 const router = express.Router();
 const sessionManager = require('./sessionManager');
 const agendador = require('./agendador');
 const { obterLogsProjeto } = require('./logger');
+
+// Garante que o diretório de uploads exista
+const pastaUploads = path.join(__dirname, '..', 'public', 'uploads');
+if (!fs.existsSync(pastaUploads)) {
+  fs.mkdirSync(pastaUploads, { recursive: true });
+}
 
 /**
  * Middleware de Autenticação Simples via Header 'x-api-key'
@@ -38,6 +47,93 @@ router.get('/auth/verify', (req, res) => {
   res.json({ sucesso: true, autenticado: true, mensagem: 'Chave de acesso autenticada com sucesso!' });
 });
 
+// ==========================================
+// ROTA DE UPLOAD DE MÍDIA (IMAGENS & VÍDEOS)
+// ==========================================
+
+/**
+ * POST /upload
+ * Recebe arquivos de imagem ou vídeo via Base64, salva em public/uploads/ e retorna links
+ * Body aceito: { base64: string, nome?: string }
+ */
+router.post('/upload', (req, res) => {
+  try {
+    const { base64, nome } = req.body || {};
+
+    if (!base64 || typeof base64 !== 'string') {
+      return res.status(400).json({
+        sucesso: false,
+        erro: 'Arquivo não informado. Envie o campo "base64" com o conteúdo da imagem.'
+      });
+    }
+
+    let buffer;
+    let extensao = '.jpg';
+
+    // Suporta tanto Data URI ("data:image/png;base64,...") quanto Base64 puro
+    const dataUriMatch = base64.match(/^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+);base64,(.+)$/);
+    if (dataUriMatch) {
+      const mime = dataUriMatch[1].toLowerCase();
+      buffer = Buffer.from(dataUriMatch[2], 'base64');
+
+      if (mime.includes('png')) extensao = '.png';
+      else if (mime.includes('webp')) extensao = '.webp';
+      else if (mime.includes('gif')) extensao = '.gif';
+      else if (mime.includes('jpeg') || mime.includes('jpg')) extensao = '.jpg';
+      else if (mime.includes('mp4')) extensao = '.mp4';
+      else if (mime.includes('webm')) extensao = '.webm';
+    } else {
+      buffer = Buffer.from(base64, 'base64');
+      if (nome && path.extname(nome)) {
+        extensao = path.extname(nome).toLowerCase();
+      }
+    }
+
+    if (!buffer || buffer.length === 0) {
+      return res.status(400).json({
+        sucesso: false,
+        erro: 'O arquivo enviado está vazio ou corrompido.'
+      });
+    }
+
+    // Limite de segurança de 25MB
+    const maxBytes = 25 * 1024 * 1024;
+    if (buffer.length > maxBytes) {
+      return res.status(400).json({
+        sucesso: false,
+        erro: 'O arquivo excede o limite máximo permitido de 25MB.'
+      });
+    }
+
+    const idRandom = crypto.randomBytes(4).toString('hex');
+    const nomeBaseLimpo = (nome ? path.parse(nome).name : 'midia')
+      .replace(/[^a-zA-Z0-9_-]/g, '_')
+      .substring(0, 30);
+    const nomeArquivo = `${Date.now()}_${idRandom}_${nomeBaseLimpo}${extensao}`;
+    const caminhoDestino = path.join(pastaUploads, nomeArquivo);
+
+    fs.writeFileSync(caminhoDestino, buffer);
+
+    const protocolo = req.protocol;
+    const host = req.get('host');
+    const urlRelativa = `/uploads/${nomeArquivo}`;
+    const urlCompleta = `${protocolo}://${host}${urlRelativa}`;
+
+    return res.json({
+      sucesso: true,
+      mensagem: 'Upload concluído e link gerado com sucesso!',
+      url: urlRelativa,
+      urlCompleta: urlCompleta,
+      nomeArquivo,
+      tamanhoBytes: buffer.length
+    });
+  } catch (err) {
+    return res.status(500).json({
+      sucesso: false,
+      erro: `Erro interno no upload: ${err.message}`
+    });
+  }
+});
 
 // ==========================================
 // ROTAS DE GERENCIAMENTO DE SESSÕES

@@ -901,6 +901,179 @@
       padding: 3rem 1rem;
       color: var(--text-muted);
     }
+
+    /* Upload Dropzone & Media Preview */
+    .dropzone {
+      border: 2px dashed rgba(255, 255, 255, 0.18);
+      border-radius: var(--radius-md);
+      padding: 1.4rem 1rem;
+      text-align: center;
+      background: rgba(18, 24, 38, 0.45);
+      cursor: pointer;
+      transition: all 0.25s ease;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 0.75rem;
+    }
+
+    .dropzone:hover {
+      border-color: var(--primary);
+      background: rgba(37, 211, 102, 0.06);
+      box-shadow: 0 0 20px rgba(37, 211, 102, 0.12);
+    }
+
+    .dropzone.dragover {
+      border-color: var(--primary);
+      background: rgba(37, 211, 102, 0.14);
+      box-shadow: 0 0 25px rgba(37, 211, 102, 0.25);
+      transform: scale(1.008);
+    }
+
+    .dropzone-icon {
+      font-size: 2.2rem;
+      margin-bottom: 0.4rem;
+      transition: transform 0.2s ease;
+    }
+
+    .dropzone:hover .dropzone-icon {
+      transform: translateY(-2px) scale(1.08);
+    }
+
+    .dropzone-text {
+      font-size: 0.9rem;
+      color: var(--text-main);
+      margin-bottom: 0.25rem;
+    }
+
+    .dropzone-browse {
+      color: var(--primary);
+      text-decoration: underline;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .dropzone-hint {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .dropzone-loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.6rem;
+      color: var(--primary);
+      font-size: 0.85rem;
+      font-weight: 500;
+      padding: 0.5rem;
+    }
+
+    /* Media Preview Card */
+    .media-preview-card {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(37, 211, 102, 0.35);
+      border-radius: var(--radius-md);
+      padding: 0.85rem;
+      margin-bottom: 0.85rem;
+      position: relative;
+      animation: fadeIn 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+    }
+
+    .preview-thumb-container {
+      width: 72px;
+      height: 72px;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      border: 1px solid var(--border-color);
+    }
+
+    .preview-thumb-container img,
+    .preview-thumb-container video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .preview-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .preview-status {
+      font-size: 0.75rem;
+      color: var(--primary);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .preview-filename {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .preview-meta {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 0.35rem;
+    }
+
+    .preview-url-copy {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .preview-url-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 0.25rem 0.6rem;
+      border-radius: 4px;
+      color: var(--accent-blue);
+      word-break: break-all;
+      max-width: 320px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .preview-btn-remove {
+      background: rgba(248, 113, 113, 0.15);
+      border: 1px solid rgba(248, 113, 113, 0.3);
+      color: var(--accent-red);
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+
+    .preview-btn-remove:hover {
+      background: var(--accent-red);
+      color: #fff;
+    }
   </style>
 </head>
 <body>
@@ -1315,8 +1488,51 @@
           </div>
 
           <div class="form-group" id="grupoEnvioUrl" style="display: none;">
-            <label for="envioUrl">URL da Mídia (Imagem ou Vídeo):</label>
-            <input type="url" id="envioUrl" class="form-control" placeholder="https://exemplo.com/foto.jpg">
+            <label for="envioUrl">Link da Mídia (Gerado automaticamente ao subir foto ou URL externa):</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="text" id="envioUrl" class="form-control" placeholder="https://exemplo.com/foto.jpg ou /uploads/..." oninput="aoDigitarUrl('envio')">
+              <button type="button" class="btn btn-secondary btn-sm" onclick="copiarLink('envio')" title="Copiar link gerado" style="white-space: nowrap;">📋 Copiar</button>
+            </div>
+            <p style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.3rem;">
+              💡 O link é gerado e preenchido automaticamente ao soltar um arquivo abaixo, ou cole um link web externo.
+            </p>
+          </div>
+
+          <!-- Dropzone de Upload Envio Avulso -->
+          <div class="form-group" id="grupoEnvioUpload" style="display: none;">
+            <label>Subir Imagem do Computador (Arrasta e Solta):</label>
+            <div class="dropzone" id="dropzoneEnvio" onclick="document.getElementById('inputArquivoEnvio').click()">
+              <input type="file" id="inputArquivoEnvio" accept="image/*,video/*" style="display: none;" onchange="aoSelecionarArquivo(event, 'envio')">
+              <div class="dropzone-content" id="dropzoneContentEnvio">
+                <div class="dropzone-icon">🖼️</div>
+                <div class="dropzone-text">
+                  <strong>Arraste e solte uma imagem aqui</strong> ou <span class="dropzone-browse">escolha no computador</span>
+                </div>
+                <div class="dropzone-hint">Gera o link da imagem e anexa automaticamente para envio (JPG, PNG, WEBP, GIF, MP4)</div>
+              </div>
+              <div class="dropzone-loading" id="dropzoneLoadingEnvio" style="display: none;">
+                <div class="spinner"></div>
+                <span>Processando upload e gerando link da imagem...</span>
+              </div>
+            </div>
+
+            <!-- Card de Prévia da Imagem / Vídeo -->
+            <div class="media-preview-card" id="previewMidiaEnvio" style="display: none;">
+              <div class="preview-thumb-container">
+                <img id="imgPreviewEnvio" src="" alt="Prévia" style="display: none;">
+                <video id="vidPreviewEnvio" src="" controls style="display: none;"></video>
+              </div>
+              <div class="preview-info">
+                <div class="preview-status"><span class="badge-dot" style="background: var(--primary);"></span> Imagem pronta & Link gerado</div>
+                <div class="preview-filename" id="previewNomeEnvio">imagem.jpg</div>
+                <div class="preview-meta" id="previewMetaEnvio">-- KB</div>
+                <div class="preview-url-copy">
+                  <span class="preview-url-text" id="previewUrlTextEnvio">/uploads/...</span>
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="copiarLink('envio')">📋 Copiar Link</button>
+                </div>
+              </div>
+              <button type="button" class="preview-btn-remove" onclick="removerMidia('envio')" title="Remover mídia">✕</button>
+            </div>
           </div>
 
           <div class="form-group" id="grupoEnvioTexto">
@@ -1362,8 +1578,51 @@
               </select>
             </div>
             <div class="form-group" id="grupoAgendaUrl" style="display: none;">
-              <label for="agendaUrl">URL da Mídia:</label>
-              <input type="url" id="agendaUrl" class="form-control" placeholder="https://exemplo.com/midia.mp4">
+              <label for="agendaUrl">Link da Mídia (Gerado automaticamente ao subir foto ou URL externa):</label>
+              <div style="display: flex; gap: 0.5rem;">
+                <input type="text" id="agendaUrl" class="form-control" placeholder="https://exemplo.com/midia.jpg ou /uploads/..." oninput="aoDigitarUrl('agenda')">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="copiarLink('agenda')" title="Copiar link gerado" style="white-space: nowrap;">📋 Copiar</button>
+              </div>
+              <p style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.3rem;">
+                💡 O link é gerado e preenchido automaticamente ao soltar um arquivo abaixo, ou cole um link web externo.
+              </p>
+            </div>
+          </div>
+
+          <!-- Dropzone de Upload Fila Manual -->
+          <div class="form-group" id="grupoAgendaUpload" style="display: none;">
+            <label>Subir Imagem do Computador (Arrasta e Solta):</label>
+            <div class="dropzone" id="dropzoneAgenda" onclick="document.getElementById('inputArquivoAgenda').click()">
+              <input type="file" id="inputArquivoAgenda" accept="image/*,video/*" style="display: none;" onchange="aoSelecionarArquivo(event, 'agenda')">
+              <div class="dropzone-content" id="dropzoneContentAgenda">
+                <div class="dropzone-icon">🖼️</div>
+                <div class="dropzone-text">
+                  <strong>Arraste e solte sua imagem aqui</strong> ou <span class="dropzone-browse">escolha no computador</span>
+                </div>
+                <div class="dropzone-hint">Gera o link da imagem e anexa automaticamente ao agendamento (JPG, PNG, WEBP, GIF, MP4)</div>
+              </div>
+              <div class="dropzone-loading" id="dropzoneLoadingAgenda" style="display: none;">
+                <div class="spinner"></div>
+                <span>Processando upload e gerando link da imagem...</span>
+              </div>
+            </div>
+
+            <!-- Card de Prévia da Imagem / Vídeo -->
+            <div class="media-preview-card" id="previewMidiaAgenda" style="display: none;">
+              <div class="preview-thumb-container">
+                <img id="imgPreviewAgenda" src="" alt="Prévia" style="display: none;">
+                <video id="vidPreviewAgenda" src="" controls style="display: none;"></video>
+              </div>
+              <div class="preview-info">
+                <div class="preview-status"><span class="badge-dot" style="background: var(--primary);"></span> Imagem pronta & Link gerado</div>
+                <div class="preview-filename" id="previewNomeAgenda">imagem.jpg</div>
+                <div class="preview-meta" id="previewMetaAgenda">-- KB</div>
+                <div class="preview-url-copy">
+                  <span class="preview-url-text" id="previewUrlTextAgenda">/uploads/...</span>
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="copiarLink('agenda')">📋 Copiar Link</button>
+                </div>
+              </div>
+              <button type="button" class="preview-btn-remove" onclick="removerMidia('agenda')" title="Remover imagem">✕</button>
             </div>
           </div>
 
@@ -1442,6 +1701,7 @@
     // Inicialização
     document.addEventListener('DOMContentLoaded', () => {
       verificarAutenticacaoInicial();
+      configurarDropzones();
     });
 
     // Funções de Autenticação
@@ -2184,19 +2444,226 @@
       }
     }
 
+    // ==========================================
+    // SISTEMA DE UPLOAD DE MÍDIA (DRAG & DROP)
+    // ==========================================
+
+    function configurarDropzones() {
+      ['agenda', 'envio'].forEach(contexto => {
+        const dropzone = document.getElementById(contexto === 'agenda' ? 'dropzoneAgenda' : 'dropzoneEnvio');
+        if (!dropzone) return;
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+          dropzone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropzone.classList.add('dragover');
+          }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+          dropzone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropzone.classList.remove('dragover');
+          }, false);
+        });
+
+        dropzone.addEventListener('drop', (e) => {
+          const dt = e.dataTransfer;
+          if (dt && dt.files && dt.files.length > 0) {
+            processarUploadArquivo(dt.files[0], contexto);
+          }
+        }, false);
+      });
+    }
+
+    function aoSelecionarArquivo(event, contexto) {
+      const input = event.target;
+      if (input.files && input.files[0]) {
+        processarUploadArquivo(input.files[0], contexto);
+      }
+    }
+
+    async function processarUploadArquivo(file, contexto) {
+      if (!file) return;
+
+      const ehImagem = file.type.startsWith('image/');
+      const ehVideo = file.type.startsWith('video/');
+
+      if (!ehImagem && !ehVideo) {
+        mostrarToast('Selecione um arquivo de imagem (PNG, JPG, WEBP, GIF) ou vídeo.', true);
+        return;
+      }
+
+      if (file.size > 25 * 1024 * 1024) {
+        mostrarToast('O arquivo excede o limite máximo de 25MB.', true);
+        return;
+      }
+
+      const idSufixo = contexto === 'agenda' ? 'Agenda' : 'Envio';
+      const contentEl = document.getElementById(`dropzoneContent${idSufixo}`);
+      const loadingEl = document.getElementById(`dropzoneLoading${idSufixo}`);
+      const inputUrl = document.getElementById(contexto === 'agenda' ? 'agendaUrl' : 'envioUrl');
+
+      if (contentEl) contentEl.style.display = 'none';
+      if (loadingEl) loadingEl.style.display = 'flex';
+
+      try {
+        const base64 = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+
+        const resp = await fetch('/upload', {
+          method: 'POST',
+          headers: obterHeaders(),
+          body: JSON.stringify({
+            nome: file.name,
+            base64: base64
+          })
+        });
+
+        const data = await resp.json();
+
+        if (!data.sucesso) {
+          throw new Error(data.erro || 'Falha ao realizar upload.');
+        }
+
+        if (inputUrl) {
+          inputUrl.value = data.url;
+        }
+
+        exibirPreviewMidia(contexto, {
+          url: data.url,
+          urlCompleta: data.urlCompleta,
+          nome: file.name,
+          tamanho: file.size,
+          tipo: ehVideo ? 'video' : 'imagem'
+        });
+
+        mostrarToast(`✅ Imagem enviada! Link gerado: ${data.url}`);
+      } catch (err) {
+        mostrarToast(`Erro ao subir imagem: ${err.message}`, true);
+      } finally {
+        if (contentEl) contentEl.style.display = 'block';
+        if (loadingEl) loadingEl.style.display = 'none';
+        const fileInput = document.getElementById(`inputArquivo${idSufixo}`);
+        if (fileInput) fileInput.value = '';
+      }
+    }
+
+    function exibirPreviewMidia(contexto, dados) {
+      const idSufixo = contexto === 'agenda' ? 'Agenda' : 'Envio';
+      const card = document.getElementById(`previewMidia${idSufixo}`);
+      const img = document.getElementById(`imgPreview${idSufixo}`);
+      const vid = document.getElementById(`vidPreview${idSufixo}`);
+      const nomeEl = document.getElementById(`previewNome${idSufixo}`);
+      const metaEl = document.getElementById(`previewMeta${idSufixo}`);
+      const urlTextEl = document.getElementById(`previewUrlText${idSufixo}`);
+
+      if (!card) return;
+
+      const url = dados.url || dados.urlCompleta || '';
+      const ehVideo = dados.tipo === 'video' || url.match(/\.(mp4|webm|mov)(\?.*)?$/i);
+
+      if (ehVideo) {
+        if (img) img.style.display = 'none';
+        if (vid) {
+          vid.src = url;
+          vid.style.display = 'block';
+        }
+      } else {
+        if (vid) vid.style.display = 'none';
+        if (img) {
+          img.src = url;
+          img.style.display = 'block';
+        }
+      }
+
+      if (nomeEl) nomeEl.innerText = dados.nome || url.split('/').pop() || 'Arquivo de mídia';
+      if (metaEl) {
+        if (dados.tamanho) {
+          const kb = (dados.tamanho / 1024).toFixed(1);
+          const mb = (dados.tamanho / (1024 * 1024)).toFixed(2);
+          metaEl.innerText = dados.tamanho > 1024 * 1024 ? `${mb} MB` : `${kb} KB`;
+        } else {
+          metaEl.innerText = 'Mídia vinculada';
+        }
+      }
+      if (urlTextEl) urlTextEl.innerText = url;
+
+      card.style.display = 'flex';
+    }
+
+    function removerMidia(contexto) {
+      const idSufixo = contexto === 'agenda' ? 'Agenda' : 'Envio';
+      const card = document.getElementById(`previewMidia${idSufixo}`);
+      const img = document.getElementById(`imgPreview${idSufixo}`);
+      const vid = document.getElementById(`vidPreview${idSufixo}`);
+      const inputUrl = document.getElementById(contexto === 'agenda' ? 'agendaUrl' : 'envioUrl');
+      const fileInput = document.getElementById(`inputArquivo${idSufixo}`);
+
+      if (card) card.style.display = 'none';
+      if (img) { img.src = ''; img.style.display = 'none'; }
+      if (vid) { vid.src = ''; vid.style.display = 'none'; }
+      if (inputUrl) inputUrl.value = '';
+      if (fileInput) fileInput.value = '';
+    }
+
+    function aoDigitarUrl(contexto) {
+      const inputUrl = document.getElementById(contexto === 'agenda' ? 'agendaUrl' : 'envioUrl');
+      const val = inputUrl ? inputUrl.value.trim() : '';
+
+      if (!val) {
+        removerMidia(contexto);
+        return;
+      }
+
+      exibirPreviewMidia(contexto, {
+        url: val,
+        nome: val.split('/').pop() || 'Mídia externa',
+        tipo: val.match(/\.(mp4|webm|mov)(\?.*)?$/i) ? 'video' : 'imagem'
+      });
+    }
+
+    function copiarLink(contexto) {
+      const inputUrl = document.getElementById(contexto === 'agenda' ? 'agendaUrl' : 'envioUrl');
+      if (!inputUrl || !inputUrl.value.trim()) {
+        mostrarToast('Nenhum link para copiar.', true);
+        return;
+      }
+
+      let linkParaCopiar = inputUrl.value.trim();
+      if (linkParaCopiar.startsWith('/')) {
+        linkParaCopiar = window.location.origin + linkParaCopiar;
+      }
+
+      navigator.clipboard.writeText(linkParaCopiar).then(() => {
+        mostrarToast('📋 Link copiado com sucesso!');
+      }).catch(() => {
+        mostrarToast(`Link: ${linkParaCopiar}`);
+      });
+    }
+
     // Formulário de Envio Avulso
     function aoMudarTipoEnvio() {
       const tipo = document.getElementById('envioTipo').value;
       const grupoUrl = document.getElementById('grupoEnvioUrl');
+      const grupoUpload = document.getElementById('grupoEnvioUpload');
       const grupoTexto = document.getElementById('grupoEnvioTexto');
       const grupoLegenda = document.getElementById('grupoEnvioLegenda');
 
       if (tipo === 'texto') {
         grupoUrl.style.display = 'none';
+        if (grupoUpload) grupoUpload.style.display = 'none';
         grupoTexto.style.display = 'block';
         grupoLegenda.style.display = 'none';
       } else {
         grupoUrl.style.display = 'block';
+        if (grupoUpload) grupoUpload.style.display = 'block';
         grupoTexto.style.display = 'none';
         grupoLegenda.style.display = 'block';
       }
@@ -2227,8 +2694,8 @@
         if (data.sucesso) {
           mostrarToast('Mensagem enviada com sucesso!');
           document.getElementById('envioTexto').value = '';
-          document.getElementById('envioUrl').value = '';
           document.getElementById('envioLegenda').value = '';
+          removerMidia('envio');
         } else {
           mostrarToast(`Erro ao enviar: ${data.erro}`, true);
         }
@@ -2244,15 +2711,18 @@
     function aoMudarTipoAgenda() {
       const tipo = document.getElementById('agendaTipo').value;
       const grupoUrl = document.getElementById('grupoAgendaUrl');
+      const grupoUpload = document.getElementById('grupoAgendaUpload');
       const grupoTexto = document.getElementById('grupoAgendaTexto');
       const grupoLegenda = document.getElementById('grupoAgendaLegenda');
 
       if (tipo === 'texto') {
         grupoUrl.style.display = 'none';
+        if (grupoUpload) grupoUpload.style.display = 'none';
         grupoTexto.style.display = 'block';
         grupoLegenda.style.display = 'none';
       } else {
         grupoUrl.style.display = 'block';
+        if (grupoUpload) grupoUpload.style.display = 'block';
         grupoTexto.style.display = 'none';
         grupoLegenda.style.display = 'block';
       }
@@ -2276,6 +2746,16 @@
       document.getElementById('agendaUrl').value = item.url || '';
       document.getElementById('agendaLegenda').value = item.legenda || '';
 
+      if (item.url) {
+        exibirPreviewMidia('agenda', {
+          url: item.url,
+          nome: item.url.split('/').pop() || 'Arquivo de mídia',
+          tipo: item.tipo === 'video' ? 'video' : 'imagem'
+        });
+      } else {
+        removerMidia('agenda');
+      }
+
       if (item.agendado_para) {
         try {
           const d = new Date(item.agendado_para);
@@ -2297,6 +2777,7 @@
       document.getElementById('btnSalvarFila').innerText = '📅 Agendar Post';
       document.getElementById('btnCancelarEdicaoFila').style.display = 'none';
       document.getElementById('formAgendamento').reset();
+      removerMidia('agenda');
       aoMudarTipoAgenda();
     }
 
@@ -2367,8 +2848,8 @@
           if (data.sucesso) {
             mostrarToast('Post agendado com sucesso!');
             document.getElementById('agendaTexto').value = '';
-            document.getElementById('agendaUrl').value = '';
             document.getElementById('agendaLegenda').value = '';
+            removerMidia('agenda');
             carregarFilaProjeto();
           } else {
             mostrarToast(`Erro: ${data.erro}`, true);

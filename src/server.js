@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const fs = require('fs');
 const path = require('path');
 const rotas = require('./routes');
 const sessionManager = require('./sessionManager');
@@ -14,8 +15,14 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// Servir arquivos estáticos do Painel Web (sem cache para refletir atualizações imediatamente)
+// Garante que a pasta de uploads estáticos exista
 const pastaPublica = path.join(__dirname, '..', 'public');
+const pastaUploads = path.join(pastaPublica, 'uploads');
+if (!fs.existsSync(pastaUploads)) {
+  fs.mkdirSync(pastaUploads, { recursive: true });
+}
+
+// Servir arquivos estáticos do Painel Web (sem cache para refletir atualizações imediatamente)
 app.use(express.static(pastaPublica, {
   etag: false,
   maxAge: 0,
