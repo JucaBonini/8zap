@@ -217,6 +217,9 @@ async function executarDisparoSlot(projectId, slot, destinosGrade) {
     return agendadorRss.dispararArtigoManual(projectId, true, destinosGrade);
   } else if (slot.origem === 'campanhas') {
     return agendadorCampanhas.dispararCampanhaManual(projectId, null, destinosGrade);
+  } else if (slot.origem === 'receitas') {
+    const receitasManager = require('./receitasManager');
+    return receitasManager.dispararProximaReceita(projectId, destinosGrade);
   } else {
     throw new Error(`Origem desconhecida "${slot.origem}".`);
   }

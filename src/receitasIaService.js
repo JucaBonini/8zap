@@ -1,0 +1,280 @@
+const fs = require('fs');
+const path = require('path');
+const crypto = require('crypto');
+const sharp = require('sharp');
+const { logProjeto } = require('./logger');
+
+const pastaUploads = path.join(__dirname, '..', 'public', 'uploads');
+if (!fs.existsSync(pastaUploads)) {
+  fs.mkdirSync(pastaUploads, { recursive: true });
+}
+
+/**
+ * Persona padrão da Mary para garantir receitas calorosas, humanizadas e que engajam de verdade
+ */
+const PERSONA_PADRAO_MARY = `Você é a Mary, uma cozinheira brasileira apaixonada, acolhedora e muito simpática, que compartilha receitas caseiras práticas e irresistíveis no WhatsApp.
+Seu estilo de escrita é autêntico, humano, caloroso e animado (NUNCA pareça um robô ou um livro acadêmico de receitas).
+
+REGRAS CRUCIAIS DE ESCRITA:
+1. ABERTURA (O Gancho): Comece com uma saudação calorosa e um gancho irresistível, como: "Gente do céu, para tudo e olha essa maravilha que preparei hoje!", "Olha só o cheirinho que tá invadindo a cozinha!", "Aqui em casa quando faço esse prato não sobra nem o molho pra contar história!".
+2. TÍTULO: Destaque o título do prato em caixa alta com asteriscos e emojis culinários adequados (ex: *PICADINHO DE PORCO COM LEGUMES* 🍲).
+3. INGREDIENTES: Lista clara, prática, organizada com marcadores limpos (▫️ ou -) e medidas caseiras acessíveis (gramas, xícaras, colheres).
+4. MODO DE PREPARO: Passo a passo descomplicado, numerado ou em tópicos curtos e fáceis de ler rapidamente no celular.
+5. O SEGREDO DA MARY: Inclua sempre uma dica de ouro ou truque da Mary que faz toda a diferença no prato (ex: "*O segredinho da Mary:* doure a carne em fogo bem alto para reter o suco antes de colocar a água...").
+6. RENDIMENTO E TEMPO: Indique de forma compacta (ex: ⏱️ *Preparo:* 35 min | 🍽️ *Rende:* 4 a 5 porções).
+7. CHAMADA PARA AÇÃO (ENGAGAMENTO): Finalize com uma pergunta calorosa pedindo para as pessoas salvarem a receita e reagirem/comentarem (ex: "Gostou? Já salva essa receita pra fazer no fim de semana! E me conta aqui: você é do time que acompanha com arroz soltinho ou purê de batatas? 👇❤️").
+
+NUNCA invente links externos ou hashtags robóticas em excesso.
+A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de linha limpas).`;
+
+/**
+ * Prompt para orientar a geração da foto gastronômica ultra-realista
+ */
+const INSTRUCAO_PROMPT_FOTO = `A photo prompt in English for generating a professional, mouth-watering culinary photograph of the completed dish.
+Must follow these rules:
+- Ultra-realistic professional food photography, editorial culinary style.
+- Shot in a cozy rustic kitchen, natural warm lighting.
+- The dish should look incredibly appetizing: glistening glossy sauce, vibrant colors of vegetables, tender meat chunks, garnished with fresh chopped herbs (parsley/scallions), subtle rising steam.
+- Served in a beautiful rustic cookware (like a red enameled cast-iron Dutch oven, rustic ceramic bowl, or skillet) on a clean modern dark cooktop or wooden table.
+- 45-degree angle shot, shallow depth of field (bokeh background), sharp focus on the food texture.
+- NO hands, NO people, NO plastic look, NO cartoonish 3D render, NO watermarks, NO text written inside the image.`;
+
+/**
+ * Gera o texto da receita e o prompt da imagem usando OpenAI (ChatGPT)
+ */
+async function gerarComOpenAi(apiKey, modeloTexto = 'gpt-4o-mini', tema = '', personaCustom = '') {
+  const promptSistema = (personaCustom && personaCustom.trim()) ? personaCustom.trim() : PERSONA_PADRAO_MARY;
+
+  const promptUsuario = `Crie uma receita irresistível de comida caseira brasileira.
+${tema && tema.trim() ? `Tema ou Prato solicitado: "${tema.trim()}".` : 'Escolha um prato clássico, muito apetitoso, popular e aconchegante para almoço ou jantar de família.'}
+
+Você deve responder ESTRITAMENTE em formato JSON com o seguinte schema:
+{
+  "titulo": "Nome do prato em caixa alta",
+  "mensagemWhatsApp": "Texto completo formatado da receita na voz da Mary para postar no WhatsApp com emojis e negrito",
+  "promptVisualIngles": "Detailed English food photography prompt describing the cooked dish: ${INSTRUCAO_PROMPT_FOTO}"
+}`;
+
+  const res = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`
+    },
+    body: JSON.stringify({
+      model: modeloTexto,
+      messages: [
+        { role: 'system', content: promptSistema },
+        { role: 'user', content: promptUsuario }
+      ],
+      response_format: { type: 'json_object' },
+      temperature: 0.75
+    })
+  });
+
+  if (!res.ok) {
+    const erroJson = await res.json().catch(() => ({}));
+    throw new Error(`Falha na API da OpenAI (Texto): ${erroJson.error?.message || res.statusText}`);
+  }
+
+  const jsonResposta = await res.json();
+  const conteudo = jsonResposta.choices?.[0]?.message?.content;
+  if (!conteudo) {
+    throw new Error('A OpenAI não retornou conteúdo na resposta.');
+  }
+
+  const dados = JSON.parse(conteudo);
+  return {
+    titulo: dados.titulo || 'RECEITA DA MARY',
+    mensagemWhatsApp: dados.mensagemWhatsApp,
+    promptVisualIngles: dados.promptVisualIngles
+  };
+}
+
+/**
+ * Gera a imagem do prato usando DALL-E 3 da OpenAI
+ */
+async function gerarImagemOpenAi(apiKey, promptVisual) {
+  const promptFinal = `${promptVisual}, authentic raw photograph, 8k resolution, culinary magazine editorial food shot, natural ambient lighting, no CGI, no 3D render, no plastic texture, no text`;
+
+  const res = await fetch('https://api.openai.com/v1/images/generations', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`
+    },
+    body: JSON.stringify({
+      model: 'dall-e-3',
+      prompt: promptFinal.slice(0, 1000),
+      n: 1,
+      size: '1024x1024',
+      quality: 'standard',
+      response_format: 'b64_json'
+    })
+  });
+
+  if (!res.ok) {
+    const erroJson = await res.json().catch(() => ({}));
+    throw new Error(`Falha na API da OpenAI (DALL-E 3): ${erroJson.error?.message || res.statusText}`);
+  }
+
+  const dados = await res.json();
+  const base64 = dados.data?.[0]?.b64_json;
+  if (!base64) {
+    throw new Error('DALL-E 3 não retornou dados de imagem em Base64.');
+  }
+
+  return Buffer.from(base64, 'base64');
+}
+
+/**
+ * Gera o texto da receita e o prompt da imagem usando Google Gemini
+ */
+async function gerarComGemini(apiKey, modeloTexto = 'gemini-2.0-flash', tema = '', personaCustom = '') {
+  const promptSistema = (personaCustom && personaCustom.trim()) ? personaCustom.trim() : PERSONA_PADRAO_MARY;
+
+  const promptUsuario = `${promptSistema}
+
+Crie uma receita irresistível de comida caseira brasileira.
+${tema && tema.trim() ? `Tema ou Prato solicitado: "${tema.trim()}".` : 'Escolha um prato clássico, muito apetitoso, popular e aconchegante para almoço ou jantar de família.'}
+
+Você deve responder ESTRITAMENTE em formato JSON com o seguinte schema:
+{
+  "titulo": "Nome do prato em caixa alta",
+  "mensagemWhatsApp": "Texto completo formatado da receita na voz da Mary para postar no WhatsApp com emojis e negrito",
+  "promptVisualIngles": "Detailed English food photography prompt describing the cooked dish: ${INSTRUCAO_PROMPT_FOTO}"
+}`;
+
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${modeloTexto}:generateContent?key=${apiKey}`;
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: promptUsuario }] }],
+      generationConfig: {
+        responseMimeType: 'application/json',
+        temperature: 0.75
+      }
+    })
+  });
+
+  if (!res.ok) {
+    const erroJson = await res.json().catch(() => ({}));
+    throw new Error(`Falha na API do Google Gemini (Texto): ${erroJson.error?.message || res.statusText}`);
+  }
+
+  const dados = await res.json();
+  const rawText = dados.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!rawText) {
+    throw new Error('O Gemini não retornou conteúdo na resposta.');
+  }
+
+  // Remove eventuais blocos de código ```json ... ``` se existirem
+  const limpo = rawText.replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
+  const parsed = JSON.parse(limpo);
+
+  return {
+    titulo: parsed.titulo || 'RECEITA DA MARY',
+    mensagemWhatsApp: parsed.mensagemWhatsApp,
+    promptVisualIngles: parsed.promptVisualIngles
+  };
+}
+
+/**
+ * Gera a imagem usando Imagen 3 do Google Gemini
+ */
+async function gerarImagemGemini(apiKey, promptVisual) {
+  const promptFinal = `${promptVisual}, authentic raw photograph, culinary magazine editorial food shot, rich glossy sauce, vibrant colors, 45 degree angle, shallow depth of field, no CGI, no 3D render`;
+
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`;
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      instances: [{ prompt: promptFinal.slice(0, 800) }],
+      parameters: {
+        sampleCount: 1,
+        aspectRatio: '1:1'
+      }
+    })
+  });
+
+  if (!res.ok) {
+    const erroJson = await res.json().catch(() => ({}));
+    throw new Error(`Falha no Imagen 3 (Google): ${erroJson.error?.message || res.statusText}`);
+  }
+
+  const dados = await res.json();
+  const b64 = dados.predictions?.[0]?.bytesBase64Encoded;
+  if (!b64) {
+    throw new Error('Imagen 3 não retornou dados de imagem válidos.');
+  }
+
+  return Buffer.from(b64, 'base64');
+}
+
+/**
+ * Otimiza a imagem para ser ultra-leve (~100-140 KB) e nítida para redes 3G brasileiras
+ * - Redimensiona para resolução ideal (800x800 ou 1024x1024)
+ * - Comprime em JPEG progressivo com quality 80%
+ * - Remove metadados desnecessários (strip EXIF)
+ * @param {Buffer} bufferEntrada
+ * @param {number} [resolucao=800]
+ * @param {number} [qualidade=80]
+ * @returns {Promise<Buffer>}
+ */
+async function otimizarImagemPara3G(bufferEntrada, resolucao = 800, qualidade = 80) {
+  try {
+    const bufferOtimizado = await sharp(bufferEntrada)
+      .resize(resolucao, resolucao, {
+        fit: 'cover',
+        position: 'center'
+      })
+      .jpeg({
+        quality: qualidade,
+        progressive: true,
+        mozjpeg: true
+      })
+      .toBuffer();
+
+    return bufferOtimizado;
+  } catch (err) {
+    // Fallback: se por algum motivo a compressão avançada falhar, tenta jpeg padrão
+    return sharp(bufferEntrada)
+      .resize(resolucao, resolucao, { fit: 'cover' })
+      .jpeg({ quality: 80 })
+      .toBuffer();
+  }
+}
+
+/**
+ * Salva a imagem otimizada em public/uploads/ com nome padronizado
+ * @param {Buffer} bufferImagem
+ * @param {string} idReceita
+ * @returns {Promise<{ caminhoFisico: string, urlPublica: string, tamanhoBytes: number }>}
+ */
+async function salvarImagemReceita(bufferImagem, idReceita) {
+  const nomeArquivo = `receita-${idReceita}.jpg`;
+  const caminhoFisico = path.join(pastaUploads, nomeArquivo);
+
+  await fs.promises.writeFile(caminhoFisico, bufferImagem);
+  const stats = await fs.promises.stat(caminhoFisico);
+
+  return {
+    caminhoFisico,
+    urlPublica: `/uploads/${nomeArquivo}`,
+    tamanhoBytes: stats.size
+  };
+}
+
+module.exports = {
+  PERSONA_PADRAO_MARY,
+  gerarComOpenAi,
+  gerarImagemOpenAi,
+  gerarComGemini,
+  gerarImagemGemini,
+  otimizarImagemPara3G,
+  salvarImagemReceita
+};

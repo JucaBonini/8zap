@@ -1160,6 +1160,179 @@
       border: 1px solid rgba(251, 191, 36, 0.35);
     }
 
+    .grade-origem-receitas {
+      background: rgba(251, 146, 60, 0.15);
+      color: #fb923c;
+      border: 1px solid rgba(251, 146, 60, 0.35);
+    }
+
+    /* Receitas IA (Mary) Styles */
+    .receitas-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.25rem;
+      margin-top: 1rem;
+    }
+
+    .receita-card {
+      background: rgba(18, 24, 38, 0.7);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.25s ease;
+      position: relative;
+    }
+
+    .receita-card:hover {
+      border-color: rgba(251, 146, 60, 0.4);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    }
+
+    .receita-img-wrapper {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      background: #060911;
+      overflow: hidden;
+    }
+
+    .receita-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.35s ease;
+    }
+
+    .receita-card:hover .receita-img {
+      transform: scale(1.03);
+    }
+
+    .receita-badge-3g {
+      position: absolute;
+      top: 0.6rem;
+      right: 0.6rem;
+      background: rgba(11, 15, 25, 0.85);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(37, 211, 102, 0.4);
+      color: #25d366;
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.25rem 0.55rem;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .receita-badge-provedor {
+      position: absolute;
+      top: 0.6rem;
+      left: 0.6rem;
+      background: rgba(11, 15, 25, 0.85);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 500;
+      padding: 0.25rem 0.55rem;
+      border-radius: 20px;
+    }
+
+    .receita-content {
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .receita-titulo {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.5rem;
+      line-height: 1.3;
+    }
+
+    .receita-texto-preview {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      max-height: 95px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      background: rgba(0, 0, 0, 0.2);
+      padding: 0.5rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      margin-bottom: 0.85rem;
+      flex: 1;
+    }
+
+    .receita-meta-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 0.85rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      padding-top: 0.5rem;
+    }
+
+    .receita-actions {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    .provedor-toggle-group {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .provedor-card-btn {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.03);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transition: all 0.2s ease;
+    }
+
+    .provedor-card-btn:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .provedor-card-btn.active {
+      border-color: var(--primary);
+      background: rgba(37, 211, 102, 0.08);
+    }
+
+    .provedor-card-btn .icone {
+      font-size: 1.6rem;
+    }
+
+    .provedor-card-btn .info h4 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .provedor-card-btn .info span {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: block;
+    }
+
     .grade-slot-desc {
       font-size: 0.78rem;
       color: var(--text-muted);
@@ -1264,6 +1437,7 @@
       <div class="tabs">
         <button class="tab-btn active" onclick="trocarAba('aba-qr', event)">QR Code & Conexão</button>
         <button class="tab-btn" onclick="trocarAba('aba-grade', event)">🗓️ Grade Diária</button>
+        <button class="tab-btn" onclick="trocarAba('aba-receitas', event)">🍳 Receitas IA (Mary)</button>
         <button class="tab-btn" onclick="trocarAba('aba-rss', event)">📰 RSS Automático</button>
         <button class="tab-btn" onclick="trocarAba('aba-campanhas', event)">🛍️ Ofertas & Imagens</button>
         <button class="tab-btn" onclick="trocarAba('aba-fila', event)">📝 Fila Manual</button>
@@ -1360,6 +1534,7 @@
               <label for="gradeNovaOrigemSelect" style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.3rem;">Tipo / Módulo de Disparo:</label>
               <select id="gradeNovaOrigemSelect" class="form-control" style="font-weight: 500;">
                 <option value="manual">📝 Fila Manual (Consome o próximo post da esteira)</option>
+                <option value="receitas">🍳 Receita da Mary (IA) - Prato + Foto Apetitosa</option>
                 <option value="rss">📰 RSS Automático (Posta próxima receita/artigo do feed)</option>
                 <option value="campanhas">🛍️ Ofertas & Imagens (Posta oferta/promoção Shopee)</option>
               </select>
@@ -1389,6 +1564,214 @@
 
           <div id="gradeTimelineContainer" class="grade-timeline">
             <!-- Renderizado dinamicamente -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Aba: Receitas IA (Mary) -->
+      <div id="aba-receitas" class="tab-content">
+        <!-- Banner de Destaque da Mary -->
+        <div style="background: linear-gradient(135deg, rgba(251, 146, 60, 0.12), rgba(234, 88, 12, 0.05)); border: 1px solid rgba(251, 146, 60, 0.3); border-radius: var(--radius-md); padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div style="display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #fb923c, #ea580c); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; box-shadow: 0 0 20px rgba(251, 146, 60, 0.35);">
+              🍳
+            </div>
+            <div>
+              <h2 style="font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 0.2rem;">Receitas da Mary (IA Culinária)</h2>
+              <p style="font-size: 0.82rem; color: var(--text-muted); max-width: 650px;">
+                Criação automatizada de receitas irresistíveis com textos humanizados e fotografias gastronômicas ultra-realistas, otimizadas para carregamento instantâneo em conexões 3G (90-130 KB).
+              </p>
+            </div>
+          </div>
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <span class="badge" id="badgeReceitasStatus" style="font-size: 0.8rem; padding: 0.35rem 0.75rem; background: rgba(251, 146, 60, 0.18); color: #fb923c; border: 1px solid rgba(251, 146, 60, 0.35);">
+              <span class="badge-dot" style="background: #fb923c;"></span> Motor Pronto
+            </span>
+          </div>
+        </div>
+
+        <!-- Card 1: Configuração da IA (ChatGPT vs Gemini) -->
+        <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
+            <div>
+              <h3 style="margin-bottom: 0.2rem;">⚙️ Configuração do Motor de Inteligência Artificial</h3>
+              <p style="font-size: 0.8rem; color: var(--text-muted);">Alterne livremente entre ChatGPT (OpenAI) e Google Gemini conforme sua preferência ou custo.</p>
+            </div>
+          </div>
+
+          <!-- Seletores de Provedor -->
+          <div class="provedor-toggle-group">
+            <div class="provedor-card-btn active" id="btnProvedorOpenai" onclick="selecionarProvedorIa('openai')">
+              <span class="icone">🤖</span>
+              <div class="info">
+                <h4>ChatGPT / OpenAI</h4>
+                <span>GPT-4o-mini (Texto) + DALL-E 3 (Foto)</span>
+              </div>
+            </div>
+            <div class="provedor-card-btn" id="btnProvedorGemini" onclick="selecionarProvedorIa('gemini')">
+              <span class="icone">✨</span>
+              <div class="info">
+                <h4>Google Gemini</h4>
+                <span>Gemini 2.0 Flash (Texto) + Imagen 3 (Foto)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Inputs das Chaves de API -->
+          <div class="form-row">
+            <div class="form-group" id="grupoKeyOpenai">
+              <label for="recApiKeyOpenai">OpenAI API Key (ChatGPT & DALL-E 3):</label>
+              <div style="position: relative;">
+                <input type="password" id="recApiKeyOpenai" class="form-control" placeholder="sk-proj-..." style="padding-right: 40px;">
+                <button type="button" onclick="toggleSenhaInput('recApiKeyOpenai')" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.9rem;">👁️</button>
+              </div>
+              <p style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.3rem;">Usada para o modelo <code>gpt-4o-mini</code> e <code>dall-e-3</code>.</p>
+            </div>
+            <div class="form-group" id="grupoKeyGemini">
+              <label for="recApiKeyGemini">Google Gemini API Key (Gemini & Imagen 3):</label>
+              <div style="position: relative;">
+                <input type="password" id="recApiKeyGemini" class="form-control" placeholder="AIzaSy..." style="padding-right: 40px;">
+                <button type="button" onclick="toggleSenhaInput('recApiKeyGemini')" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.9rem;">👁️</button>
+              </div>
+              <p style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.3rem;">Usada para <code>gemini-2.0-flash</code> e geração no Google AI Studio.</p>
+            </div>
+          </div>
+
+          <!-- Configurações de Otimização de Imagem (3G) -->
+          <div class="form-row">
+            <div class="form-group">
+              <label for="recResolucao">Resolução da Imagem:</label>
+              <select id="recResolucao" class="form-control">
+                <option value="800" selected>800 × 800 px (Recomendado para 3G no Brasil - ~100 KB)</option>
+                <option value="1024">1024 × 1024 px (Alta Definição Retina - ~150 KB)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="recQualidade">Compressão Inteligente (Sharp MozJPEG):</label>
+              <select id="recQualidade" class="form-control">
+                <option value="80" selected>80% de Qualidade (Ideal: 0 perdas visíveis + máxima leveza)</option>
+                <option value="85">85% de Qualidade</option>
+                <option value="90">90% de Qualidade (Arquivos maiores)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Persona da Mary -->
+          <div class="form-group">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+              <label for="recPersonaCustom" style="margin-bottom: 0;">Voz e Estilo de Escrita da Mary (Instrução do Sistema):</label>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="restaurarPersonaPadraoMary()" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;">Restaurar Padrão Mary</button>
+            </div>
+            <textarea id="recPersonaCustom" class="form-control" style="min-height: 100px; font-size: 0.82rem; line-height: 1.5;" placeholder="Instruções para como a Mary conversa com seu público..."></textarea>
+            <p style="font-size: 0.73rem; color: var(--text-muted); margin-top: 0.3rem;">
+              💡 Personalize se desejar que ela mencione alguma cidade, estilo de culinária específico (ex: mineira, fitness, sobremesas) ou mude as frases de abertura.
+            </p>
+          </div>
+
+          <!-- Destinos da Mary (Canais) -->
+          <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem; flex-wrap: wrap; gap: 0.5rem;">
+              <div>
+                <label style="margin-bottom: 0; font-weight: 600; font-size: 0.9rem;">📢 Canais de Destino Padrão para Receitas:</label>
+                <span style="font-size: 0.75rem; color: var(--text-muted); display: block;">Selecione os canais ou grupos que receberão as postagens de receitas da Mary</span>
+              </div>
+              <div style="display: flex; gap: 0.4rem; align-items: center;">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="marcarTodosDestinosReceitas(true)" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">Marcar Todos</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="marcarTodosDestinosReceitas(false)" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">Desmarcar</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="carregarDestinosReceitas(true)" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">🔄 Atualizar Canais</button>
+              </div>
+            </div>
+            <div id="containerCheckboxesDestinosReceitas" style="background: rgba(0,0,0,0.25); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.75rem; max-height: 170px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.45rem;">
+              <p style="color: var(--text-muted); font-size: 0.8rem; padding: 0.4rem;">Carregando canais disponíveis...</p>
+            </div>
+          </div>
+
+          <div style="margin-top: 1.25rem;">
+            <button type="button" class="btn" onclick="salvarConfigReceitasForm()">💾 Salvar Configurações de IA</button>
+          </div>
+        </div>
+
+        <!-- Card 2: Gerador de Receitas (Avulso & Lote) -->
+        <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
+          <h3 style="margin-bottom: 0.75rem;">✨ Gerador de Receitas & Fotos Gastronômicas</h3>
+
+          <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; flex-wrap: wrap;">
+            <!-- Gerador Avulso -->
+            <div style="background: rgba(255, 255, 255, 0.02); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+              <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem; color: #fff;">🍳 Gerar 1 Receita Agora</h4>
+              <div class="form-group" style="margin-bottom: 0.75rem;">
+                <label for="recTemaInput" style="font-size: 0.8rem;">Tema, Prato ou Ingrediente (Opcional):</label>
+                <input type="text" id="recTemaInput" class="form-control" placeholder="Ex: Picadinho de porco com legumes, Moqueca cremosa, Frango ao curry...">
+                <span style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-top: 0.25rem;">Deixe em branco para a Mary sugerir um prato surpresa irresistível do dia.</span>
+              </div>
+              <button class="btn" id="btnGerarReceitaUnica" onclick="gerarReceitaAvulsaBtn()" style="width: 100%;">
+                ✨ Gerar Receita com Foto
+              </button>
+            </div>
+
+            <!-- Gerador em Lote -->
+            <div style="background: rgba(255, 255, 255, 0.02); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+              <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem; color: #fff;">📦 Gerar Lote de Receitas</h4>
+              <div class="form-group" style="margin-bottom: 0.75rem;">
+                <label for="recQtdLoteSelect" style="font-size: 0.8rem;">Quantidade de Receitas:</label>
+                <select id="recQtdLoteSelect" class="form-control">
+                  <option value="3">3 Receitas</option>
+                  <option value="5" selected>5 Receitas</option>
+                  <option value="10">10 Receitas</option>
+                  <option value="20">20 Receitas</option>
+                  <option value="30">30 Receitas (1 Mês de posts diários)</option>
+                </select>
+                <span style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-top: 0.25rem;">As receitas geradas entram direto no catálogo prontas para disparar ou agendar.</span>
+              </div>
+              <button class="btn btn-secondary" id="btnGerarLoteReceitas" onclick="gerarLoteReceitasBtn()" style="width: 100%;">
+                🚀 Iniciar Geração em Lote
+              </button>
+            </div>
+          </div>
+
+          <!-- Status / Carregamento da Geração -->
+          <div id="boxStatusGeracaoReceita" style="display: none; margin-top: 1rem; padding: 1rem; background: rgba(251, 146, 60, 0.08); border: 1px solid rgba(251, 146, 60, 0.3); border-radius: var(--radius-sm);">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <div class="spinner" style="border-top-color: #fb923c;"></div>
+              <div>
+                <strong id="textoStatusGeracaoReceita" style="color: #fb923c; font-size: 0.9rem;">Gerando receita com a Mary...</strong>
+                <p id="subtextoStatusGeracaoReceita" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">Escrevendo modo de preparo e renderizando fotografia culinária em alta resolução...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3: Catálogo & Esteira de Receitas da Mary -->
+        <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+            <div>
+              <h3 style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.2rem;">
+                📚 Catálogo de Receitas da Mary
+                <span id="badgeTotalReceitas" class="badge badge-connected" style="font-size: 0.75rem;">0 receitas</span>
+              </h3>
+              <p style="font-size: 0.78rem; color: var(--text-muted);">
+                Receitas com foto e texto prontas para postagem imediata ou consumo sequencial pela Grade Diária.
+              </p>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+              <button class="btn btn-secondary btn-sm" onclick="carregarReceitas()">🔄 Atualizar Catálogo</button>
+            </div>
+          </div>
+
+          <!-- Filtros de Visualização -->
+          <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+            <button class="btn btn-secondary btn-sm active" id="btnFiltroTodasReceitas" onclick="filtrarReceitasExibidas('todas')">Todas (<span id="countFiltroTodas">0</span>)</button>
+            <button class="btn btn-secondary btn-sm" id="btnFiltroProntasReceitas" onclick="filtrarReceitasExibidas('pronto')">Prontas na Esteira (<span id="countFiltroProntas">0</span>)</button>
+            <button class="btn btn-secondary btn-sm" id="btnFiltroEnviadasReceitas" onclick="filtrarReceitasExibidas('enviado')">Já Postadas (<span id="countFiltroEnviadas">0</span>)</button>
+          </div>
+
+          <!-- Grid de Cards de Receitas -->
+          <div id="containerGridReceitas" class="receitas-grid">
+            <div class="empty-state" style="grid-column: 1 / -1; padding: 2.5rem 1rem;">
+              <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🍲</div>
+              <p style="font-size: 1rem; color: #fff; font-weight: 500;">Nenhuma receita gerada ainda.</p>
+              <p style="font-size: 0.8rem; margin-top: 0.4rem;">Clique em <strong>"✨ Gerar Receita com Foto"</strong> acima para criar seu primeiro prato com a Mary!</p>
+            </div>
           </div>
         </div>
       </div>
@@ -2316,6 +2699,12 @@
       if (idAba === 'aba-grade') {
         carregarGradeProjeto();
         carregarDestinosGrade();
+      }
+
+      if (idAba === 'aba-receitas') {
+        carregarConfigReceitas();
+        carregarReceitas();
+        carregarDestinosReceitas();
       }
 
       if (idAba === 'aba-rss') {
@@ -4005,6 +4394,12 @@
           icone: '🛍️',
           classe: 'grade-origem-campanhas',
           desc: 'Dispara a próxima oferta/promoção Shopee cadastrada'
+        },
+        receitas: {
+          nome: 'Receita da Mary (IA)',
+          icone: '🍳',
+          classe: 'grade-origem-receitas',
+          desc: 'Dispara a próxima receita com foto apetitosa gerada pela IA (ou cria uma na hora se a esteira estiver vazia)'
         }
       };
 
@@ -4259,6 +4654,525 @@
       }
       document.getElementById('formAgendamento').scrollIntoView({ behavior: 'smooth' });
     }
+
+    // ==========================================
+    // CLIENTE JAVASCRIPT: RECEITAS IA (MARY)
+    // ==========================================
+    let receitasCache = [];
+    let configReceitasCache = null;
+    let filtroAtualReceitas = 'todas';
+    let provedorIaSelecionado = 'openai';
+
+    const PERSONA_PADRAO_MARY_JS = `Você é a Mary, uma cozinheira brasileira apaixonada, acolhedora e muito simpática, que compartilha receitas caseiras práticas e irresistíveis no WhatsApp.
+Seu estilo de escrita é autêntico, humano, caloroso e animado (NUNCA pareça um robô ou um livro acadêmico de receitas).
+
+REGRAS CRUCIAIS DE ESCRITA:
+1. ABERTURA (O Gancho): Comece com uma saudação calorosa e um gancho irresistível, como: "Gente do céu, para tudo e olha essa maravilha que preparei hoje!", "Olha só o cheirinho que tá invadindo a cozinha!", "Aqui em casa quando faço esse prato não sobra nem o molho pra contar história!".
+2. TÍTULO: Destaque o título do prato em caixa alta com asteriscos e emojis culinários adequados (ex: *PICADINHO DE PORCO COM LEGUMES* 🍲).
+3. INGREDIENTES: Lista clara, prática, organizada com marcadores limpos (▫️ ou -) e medidas caseiras acessíveis (gramas, xícaras, colheres).
+4. MODO DE PREPARO: Passo a passo descomplicado, numerado ou em tópicos curtos e fáceis de ler rapidamente no celular.
+5. O SEGREDO DA MARY: Inclua sempre uma dica de ouro ou truque da Mary que faz toda a diferença no prato (ex: "*O segredinho da Mary:* doure a carne em fogo bem alto para reter o suco antes de colocar a água...").
+6. RENDIMENTO E TEMPO: Indique de forma compacta (ex: ⏱️ *Preparo:* 35 min | 🍽️ *Rende:* 4 a 5 porções).
+7. CHAMADA PARA AÇÃO (ENGAGAMENTO): Finalize com uma pergunta calorosa pedindo para as pessoas salvarem a receita e reagirem/comentarem (ex: "Gostou? Já salva essa receita pra fazer no fim de semana! E me conta aqui: você é do time que acompanha com arroz soltinho ou purê de batatas? 👇❤️").
+
+NUNCA invente links externos ou hashtags robóticas em excesso.
+A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de linha limpas).`;
+
+    function selecionarProvedorIa(prov) {
+      provedorIaSelecionado = prov;
+      document.getElementById('btnProvedorOpenai')?.classList.toggle('active', prov === 'openai');
+      document.getElementById('btnProvedorGemini')?.classList.toggle('active', prov === 'gemini');
+    }
+
+    function toggleSenhaInput(id) {
+      const input = document.getElementById(id);
+      if (!input) return;
+      input.type = input.type === 'password' ? 'text' : 'password';
+    }
+
+    function restaurarPersonaPadraoMary() {
+      const txt = document.getElementById('recPersonaCustom');
+      if (txt) {
+        txt.value = PERSONA_PADRAO_MARY_JS;
+        mostrarToast('Voz padrão da Mary restaurada!');
+      }
+    }
+
+    async function carregarConfigReceitas() {
+      if (!projetoSelecionado) return;
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/receitas/config`, {
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+
+        if (data.sucesso && data.config) {
+          configReceitasCache = data.config;
+          selecionarProvedorIa(data.config.provedor || 'openai');
+
+          const keyOpenai = document.getElementById('recApiKeyOpenai');
+          if (keyOpenai) keyOpenai.value = data.config.apiKeyOpenai || '';
+
+          const keyGemini = document.getElementById('recApiKeyGemini');
+          if (keyGemini) keyGemini.value = data.config.apiKeyGemini || '';
+
+          const resolucao = document.getElementById('recResolucao');
+          if (resolucao) resolucao.value = String(data.config.resolucaoImagem || 800);
+
+          const qualidade = document.getElementById('recQualidade');
+          if (qualidade) qualidade.value = String(data.config.qualidadeCompressao || 80);
+
+          const persona = document.getElementById('recPersonaCustom');
+          if (persona) {
+            persona.value = data.config.personaCustom || PERSONA_PADRAO_MARY_JS;
+          }
+        }
+      } catch (err) {
+        console.error('Erro ao carregar configurações de receitas:', err);
+      }
+    }
+
+    async function salvarConfigReceitasForm() {
+      if (!projetoSelecionado) return;
+
+      const apiKeyOpenai = document.getElementById('recApiKeyOpenai')?.value.trim() || '';
+      const apiKeyGemini = document.getElementById('recApiKeyGemini')?.value.trim() || '';
+      const resolucaoImagem = Number(document.getElementById('recResolucao')?.value) || 800;
+      const qualidadeCompressao = Number(document.getElementById('recQualidade')?.value) || 80;
+      const personaCustom = document.getElementById('recPersonaCustom')?.value.trim() || '';
+
+      const destinos = Array.from(document.querySelectorAll('.checkbox-destino-receita:checked')).map(cb => cb.value);
+
+      try {
+        mostrarToast('Salvando configurações de IA...');
+        const resp = await fetch(`/sessions/${projetoSelecionado}/receitas/config`, {
+          method: 'POST',
+          headers: obterHeaders(),
+          body: JSON.stringify({
+            provedor: provedorIaSelecionado,
+            apiKeyOpenai,
+            apiKeyGemini,
+            resolucaoImagem,
+            qualidadeCompressao,
+            personaCustom,
+            destinos
+          })
+        });
+
+        const data = await resp.json();
+        if (data.sucesso) {
+          configReceitasCache = data.config;
+          mostrarToast('✅ Configurações de Receitas IA salvas com sucesso!');
+        } else {
+          mostrarToast(`Erro ao salvar: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro ao salvar: ${err.message}`, true);
+      }
+    }
+
+    async function carregarDestinosReceitas(forcar = false) {
+      if (!projetoSelecionado) return;
+
+      const container = document.getElementById('containerCheckboxesDestinosReceitas');
+      if (!container) return;
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/destinos${forcar ? '?atualizar=true' : ''}`, {
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+
+        if (!data.sucesso || !data.destinos || data.destinos.length === 0) {
+          container.innerHTML = `<p style="color: var(--text-muted); font-size: 0.8rem; padding: 0.4rem;">Nenhum canal ou grupo encontrado. Conecte o WhatsApp ou adicione links de canal na aba RSS.</p>`;
+          return;
+        }
+
+        const destinosAtuais = (configReceitasCache && Array.isArray(configReceitasCache.destinos))
+          ? configReceitasCache.destinos
+          : [];
+
+        container.innerHTML = data.destinos.map(dest => {
+          const marcado = destinosAtuais.length === 0 || destinosAtuais.includes(dest.jid);
+          const iconeTipo = dest.tipo === 'canal' ? '📢' : '👥';
+          return `
+            <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; padding: 0.35rem 0.5rem; border-radius: var(--radius-sm); background: rgba(255,255,255,0.02); transition: background 0.15s ease;" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='rgba(255,255,255,0.02)'">
+              <input type="checkbox" class="checkbox-destino-receita" value="${dest.jid}" ${marcado ? 'checked' : ''} style="accent-color: var(--primary); width: 16px; height: 16px;">
+              <span style="font-size: 0.85rem; font-weight: 500; color: #fff;">${iconeTipo} ${dest.nome}</span>
+              <span style="font-size: 0.72rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; margin-left: auto;">${dest.jid}</span>
+            </label>
+          `;
+        }).join('');
+      } catch (err) {
+        console.error('Erro ao carregar destinos de receitas:', err);
+      }
+    }
+
+    function marcarTodosDestinosReceitas(marcar) {
+      document.querySelectorAll('.checkbox-destino-receita').forEach(cb => {
+        cb.checked = Boolean(marcar);
+      });
+    }
+
+    async function carregarReceitas() {
+      if (!projetoSelecionado) return;
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/receitas`, {
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+
+        if (data.sucesso && Array.isArray(data.receitas)) {
+          receitasCache = data.receitas;
+          atualizarContadoresReceitas();
+          renderizarGridReceitas();
+        }
+      } catch (err) {
+        console.error('Erro ao carregar receitas:', err);
+      }
+    }
+
+    function atualizarContadoresReceitas() {
+      const total = receitasCache.length;
+      const prontas = receitasCache.filter(r => r.status === 'pronto').length;
+      const enviadas = receitasCache.filter(r => r.status === 'enviado').length;
+
+      document.getElementById('badgeTotalReceitas').innerText = `${total} receita(s)`;
+      document.getElementById('countFiltroTodas').innerText = total;
+      document.getElementById('countFiltroProntas').innerText = prontas;
+      document.getElementById('countFiltroEnviadas').innerText = enviadas;
+    }
+
+    function filtrarReceitasExibidas(filtro) {
+      filtroAtualReceitas = filtro;
+      document.getElementById('btnFiltroTodasReceitas')?.classList.toggle('active', filtro === 'todas');
+      document.getElementById('btnFiltroProntasReceitas')?.classList.toggle('active', filtro === 'pronto');
+      document.getElementById('btnFiltroEnviadasReceitas')?.classList.toggle('active', filtro === 'enviado');
+      renderizarGridReceitas();
+    }
+
+    function renderizarGridReceitas() {
+      const container = document.getElementById('containerGridReceitas');
+      if (!container) return;
+
+      let lista = [...receitasCache];
+      if (filtroAtualReceitas === 'pronto') {
+        lista = lista.filter(r => r.status === 'pronto');
+      } else if (filtroAtualReceitas === 'enviado') {
+        lista = lista.filter(r => r.status === 'enviado');
+      }
+
+      if (lista.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state" style="grid-column: 1 / -1; padding: 2.5rem 1rem;">
+            <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🍲</div>
+            <p style="font-size: 1rem; color: #fff; font-weight: 500;">Nenhuma receita encontrada para este filtro.</p>
+            <p style="font-size: 0.8rem; margin-top: 0.4rem;">Gere novas receitas com a Mary no formulário acima!</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = lista.map(rec => {
+        const tamanhoKb = rec.tamanhoBytes ? (rec.tamanhoBytes / 1024).toFixed(0) : '--';
+        const isEnviado = rec.status === 'enviado';
+        const badgeStatus = isEnviado
+          ? `<span class="badge badge-connected" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;"><span class="badge-dot"></span>Postada</span>`
+          : `<span class="badge badge-aguardando_qr" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;"><span class="badge-dot"></span>Pronta na Esteira</span>`;
+
+        const badgeProvedor = rec.provedor === 'gemini'
+          ? `✨ Gemini / Imagen 3`
+          : `🤖 OpenAI / DALL-E 3`;
+
+        const dataFormatada = rec.criadoEm ? new Date(rec.criadoEm).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '';
+
+        return `
+          <div class="receita-card" id="cardReceita_${rec.id}">
+            <div class="receita-img-wrapper">
+              <img src="${rec.imagemUrl}" alt="${rec.titulo}" class="receita-img" loading="lazy" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'300\' height=\'300\'><rect width=\'100%\' height=\'100%\' fill=\'%23111827\'/><text x=\'50%\' y=\'50%\' fill=\'%23888\' font-size=\'14\' text-anchor=\'middle\'>Foto em Processamento</text></svg>'">
+              <span class="receita-badge-provedor">${badgeProvedor}</span>
+              <span class="receita-badge-3g">⚡ ${tamanhoKb} KB (3G)</span>
+            </div>
+            <div class="receita-content">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.4rem;">
+                <h4 class="receita-titulo">${rec.titulo}</h4>
+                ${badgeStatus}
+              </div>
+              <div class="receita-texto-preview">${rec.texto}</div>
+              <div class="receita-meta-bar">
+                <span>📅 ${dataFormatada}</span>
+                <span>📐 ${rec.resolucao || '800x800'}</span>
+              </div>
+              <div class="receita-actions">
+                <button class="btn btn-sm" onclick="dispararReceitaCardBtn('${rec.id}')" title="Disparar para os canais agora" style="flex: 1; padding: 0.35rem 0.5rem; font-size: 0.78rem;">
+                  🚀 Disparar
+                </button>
+                <button class="btn btn-secondary btn-sm" onclick="adicionarReceitaFilaBtn('${rec.id}')" title="Mandar para a Esteira (Fila da Grade)" style="padding: 0.35rem 0.55rem; font-size: 0.78rem;">
+                  📦 Esteira
+                </button>
+                <button class="btn btn-secondary btn-sm" onclick="regerarFotoReceitaBtn('${rec.id}')" title="Regerar foto com IA mantendo o texto" style="padding: 0.35rem 0.55rem; font-size: 0.78rem;">
+                  🔄 Foto
+                </button>
+                <button class="btn btn-secondary btn-sm" onclick="abrirModalEditarReceita('${rec.id}')" title="Editar texto" style="padding: 0.35rem 0.55rem; font-size: 0.78rem;">
+                  ✏️
+                </button>
+                <button class="btn btn-danger btn-sm" onclick="excluirReceitaBtn('${rec.id}', '${rec.titulo.replace(/'/g, "\\'")}')" title="Excluir" style="padding: 0.35rem 0.55rem; font-size: 0.78rem;">
+                  🗑
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function gerarReceitaAvulsaBtn() {
+      if (!projetoSelecionado) return;
+
+      const inputTema = document.getElementById('recTemaInput');
+      const tema = inputTema ? inputTema.value.trim() : '';
+
+      const btn = document.getElementById('btnGerarReceitaUnica');
+      const boxStatus = document.getElementById('boxStatusGeracaoReceita');
+      const txtStatus = document.getElementById('textoStatusGeracaoReceita');
+      const subtxtStatus = document.getElementById('subtextoStatusGeracaoReceita');
+
+      btn.disabled = true;
+      boxStatus.style.display = 'block';
+      txtStatus.innerText = 'Cozinhando a receita com a Mary...';
+      subtxtStatus.innerText = 'Escrevendo modo de preparo humanizado e gerando fotografia gastronômica em alta resolução...';
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/receitas/gerar`, {
+          method: 'POST',
+          headers: obterHeaders(),
+          body: JSON.stringify({
+            tema,
+            provedor: provedorIaSelecionado,
+            resolucao: Number(document.getElementById('recResolucao')?.value) || 800
+          })
+        });
+
+        const data = await resp.json();
+        if (data.sucesso) {
+          mostrarToast(`✨ ${data.mensagem}`);
+          if (inputTema) inputTema.value = '';
+          await carregarReceitas();
+        } else {
+          mostrarToast(`Erro ao gerar: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro na geração: ${err.message}`, true);
+      } finally {
+        btn.disabled = false;
+        boxStatus.style.display = 'none';
+      }
+    }
+
+    async function gerarLoteReceitasBtn() {
+      if (!projetoSelecionado) return;
+
+      const qtd = Number(document.getElementById('recQtdLoteSelect')?.value) || 5;
+      if (!confirm(`Deseja iniciar a geração em lote de ${qtd} receitas completas com fotos gastronômicas?\n\nIsso pode levar de 1 a 2 minutos dependendo da fila de processamento da IA.`)) {
+        return;
+      }
+
+      const btn = document.getElementById('btnGerarLoteReceitas');
+      const boxStatus = document.getElementById('boxStatusGeracaoReceita');
+      const txtStatus = document.getElementById('textoStatusGeracaoReceita');
+      const subtxtStatus = document.getElementById('subtextoStatusGeracaoReceita');
+
+      btn.disabled = true;
+      boxStatus.style.display = 'block';
+      txtStatus.innerText = `Processando lote de ${qtd} receitas...`;
+      subtxtStatus.innerText = 'A Mary está preparando os pratos e gerando as fotos uma a uma...';
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/receitas/gerar-lote`, {
+          method: 'POST',
+          headers: obterHeaders(),
+          body: JSON.stringify({ quantidade: qtd })
+        });
+
+        const data = await resp.json();
+        if (data.sucesso) {
+          mostrarToast(`🎉 ${data.mensagem}`);
+          await carregarReceitas();
+        } else {
+          mostrarToast(`Erro ao gerar lote: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro no lote: ${err.message}`, true);
+      } finally {
+        btn.disabled = false;
+        boxStatus.style.display = 'none';
+      }
+    }
+
+    async function dispararReceitaCardBtn(id) {
+      if (!projetoSelecionado) return;
+      if (!confirm('Deseja disparar esta receita com foto imediatamente para os canais configurados?')) return;
+
+      try {
+        mostrarToast('🚀 Disparando receita para o WhatsApp...');
+        const resp = await fetch(`/sessions/${projetoSelecionado}/receitas/${id}/disparar`, {
+          method: 'POST',
+          headers: obterHeaders()
+        });
+
+        const data = await resp.json();
+        if (data.sucesso) {
+          mostrarToast('✅ Receita disparada com sucesso!');
+          await carregarReceitas();
+        } else {
+          mostrarToast(`Erro ao disparar: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro ao disparar: ${err.message}`, true);
+      }
+    }
+
+    async function adicionarReceitaFilaBtn(id) {
+      if (!projetoSelecionado) return;
+
+      try {
+        mostrarToast('Adicionando à esteira da Grade Diária...');
+        const resp = await fetch(`/sessions/${projetoSelecionado}/receitas/${id}/fila`, {
+          method: 'POST',
+          headers: obterHeaders()
+        });
+
+        const data = await resp.json();
+        if (data.sucesso) {
+          mostrarToast('✅ Receita adicionada à Esteira!');
+          carregarGradeProjeto();
+        } else {
+          mostrarToast(`Erro: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro: ${err.message}`, true);
+      }
+    }
+
+    async function regerarFotoReceitaBtn(id) {
+      if (!projetoSelecionado) return;
+      if (!confirm('Deseja que a IA gere uma nova foto culinária para esta receita?')) return;
+
+      try {
+        mostrarToast('🔄 Regerando fotografia gastronômica...');
+        const resp = await fetch(`/sessions/${projetoSelecionado}/receitas/${id}/regerar-imagem`, {
+          method: 'POST',
+          headers: obterHeaders()
+        });
+
+        const data = await resp.json();
+        if (data.sucesso) {
+          mostrarToast('✨ Foto regerada com sucesso!');
+          await carregarReceitas();
+        } else {
+          mostrarToast(`Erro ao regerar foto: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro ao regerar foto: ${err.message}`, true);
+      }
+    }
+
+    function abrirModalEditarReceita(id) {
+      const rec = receitasCache.find(r => r.id === id);
+      if (!rec) return;
+
+      document.getElementById('editReceitaId').value = rec.id;
+      document.getElementById('editReceitaTitulo').value = rec.titulo || '';
+      document.getElementById('editReceitaTexto').value = rec.texto || '';
+
+      const modal = document.getElementById('modalEditarReceita');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function fecharModalEditarReceita() {
+      const modal = document.getElementById('modalEditarReceita');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    async function salvarEdicaoReceitaBtn() {
+      if (!projetoSelecionado) return;
+
+      const id = document.getElementById('editReceitaId')?.value;
+      const titulo = document.getElementById('editReceitaTitulo')?.value.trim();
+      const texto = document.getElementById('editReceitaTexto')?.value.trim();
+
+      if (!id || !titulo || !texto) {
+        mostrarToast('Preencha o título e o texto da receita.', true);
+        return;
+      }
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/receitas/${id}`, {
+          method: 'PUT',
+          headers: obterHeaders(),
+          body: JSON.stringify({ titulo, texto })
+        });
+
+        const data = await resp.json();
+        if (data.sucesso) {
+          mostrarToast('✅ Receita atualizada com sucesso!');
+          fecharModalEditarReceita();
+          await carregarReceitas();
+        } else {
+          mostrarToast(`Erro ao atualizar: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro ao atualizar: ${err.message}`, true);
+      }
+    }
+
+    async function excluirReceitaBtn(id, titulo) {
+      if (!projetoSelecionado) return;
+      if (!confirm(`Deseja excluir a receita "${titulo}" e apagar sua foto do disco?`)) return;
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/receitas/${id}`, {
+          method: 'DELETE',
+          headers: obterHeaders()
+        });
+
+        const data = await resp.json();
+        if (data.sucesso) {
+          mostrarToast('Receita excluída com sucesso.');
+          await carregarReceitas();
+        } else {
+          mostrarToast(`Erro ao excluir: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro ao excluir: ${err.message}`, true);
+      }
+    }
   </script>
+
+  <!-- Modal para Editar Receita da Mary -->
+  <div id="modalEditarReceita" class="login-overlay hidden" style="z-index: 9999;">
+    <div class="login-card" style="max-width: 650px; width: 95%;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h3 style="font-size: 1.15rem; color: #fff;">✏️ Editar Receita da Mary</h3>
+        <button type="button" onclick="fecharModalEditarReceita()" style="background: none; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer;">✕</button>
+      </div>
+      <input type="hidden" id="editReceitaId">
+      <div class="form-group">
+        <label for="editReceitaTitulo">Título do Prato:</label>
+        <input type="text" id="editReceitaTitulo" class="form-control" style="font-weight: 600;">
+      </div>
+      <div class="form-group">
+        <label for="editReceitaTexto">Texto Completo da Mary (WhatsApp):</label>
+        <textarea id="editReceitaTexto" class="form-control" style="min-height: 220px; font-size: 0.85rem; line-height: 1.5;"></textarea>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem;">
+        <button type="button" class="btn btn-secondary" onclick="fecharModalEditarReceita()">Cancelar</button>
+        <button type="button" class="btn" onclick="salvarEdicaoReceitaBtn()">💾 Salvar Alterações</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
+

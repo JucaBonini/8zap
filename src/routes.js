@@ -900,4 +900,143 @@ router.post('/sessions/:projectId/grade/slots/:slotId/testar', async (req, res) 
   }
 });
 
+// ==========================================
+// ROTAS DE RECEITAS IA (MARY)
+// ==========================================
+const receitasManager = require('./receitasManager');
+
+/**
+ * GET /sessions/:projectId/receitas/config
+ */
+router.get('/sessions/:projectId/receitas/config', (req, res) => {
+  const { projectId } = req.params;
+  try {
+    const config = receitasManager.obterConfigReceitas(projectId);
+    res.json({ sucesso: true, config });
+  } catch (err) {
+    res.status(500).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * POST /sessions/:projectId/receitas/config
+ */
+router.post('/sessions/:projectId/receitas/config', (req, res) => {
+  const { projectId } = req.params;
+  try {
+    const salva = receitasManager.salvarConfigReceitas(projectId, req.body);
+    res.json({ sucesso: true, mensagem: 'Configurações de Receitas IA salvas com sucesso!', config: salva });
+  } catch (err) {
+    res.status(400).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * GET /sessions/:projectId/receitas
+ */
+router.get('/sessions/:projectId/receitas', (req, res) => {
+  const { projectId } = req.params;
+  try {
+    const receitas = receitasManager.obterReceitas(projectId);
+    res.json({ sucesso: true, receitas });
+  } catch (err) {
+    res.status(500).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * POST /sessions/:projectId/receitas/gerar
+ */
+router.post('/sessions/:projectId/receitas/gerar', async (req, res) => {
+  const { projectId } = req.params;
+  const { tema, personaCustom, provedor, resolucao } = req.body || {};
+  try {
+    const receita = await receitasManager.gerarReceita(projectId, { tema, personaCustom, provedor, resolucao });
+    res.json({ sucesso: true, mensagem: `Receita "${receita.titulo}" gerada com sucesso!`, receita });
+  } catch (err) {
+    res.status(500).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * POST /sessions/:projectId/receitas/gerar-lote
+ */
+router.post('/sessions/:projectId/receitas/gerar-lote', async (req, res) => {
+  const { projectId } = req.params;
+  const { quantidade, temas } = req.body || {};
+  try {
+    const receitas = await receitasManager.gerarLoteReceitas(projectId, { quantidade, temas });
+    res.json({ sucesso: true, mensagem: `${receitas.length} receitas geradas com sucesso!`, receitas });
+  } catch (err) {
+    res.status(500).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * POST /sessions/:projectId/receitas/:id/disparar
+ */
+router.post('/sessions/:projectId/receitas/:id/disparar', async (req, res) => {
+  const { projectId, id } = req.params;
+  const { destinos } = req.body || {};
+  try {
+    const resultado = await receitasManager.dispararReceitaAgora(projectId, id, destinos);
+    res.json({ sucesso: true, mensagem: 'Receita disparada para o WhatsApp com sucesso!', resultado });
+  } catch (err) {
+    res.status(500).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * POST /sessions/:projectId/receitas/:id/fila
+ */
+router.post('/sessions/:projectId/receitas/:id/fila', async (req, res) => {
+  const { projectId, id } = req.params;
+  const { agendadoPara } = req.body || {};
+  try {
+    const resultado = await receitasManager.adicionarAFilaManual(projectId, id, agendadoPara);
+    res.json({ sucesso: true, mensagem: 'Receita adicionada à Esteira / Fila de postagens!', resultado });
+  } catch (err) {
+    res.status(500).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * POST /sessions/:projectId/receitas/:id/regerar-imagem
+ */
+router.post('/sessions/:projectId/receitas/:id/regerar-imagem', async (req, res) => {
+  const { projectId, id } = req.params;
+  try {
+    const receita = await receitasManager.regerarImagemReceita(projectId, id);
+    res.json({ sucesso: true, mensagem: 'Foto gastronômica regerada com sucesso!', receita });
+  } catch (err) {
+    res.status(500).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * PUT /sessions/:projectId/receitas/:id
+ */
+router.put('/sessions/:projectId/receitas/:id', async (req, res) => {
+  const { projectId, id } = req.params;
+  try {
+    const receita = await receitasManager.atualizarReceita(projectId, id, req.body);
+    res.json({ sucesso: true, mensagem: 'Receita atualizada!', receita });
+  } catch (err) {
+    res.status(400).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * DELETE /sessions/:projectId/receitas/:id
+ */
+router.delete('/sessions/:projectId/receitas/:id', async (req, res) => {
+  const { projectId, id } = req.params;
+  try {
+    await receitasManager.excluirReceita(projectId, id);
+    res.json({ sucesso: true, mensagem: 'Receita excluída com sucesso.' });
+  } catch (err) {
+    res.status(400).json({ sucesso: false, erro: err.message });
+  }
+});
+
 module.exports = router;
