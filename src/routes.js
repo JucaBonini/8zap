@@ -518,12 +518,12 @@ router.post('/sessions/:projectId/rss/config', (req, res) => {
 });
 
 /**
- * GET /sessions/:projectId/rss/destinos
+ * GET /sessions/:projectId/destinos (e alias /rss/destinos)
  * Lista grupos e canais disponíveis (automáticos + manuais)
  */
-router.get('/sessions/:projectId/rss/destinos', async (req, res) => {
+router.get(['/sessions/:projectId/destinos', '/sessions/:projectId/rss/destinos'], async (req, res) => {
   const { projectId } = req.params;
-  const forcar = req.query.forcar === 'true';
+  const forcar = req.query.forcar === 'true' || req.query.atualizar === 'true';
   try {
     const destinos = await destinosManager.listarDestinosDisponiveis(projectId, forcar);
     res.json({
@@ -538,10 +538,10 @@ router.get('/sessions/:projectId/rss/destinos', async (req, res) => {
 });
 
 /**
- * POST /sessions/:projectId/rss/destinos/manual
+ * POST /sessions/:projectId/destinos/manual (e alias /rss/destinos/manual)
  * Cadastra um novo destino manual (JID ou Link de convite do canal/grupo)
  */
-router.post('/sessions/:projectId/rss/destinos/manual', async (req, res) => {
+router.post(['/sessions/:projectId/destinos/manual', '/sessions/:projectId/rss/destinos/manual'], async (req, res) => {
   const { projectId } = req.params;
   const { jid, link, nome, tipo } = req.body;
   const entrada = jid || link;
@@ -574,10 +574,10 @@ router.post('/sessions/:projectId/rss/destinos/manual', async (req, res) => {
 });
 
 /**
- * DELETE /sessions/:projectId/rss/destinos/manual/:jid
+ * DELETE /sessions/:projectId/destinos/manual/:jid (e alias /rss/destinos/manual/:jid)
  * Remove um destino manual cadastrado
  */
-router.delete('/sessions/:projectId/rss/destinos/manual/:jid', (req, res) => {
+router.delete(['/sessions/:projectId/destinos/manual/:jid', '/sessions/:projectId/rss/destinos/manual/:jid'], (req, res) => {
   const { projectId, jid } = req.params;
   try {
     destinosManager.removerDestinoManual(projectId, jid);
