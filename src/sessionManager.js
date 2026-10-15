@@ -377,7 +377,8 @@ function obterQrCode(projectId) {
     return {
       projectId: idSanitizado,
       status: 'nao_iniciado',
-      qr: null
+      qr: null,
+      usuarioConectado: null
     };
   }
 
@@ -385,14 +386,16 @@ function obterQrCode(projectId) {
     return {
       projectId: idSanitizado,
       status: 'connected',
-      qr: null
+      qr: null,
+      usuarioConectado: sessao.usuarioConectado
     };
   }
 
   return {
     projectId: idSanitizado,
     status: sessao.status,
-    qr: sessao.qrCodeBase64
+    qr: sessao.qrCodeBase64,
+    usuarioConectado: sessao.usuarioConectado
   };
 }
 

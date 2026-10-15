@@ -29,6 +29,11 @@
       --radius-lg: 18px;
     }
 
+    html {
+      overflow-x: hidden;
+      width: 100%;
+    }
+
     * {
       margin: 0;
       padding: 0;
@@ -45,39 +50,43 @@
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      overflow-x: hidden;
+      width: 100%;
     }
 
     /* Topbar */
     header {
-      background: rgba(11, 15, 25, 0.8);
-      backdrop-filter: blur(12px);
+      background: rgba(11, 15, 25, 0.85);
+      backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--border-color);
       position: sticky;
       top: 0;
       z-index: 100;
-      padding: 1rem 2rem;
+      padding: 0.85rem 2rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 1.5rem;
+      gap: 1.25rem;
     }
 
     .brand {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 0.85rem;
     }
 
     .brand-logo {
-      width: 40px;
-      height: 40px;
+      width: 42px;
+      height: 42px;
       background: linear-gradient(135deg, #25d366, #128c7e);
-      border-radius: 10px;
+      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.4rem;
-      box-shadow: 0 0 20px var(--primary-glow);
+      font-size: 1.45rem;
+      box-shadow: 0 0 25px var(--primary-glow);
+      flex-shrink: 0;
+      border: 1px solid rgba(255, 255, 255, 0.15);
     }
 
     .brand-text h1 {
@@ -85,12 +94,44 @@
       font-weight: 700;
       letter-spacing: -0.5px;
       color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .version-tag {
+      font-size: 0.65rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, rgba(37, 211, 102, 0.2), rgba(56, 189, 248, 0.2));
+      color: #4ade80;
+      border: 1px solid rgba(37, 211, 102, 0.35);
+      padding: 0.15rem 0.45rem;
+      border-radius: 6px;
+      letter-spacing: 0.5px;
     }
 
     .brand-text span {
-      font-size: 0.75rem;
+      font-size: 0.74rem;
       color: var(--text-muted);
       display: block;
+      margin-top: 1px;
+    }
+
+    .header-session-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-color);
+      padding: 0.35rem 0.85rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      transition: all 0.2s ease;
+    }
+
+    .header-session-pill strong {
+      color: #fff;
     }
 
     .auth-status-bar {
@@ -298,18 +339,20 @@
     /* Main Layout */
     main {
       flex: 1;
-      padding: 2rem;
-      max-width: 1440px;
+      padding: 1.5rem 2rem;
+      max-width: 1540px;
       width: 100%;
       margin: 0 auto;
       display: grid;
-      grid-template-columns: 340px 1fr;
-      gap: 2rem;
+      grid-template-columns: 310px minmax(0, 1fr);
+      gap: 1.5rem;
+      min-width: 0;
     }
 
-    @media (max-width: 960px) {
+    @media (max-width: 1024px) {
       main {
         grid-template-columns: 1fr;
+        padding: 1rem;
       }
     }
 
@@ -321,12 +364,13 @@
       border-radius: var(--radius-lg);
       padding: 1.5rem;
       box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+      min-width: 0;
     }
 
     .card-title {
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       font-weight: 600;
-      margin-bottom: 1.25rem;
+      margin-bottom: 1.15rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -348,67 +392,110 @@
       color: #fff;
       font-size: 0.85rem;
       outline: none;
+      transition: all 0.2s ease;
     }
 
     .sidebar-actions input:focus {
       border-color: var(--border-focus);
+      box-shadow: 0 0 10px var(--primary-glow);
     }
 
     .project-list {
       display: flex;
       flex-direction: column;
-      gap: 0.6rem;
+      gap: 0.55rem;
       max-height: calc(100vh - 250px);
       overflow-y: auto;
       padding-right: 0.2rem;
     }
 
     .project-item {
-      background: rgba(255, 255, 255, 0.03);
+      background: rgba(255, 255, 255, 0.025);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-md);
-      padding: 0.85rem 1rem;
+      padding: 0.75rem 0.9rem;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 0.65rem;
     }
 
     .project-item:hover {
       background: var(--bg-card-hover);
-      border-color: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.16);
       transform: translateX(3px);
     }
 
     .project-item.active {
-      background: rgba(37, 211, 102, 0.1);
+      background: linear-gradient(135deg, rgba(37, 211, 102, 0.12), rgba(18, 140, 126, 0.08));
       border-color: var(--primary);
+      box-shadow: 0 0 16px rgba(37, 211, 102, 0.18);
+    }
+
+    .project-item-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      min-width: 0;
+    }
+
+    .project-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .project-item.active .project-avatar {
+      background: linear-gradient(135deg, #25d366, #128c7e);
+      color: #0b0f19;
+      box-shadow: 0 0 10px var(--primary-glow);
+    }
+
+    .project-info {
+      min-width: 0;
     }
 
     .project-info h4 {
-      font-size: 0.95rem;
+      font-size: 0.92rem;
       font-weight: 600;
       color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .project-info p {
       font-size: 0.75rem;
       color: var(--text-muted);
-      margin-top: 2px;
+      margin-top: 1px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     /* Status Badges */
     .badge {
       display: inline-flex;
       align-items: center;
-      gap: 0.4rem;
+      gap: 0.35rem;
       padding: 0.25rem 0.6rem;
       border-radius: 20px;
       font-size: 0.7rem;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      flex-shrink: 0;
     }
 
     .badge-dot {
@@ -466,7 +553,8 @@
     .content-area {
       display: flex;
       flex-direction: column;
-      gap: 1.5rem;
+      gap: 1.25rem;
+      min-width: 0;
     }
 
     .session-header {
@@ -476,11 +564,11 @@
       flex-wrap: wrap;
       gap: 1rem;
       border-bottom: 1px solid var(--border-color);
-      padding-bottom: 1.25rem;
+      padding-bottom: 1.15rem;
     }
 
     .session-meta h2 {
-      font-size: 1.5rem;
+      font-size: 1.45rem;
       font-weight: 700;
       color: #fff;
     }
@@ -493,40 +581,67 @@
 
     .session-controls {
       display: flex;
-      gap: 0.6rem;
+      gap: 0.5rem;
+      align-items: center;
     }
 
-    /* Tabs */
+    /* Tabs modernas em estilo Segmented Pills */
     .tabs {
       display: flex;
-      gap: 0.5rem;
-      border-bottom: 1px solid var(--border-color);
-      padding-bottom: 0.5rem;
+      gap: 0.4rem;
+      background: rgba(13, 17, 28, 0.65);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 0.4rem;
       overflow-x: auto;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+      -webkit-overflow-scrolling: touch;
+      min-width: 0;
+    }
+
+    .tabs::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    .tabs::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
     }
 
     .tab-btn {
       background: transparent;
-      border: none;
+      border: 1px solid transparent;
       color: var(--text-muted);
-      padding: 0.6rem 1.2rem;
+      padding: 0.52rem 0.95rem;
       border-radius: var(--radius-sm);
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       font-weight: 500;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
     }
 
     .tab-btn:hover {
       color: var(--text-main);
       background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.08);
     }
 
     .tab-btn.active {
-      color: var(--primary);
-      background: rgba(37, 211, 102, 0.1);
+      color: #fff;
+      background: linear-gradient(135deg, rgba(37, 211, 102, 0.18), rgba(18, 140, 126, 0.22));
+      border: 1px solid rgba(37, 211, 102, 0.4);
+      box-shadow: 0 2px 10px rgba(37, 211, 102, 0.15);
       font-weight: 600;
+    }
+
+    .tab-btn .tab-icon {
+      font-size: 1rem;
+      display: inline-flex;
     }
 
     .tab-content {
@@ -536,6 +651,301 @@
     .tab-content.active {
       display: block;
       animation: fadeIn 0.25s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Session Connected Hub */
+    .session-connected-card {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .connected-hero {
+      background: linear-gradient(135deg, rgba(37, 211, 102, 0.12), rgba(18, 140, 126, 0.05));
+      border: 1px solid rgba(37, 211, 102, 0.25);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1.25rem;
+    }
+
+    .connected-hero-left {
+      display: flex;
+      align-items: center;
+      gap: 1.15rem;
+    }
+
+    .connected-avatar {
+      position: relative;
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #25d366, #128c7e);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      box-shadow: 0 0 25px rgba(37, 211, 102, 0.35);
+      flex-shrink: 0;
+    }
+
+    .connected-hero-text h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .connected-hero-text .hero-status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #4ade80;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.25rem;
+    }
+
+    .connected-hero-text .user-phone {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+
+    /* Grid KPIs */
+    .connected-grid-kpis {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+    }
+
+    .kpi-card {
+      background: rgba(18, 24, 38, 0.65);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .kpi-card:hover {
+      background: rgba(26, 34, 52, 0.85);
+      border-color: rgba(255, 255, 255, 0.18);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .kpi-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+
+    .kpi-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+    }
+
+    .icon-grade { background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.3); }
+    .icon-receitas { background: rgba(251, 146, 60, 0.15); border: 1px solid rgba(251, 146, 60, 0.3); }
+    .icon-fila { background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.3); }
+
+    .kpi-badge {
+      font-size: 0.72rem;
+      padding: 0.2rem 0.55rem;
+      border-radius: 20px;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-muted);
+    }
+
+    .kpi-badge-orange { background: rgba(251, 146, 60, 0.15); color: #fb923c; border: 1px solid rgba(251, 146, 60, 0.3); }
+    .kpi-badge-blue { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+
+    .kpi-body h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 0.25rem;
+    }
+
+    .kpi-body p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .kpi-footer {
+      margin-top: 1rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    /* Launchpad */
+    .quick-launchpad {
+      background: rgba(13, 17, 28, 0.5);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+    }
+
+    .launchpad-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.85rem;
+    }
+
+    .launchpad-buttons {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .launch-btn {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 0.85rem 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-align: left;
+      transition: all 0.2s ease;
+      color: #fff;
+    }
+
+    .launch-btn:hover {
+      background: rgba(255, 255, 255, 0.07);
+      border-color: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    .launch-btn .btn-icon {
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+
+    .launch-btn .btn-text strong {
+      display: block;
+      font-size: 0.85rem;
+      color: #fff;
+    }
+
+    .launch-btn .btn-text span {
+      display: block;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    /* QR Code Modern View */
+    .qr-box-modern {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 2rem;
+      align-items: center;
+      background: rgba(13, 17, 28, 0.5);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1.75rem;
+    }
+
+    @media (max-width: 768px) {
+      .qr-box-modern {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+    }
+
+    .qr-steps {
+      list-style: none;
+      margin: 1.15rem 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .qr-steps li {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.88rem;
+      color: var(--text-main);
+    }
+
+    .qr-steps li span {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #0b0f19;
+      font-weight: 700;
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .qr-code-wrapper {
+      background: #ffffff;
+      padding: 1rem;
+      border-radius: var(--radius-md);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .qr-img-modern {
+      width: 230px;
+      height: 230px;
+      object-fit: contain;
+    }
+
+    .qr-badge-live {
+      margin-top: 0.75rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(37, 211, 102, 0.15);
+      color: #128c7e;
+      border: 1px solid rgba(37, 211, 102, 0.3);
+      padding: 0.25rem 0.6rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
     }
 
     @keyframes fadeIn {
@@ -645,15 +1055,25 @@
 
     /* QR Code Display */
     .qr-container {
+      border-radius: var(--radius-md);
+      transition: all 0.3s ease;
+    }
+
+    .qr-container.is-waiting {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       padding: 2rem;
       background: rgba(0, 0, 0, 0.2);
-      border-radius: var(--radius-md);
       border: 1px dashed var(--border-color);
       text-align: center;
+    }
+
+    .qr-container.is-connected {
+      background: transparent;
+      border: none;
+      padding: 0;
     }
 
     .qr-img {
@@ -1382,9 +1802,18 @@
     <div class="brand">
       <div class="brand-logo">⚡</div>
       <div class="brand-text">
-        <h1>8zap Automation</h1>
-        <span>Gerenciador Multi-Sessão & RSS WhatsApp</span>
+        <div style="display: flex; align-items: center; gap: 0.45rem;">
+          <h1>8zap Automation</h1>
+          <span class="version-tag">PRO</span>
+        </div>
+        <span>Gerenciador Multi-Sessão &amp; Automação WhatsApp</span>
       </div>
+    </div>
+
+    <!-- Active project indicator in Topbar -->
+    <div class="header-session-pill" id="headerActiveSessionPill" style="display: none;">
+      <span class="badge-dot" style="background: #4ade80; box-shadow: 0 0 6px #4ade80;"></span>
+      <span>Projeto ativo: <strong id="headerSessionName">...</strong></span>
     </div>
 
     <div class="auth-status-bar">
@@ -1402,12 +1831,15 @@
     <!-- Coluna Esquerda: Lista de Projetos -->
     <aside class="card">
       <div class="card-title">
-        <span>Meus Projetos</span>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <span>Meus Projetos</span>
+          <span class="badge" id="badgeTotalProjetos" style="font-size: 0.72rem; background: rgba(255,255,255,0.06);">0</span>
+        </div>
         <button class="btn btn-secondary btn-sm" onclick="carregarListaSessoes()" title="Atualizar lista">🔄</button>
       </div>
 
       <div class="sidebar-actions">
-        <input type="text" id="novoProjectId" placeholder="ID do Projeto (ex: loja-x)">
+        <input type="text" id="novoProjectId" placeholder="Novo ID (ex: loja-01)">
         <button class="btn btn-sm" onclick="criarOuIniciarProjeto()">+ Iniciar</button>
       </div>
 
@@ -1423,8 +1855,13 @@
       <!-- Header do Projeto Selecionado -->
       <div class="session-header">
         <div class="session-meta">
-          <h2 id="tituloProjeto">Projeto</h2>
-          <p id="subtituloProjeto">Status: <span id="badgeStatusHeader">...</span></p>
+          <div style="display: flex; align-items: center; gap: 0.65rem; flex-wrap: wrap;">
+            <h2 id="tituloProjeto">Projeto</h2>
+            <div id="badgeStatusHeader"></div>
+          </div>
+          <p id="subtituloProjeto" style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.35rem;">
+            <span id="labelNumeroConectado" style="color: var(--accent-blue); font-size: 0.82rem; font-weight: 500;"></span>
+          </p>
         </div>
         <div class="session-controls">
           <button class="btn btn-sm" id="btnConectar" onclick="conectarProjetoAtual()">▶ Conectar / QR</button>
@@ -1435,19 +1872,19 @@
 
       <!-- Abas de Navegação -->
       <div class="tabs">
-        <button class="tab-btn active" onclick="trocarAba('aba-qr', event)">QR Code & Conexão</button>
-        <button class="tab-btn" onclick="trocarAba('aba-grade', event)">🗓️ Grade Diária</button>
-        <button class="tab-btn" onclick="trocarAba('aba-receitas', event)">🍳 Receitas IA (Mary)</button>
-        <button class="tab-btn" onclick="trocarAba('aba-rss', event)">📰 RSS Automático</button>
-        <button class="tab-btn" onclick="trocarAba('aba-campanhas', event)">🛍️ Ofertas & Imagens</button>
-        <button class="tab-btn" onclick="trocarAba('aba-fila', event)">📝 Fila Manual</button>
-        <button class="tab-btn" onclick="trocarAba('aba-envio', event)">Enviar Mensagem</button>
-        <button class="tab-btn" onclick="trocarAba('aba-logs', event)">Logs</button>
+        <button class="tab-btn active" onclick="trocarAba('aba-qr', event)"><span class="tab-icon">📲</span> QR Code & Status</button>
+        <button class="tab-btn" onclick="trocarAba('aba-grade', event)"><span class="tab-icon">🗓️</span> Grade Diária</button>
+        <button class="tab-btn" onclick="trocarAba('aba-receitas', event)"><span class="tab-icon">🍳</span> Receitas IA (Mary)</button>
+        <button class="tab-btn" onclick="trocarAba('aba-rss', event)"><span class="tab-icon">📰</span> RSS Automático</button>
+        <button class="tab-btn" onclick="trocarAba('aba-campanhas', event)"><span class="tab-icon">🛍️</span> Ofertas & Imagens</button>
+        <button class="tab-btn" onclick="trocarAba('aba-fila', event)"><span class="tab-icon">📝</span> Fila Manual</button>
+        <button class="tab-btn" onclick="trocarAba('aba-envio', event)"><span class="tab-icon">💬</span> Enviar Mensagem</button>
+        <button class="tab-btn" onclick="trocarAba('aba-logs', event)"><span class="tab-icon">📜</span> Logs</button>
       </div>
 
       <!-- Aba 1: QR Code & Conexão -->
       <div id="aba-qr" class="tab-content active">
-        <div class="qr-container" id="containerQr">
+        <div class="qr-container is-waiting" id="containerQr">
           <div class="qr-loading">
             <div class="spinner"></div>
             <p id="qrTextoStatus">Verificando status da sessão...</p>
@@ -2495,8 +2932,23 @@
       }
     }
 
+    function formatarNumeroTelefone(jidOuNumero) {
+      if (!jidOuNumero) return 'Não conectado';
+      const clean = jidOuNumero.split(':')[0].split('@')[0].replace(/\D/g, '');
+      if (!clean) return jidOuNumero;
+      if (clean.length === 13 && clean.startsWith('55')) {
+        return `+55 (${clean.slice(2, 4)}) ${clean.slice(4, 9)}-${clean.slice(9)}`;
+      } else if (clean.length === 12 && clean.startsWith('55')) {
+        return `+55 (${clean.slice(2, 4)}) ${clean.slice(4, 8)}-${clean.slice(8)}`;
+      }
+      return `+${clean}`;
+    }
+
     function renderizarListaProjetos() {
       const container = document.getElementById('listaProjetos');
+      const badgeTotal = document.getElementById('badgeTotalProjetos');
+      if (badgeTotal) badgeTotal.innerText = sessoesGlobais.length;
+
       if (sessoesGlobais.length === 0) {
         container.innerHTML = `
           <div class="empty-state">
@@ -2511,12 +2963,17 @@
         const ativo = s.projectId === projetoSelecionado ? 'active' : '';
         const badgeClasse = `badge-${s.status}`;
         const badgeTexto = formatarNomeStatus(s.status);
+        const inicial = (s.projectId || 'W').charAt(0).toUpperCase();
+        const tel = s.usuarioConectado ? formatarNumeroTelefone(s.usuarioConectado) : 'Desconectado';
 
         return `
           <div class="project-item ${ativo}" onclick="selecionarProjeto('${s.projectId}')">
-            <div class="project-info">
-              <h4>${s.projectId}</h4>
-              <p>${s.usuarioConectado ? s.usuarioConectado.split('@')[0] : 'Não conectado'}</p>
+            <div class="project-item-left">
+              <div class="project-avatar">${inicial}</div>
+              <div class="project-info">
+                <h4>${s.projectId}</h4>
+                <p>${tel}</p>
+              </div>
             </div>
             <span class="badge ${badgeClasse}">
               <span class="badge-dot"></span>
@@ -2571,6 +3028,20 @@
           ${formatarNomeStatus(sessao.status)}
         </span>
       `;
+
+      const tel = formatarNumeroTelefone(sessao.usuarioConectado);
+      const labelTel = document.getElementById('labelNumeroConectado');
+      if (labelTel) {
+        labelTel.innerHTML = sessao.usuarioConectado ? `📱 Número: <strong>${tel}</strong>` : '⚪ Desconectado / Aguardando conexão';
+      }
+
+      // Atualiza também a pill de status no Header superior
+      const pill = document.getElementById('headerActiveSessionPill');
+      const nomePill = document.getElementById('headerSessionName');
+      if (pill && nomePill) {
+        pill.style.display = 'inline-flex';
+        nomePill.innerText = sessao.projectId;
+      }
 
       const btnConectar = document.getElementById('btnConectar');
       if (sessao.status === 'connected') {
@@ -2682,13 +3153,18 @@
       document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
 
       if (evt && evt.target) {
-        evt.target.classList.add('active');
+        const btnClicado = evt.target.closest('.tab-btn') || evt.target;
+        btnClicado.classList.add('active');
       } else {
         const btn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick')?.includes(idAba));
-        if (btn) btn.classList.add('active');
+        if (btn) {
+          btn.classList.add('active');
+          btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
       }
 
-      document.getElementById(idAba).classList.add('active');
+      const targetTab = document.getElementById(idAba);
+      if (targetTab) targetTab.classList.add('active');
 
       if (idAba === 'aba-qr') {
         iniciarPollingQr();
@@ -2756,21 +3232,150 @@
         const container = document.getElementById('containerQr');
 
         if (data.status === 'connected') {
+          container.className = 'qr-container is-connected';
+          const telFormatado = formatarNumeroTelefone(data.usuarioConectado);
           container.innerHTML = `
-            <div style="font-size: 3.5rem; margin-bottom: 0.5rem;">🎉</div>
-            <h3 style="color: var(--primary); margin-bottom: 0.5rem;">WhatsApp Conectado!</h3>
-            <p style="color: var(--text-muted); font-size: 0.9rem;">Esta sessão está pronta para envio imediato, agendador e RSS automático.</p>
+            <div class="session-connected-card">
+              <!-- Hero Banner -->
+              <div class="connected-hero">
+                <div class="connected-hero-left">
+                  <div class="connected-avatar">
+                    <span class="icon">⚡</span>
+                  </div>
+                  <div class="connected-hero-text">
+                    <div class="hero-status-pill">
+                      <span class="badge-dot" style="background:#4ade80; box-shadow:0 0 8px #4ade80;"></span>
+                      WhatsApp Conectado e Operacional
+                    </div>
+                    <h3>Sessão: <span style="color: var(--primary);">${projetoSelecionado}</span></h3>
+                    <p class="user-phone">📱 Número Pareado: <strong>${telFormatado}</strong></p>
+                  </div>
+                </div>
+                <div class="connected-actions" style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                  <button class="btn btn-secondary btn-sm" onclick="verificarStatusEQr()" title="Testar integridade da conexão">
+                    🔄 Atualizar Status
+                  </button>
+                  <button class="btn btn-secondary btn-sm" onclick="desconectarProjetoAtual()">
+                    ⏸ Pausar Sessão
+                  </button>
+                </div>
+              </div>
+
+              <!-- 3 Cards de Status & KPIs -->
+              <div class="connected-grid-kpis">
+                <!-- Card 1: Grade Diária -->
+                <div class="kpi-card" onclick="trocarAba('aba-grade')">
+                  <div class="kpi-header">
+                    <div class="kpi-icon icon-grade">🗓️</div>
+                    <span class="kpi-badge kpi-badge-blue">Grade &amp; Esteira</span>
+                  </div>
+                  <div class="kpi-body">
+                    <h4>Grade Diária Mestra</h4>
+                    <p>Linha do tempo sincronizada para distribuição nos canais e modo esteira.</p>
+                  </div>
+                  <div class="kpi-footer">
+                    <span>Acessar Grade Diária →</span>
+                  </div>
+                </div>
+
+                <!-- Card 2: Receitas IA da Mary -->
+                <div class="kpi-card" onclick="trocarAba('aba-receitas')">
+                  <div class="kpi-header">
+                    <div class="kpi-icon icon-receitas">🍳</div>
+                    <span class="kpi-badge kpi-badge-orange">Mary IA</span>
+                  </div>
+                  <div class="kpi-body">
+                    <h4>Receitas IA da Mary</h4>
+                    <p>Crie pratos irresistíveis com fotos gastronômicas ultra-realistas para WhatsApp.</p>
+                  </div>
+                  <div class="kpi-footer">
+                    <span>Gerar Nova Receita →</span>
+                  </div>
+                </div>
+
+                <!-- Card 3: Fila de Publicações -->
+                <div class="kpi-card" onclick="trocarAba('aba-fila')">
+                  <div class="kpi-header">
+                    <div class="kpi-icon icon-fila">📋</div>
+                    <span class="kpi-badge">Fila Manual</span>
+                  </div>
+                  <div class="kpi-body">
+                    <h4>Fila de Mensagens</h4>
+                    <p>Envios manuais, agendamentos pontuais e esteira buffer de posts.</p>
+                  </div>
+                  <div class="kpi-footer">
+                    <span>Gerenciar Fila de Envios →</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Quick Launchpad -->
+              <div class="quick-launchpad">
+                <div class="launchpad-title">⚡ Ações Rápidas</div>
+                <div class="launchpad-buttons">
+                  <button class="launch-btn" onclick="trocarAba('aba-receitas')">
+                    <span class="btn-icon">🍳</span>
+                    <div class="btn-text">
+                      <strong>Nova Receita IA</strong>
+                      <span>Criar prato com foto HD</span>
+                    </div>
+                  </button>
+                  <button class="launch-btn" onclick="trocarAba('aba-grade')">
+                    <span class="btn-icon">🗓️</span>
+                    <div class="btn-text">
+                      <strong>Grade Diária</strong>
+                      <span>Configurar horários</span>
+                    </div>
+                  </button>
+                  <button class="launch-btn" onclick="trocarAba('aba-campanhas')">
+                    <span class="btn-icon">🛍️</span>
+                    <div class="btn-text">
+                      <strong>Ofertas Shopee</strong>
+                      <span>Catálogo de produtos</span>
+                    </div>
+                  </button>
+                  <button class="launch-btn" onclick="trocarAba('aba-envio')">
+                    <span class="btn-icon">💬</span>
+                    <div class="btn-text">
+                      <strong>Enviar Mensagem</strong>
+                      <span>Disparo avulso agora</span>
+                    </div>
+                  </button>
+                </div>
+              </div>
+            </div>
           `;
           carregarListaSessoes();
         } else if (data.qr) {
+          container.className = 'qr-container is-waiting';
           container.innerHTML = `
-            <img src="${data.qr}" alt="QR Code WhatsApp" class="qr-img">
-            <h4 style="margin-bottom: 0.4rem;">Escaneie com o seu WhatsApp</h4>
-            <p style="color: var(--text-muted); font-size: 0.8rem; max-width: 320px;">
-              Abra o WhatsApp no celular > Aparelhos Conectados > Conectar um aparelho.
-            </p>
+            <div class="qr-box-modern">
+              <div class="qr-instructions" style="text-align: left;">
+                <h3 style="font-size: 1.15rem; color: #fff; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                  📲 Conectar WhatsApp Web
+                </h3>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">
+                  Siga os 3 passos simples abaixo no aplicativo do seu celular para parear:
+                </p>
+                <ol class="qr-steps">
+                  <li><span>1</span> Abra o <strong>WhatsApp</strong> no seu telefone.</li>
+                  <li><span>2</span> Vá em <strong>Menu (⋮)</strong> ou <strong>Configurações</strong> &gt; <strong>Aparelhos conectados</strong>.</li>
+                  <li><span>3</span> Toque em <strong>Conectar um aparelho</strong> e aponte a câmera para o QR Code.</li>
+                </ol>
+                <div style="font-size: 0.78rem; color: var(--accent-blue); background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.25); padding: 0.55rem 0.85rem; border-radius: var(--radius-sm); margin-top: 1rem;">
+                  ⏳ O código é atualizado automaticamente a cada 20 segundos.
+                </div>
+              </div>
+              <div class="qr-code-wrapper">
+                <img src="${data.qr}" alt="QR Code WhatsApp" class="qr-img-modern">
+                <div class="qr-badge-live">
+                  <span class="badge-dot" style="background:#25d366; animation: pulse 1.5s infinite;"></span> Aguardando Leitura
+                </div>
+              </div>
+            </div>
           `;
         } else {
+          container.className = 'qr-container is-waiting';
           container.innerHTML = `
             <div class="qr-loading">
               <div class="spinner"></div>
