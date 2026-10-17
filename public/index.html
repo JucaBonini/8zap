@@ -3205,6 +3205,24 @@
           </div>
         </div>
 
+        <!-- Banner de Espelhamento Simultâneo Ativo -->
+        <div style="background: linear-gradient(135deg, rgba(24, 119, 242, 0.15), rgba(37, 211, 102, 0.08)); border: 1px solid rgba(24, 119, 242, 0.4); border-radius: var(--radius-md); padding: 1.15rem 1.4rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div style="display: flex; align-items: center; gap: 0.85rem;">
+            <div style="width: 46px; height: 46px; border-radius: 50%; background: #1877f2; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #fff; box-shadow: 0 0 15px rgba(24, 119, 242, 0.45); flex-shrink: 0;">
+              ⚡
+            </div>
+            <div>
+              <strong style="color: #fff; font-size: 1rem; display: block;">Espelhamento Simultâneo Automático Ativo</strong>
+              <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; max-width: 680px; line-height: 1.4;">
+                Tudo o que for disparado nos horários da Grade Diária nas abas <strong>Receitas IA (Mary)</strong> e <strong>Meus Posts (Fila Manual)</strong> será <strong>automaticamente publicado na sua Página do Facebook no mesmo horário</strong>!
+              </p>
+            </div>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="testarEspelhamentoReceitaFb()" id="btnTestarEspelhamentoFb" style="font-size: 0.8rem; border-color: rgba(24, 119, 242, 0.5); color: #60a5fa; white-space: nowrap;">
+            🚀 Postar 1 Receita Agora na Página (Teste)
+          </button>
+        </div>
+
         <!-- Card 1: Conexão da Página & Estratégia de Comentário -->
         <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
@@ -8452,6 +8470,40 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
       }).catch(() => {
         mostrarToast('Não foi possível copiar o link.', true);
       });
+    }
+
+    async function testarEspelhamentoReceitaFb() {
+      if (!projetoSelecionado) return;
+      const btn = document.getElementById('btnTestarEspelhamentoFb');
+      const txtOriginal = btn ? btn.innerHTML : '';
+
+      try {
+        if (btn) {
+          btn.disabled = true;
+          btn.innerHTML = '⏳ Publicando na Fanpage...';
+        }
+        mostrarToast('🚀 Disparando receita para a Página do Facebook...');
+
+        const resp = await fetch(`/sessions/${projetoSelecionado}/facebook/testar-espelhamento`, {
+          method: 'POST',
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+
+        if (data.sucesso) {
+          mostrarToast(`🎉 ${data.mensagem}`);
+          carregarFilaFacebook();
+        } else {
+          mostrarToast(`Erro ao espelhar: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Falha de conexão: ${err.message}`, true);
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = txtOriginal;
+        }
+      }
     }
   </script>
 

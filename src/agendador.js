@@ -423,6 +423,23 @@ async function executarCicloAgendador() {
                 `Post agendado ID ${item.id} enviado com sucesso!`,
                 'success'
               );
+
+              // Espelhamento automático simultâneo para o Facebook
+              try {
+                const facebookManager = require('./facebookManager');
+                facebookManager.publicarEspelhamentoAutomatico(projectId, {
+                  origem: 'manual',
+                  origemId: item.id,
+                  titulo: (item.texto || item.legenda || 'Post Manual').slice(0, 45),
+                  tipo: item.tipo === 'imagem' ? 'imagem' : 'texto',
+                  texto: item.texto || item.legenda || '',
+                  imagemUrl: (item.url && item.url.startsWith('http')) ? item.url : '',
+                  caminhoArquivo: (item.url && !item.url.startsWith('http')) ? item.url : '',
+                  linkComentario: ''
+                }).catch((err) => {
+                  console.error('[Facebook Espelhamento Manual Agendado Erro]:', err.message);
+                });
+              } catch (_) {}
             } catch (envioErr) {
               await atualizarStatusItem(projectId, item.id, {
                 erro: envioErr.message,
@@ -562,6 +579,23 @@ async function dispararProximoItemEsteira(projectId, destinosSobrescritos = null
         `Post da esteira ID ${item.id} enviado com sucesso!`,
         'success'
       );
+
+      // Espelhamento automático simultâneo para o Facebook
+      try {
+        const facebookManager = require('./facebookManager');
+        facebookManager.publicarEspelhamentoAutomatico(projectId, {
+          origem: 'manual',
+          origemId: item.id,
+          titulo: (item.texto || item.legenda || 'Post da Esteira').slice(0, 45),
+          tipo: item.tipo === 'imagem' ? 'imagem' : 'texto',
+          texto: item.texto || item.legenda || '',
+          imagemUrl: (item.url && item.url.startsWith('http')) ? item.url : '',
+          caminhoArquivo: (item.url && !item.url.startsWith('http')) ? item.url : '',
+          linkComentario: ''
+        }).catch((err) => {
+          console.error('[Facebook Espelhamento Esteira Manual Erro]:', err.message);
+        });
+      } catch (_) {}
 
       return {
         sucesso: true,

@@ -467,6 +467,109 @@ async function verificarEDispararFacebook() {
   }
 }
 
+/**
+ * Publica um post diretamente na Página do Facebook como espelhamento automático simultâneo
+ * Chamado automaticamente no mesmo horário em que uma Receita da Mary ou post da Fila Manual é disparado
+ * @param {string} projectId
+ * @param {object} dados - { titulo, tipo, texto, imagemUrl, caminhoArquivo, linkComentario, origem, origemId }
+ * @returns {Promise<object>}
+ */
+async function publicarEspelhamentoAutomatico(projectId, dados) {
+  const config = obterConfigFacebook(projectId);
+
+  if (!config.ativo || !config.pageId || !config.pageAccessToken) {
+    return { publicado: false, motivo: 'facebook_inativo_ou_sem_credenciais' };
+  }
+
+  logProjeto(
+    projectId,
+    'FB_ESPELHAMENTO_INICIO',
+    `Espelhando publicação simultânea para o Facebook: "${dados.titulo || 'Post'}"...`,
+    'info'
+  );
+
+  let comentarioFinal = null;
+  if (config.autoPrimeiroComentario) {
+    const template = config.templateComentario || '👉 Veja a receita completa no nosso site:\n{link}\n\n📲 Receba nossas receitas diárias direto no seu WhatsApp:\n👉 https://whatsapp.com/channel/0029Va5fCv1FXUuaQxDdVg0H';
+    const linkOriginal = dados.linkComentario || '';
+    if (linkOriginal && linkOriginal.trim()) {
+      const linkComUtm = utmManager.anexarUtm(linkOriginal.trim(), 'facebook', projectId);
+      comentarioFinal = template.replace('{link}', linkComUtm);
+    } else {
+      // Se não tiver link do artigo, posta o convite para o canal do WhatsApp
+      comentarioFinal = template.replace(/👉 Veja a receita completa.*?\{link\}\s*/gis, '').trim();
+      if (!comentarioFinal) {
+        comentarioFinal = '📲 Receba nossas receitas diárias direto no seu WhatsApp:\n👉 https://whatsapp.com/channel/0029Va5fCv1FXUuaQxDdVg0H';
+      }
+    }
+  }
+
+  try {
+    let resultadoEnvio;
+    const temFoto = Boolean(dados.imagemUrl || dados.caminhoArquivo);
+
+    if (temFoto) {
+      resultadoEnvio = await facebookService.publicarFotoNaPagina({
+        pageId: config.pageId,
+        pageAccessToken: config.pageAccessToken,
+        imagemUrl: dados.imagemUrl,
+        caminhoArquivoLocal: dados.caminhoArquivo,
+        legenda: dados.texto,
+        linkComentario: comentarioFinal
+      });
+    } else {
+      resultadoEnvio = await facebookService.publicarTextoNaPagina({
+        pageId: config.pageId,
+        pageAccessToken: config.pageAccessToken,
+        texto: dados.texto,
+        linkComentario: comentarioFinal
+      });
+    }
+
+    // Registra no histórico do Facebook para visualização no painel
+    const fila = obterFilaFacebook(projectId);
+    fila.push({
+      id: `fb_mirror_${Date.now()}`,
+      origem: dados.origem || 'espelhamento',
+      origemId: dados.origemId || null,
+      titulo: dados.titulo || 'Post Espelhado',
+      tipo: temFoto ? 'imagem' : 'texto',
+      texto: dados.texto,
+      imagemUrl: dados.imagemUrl || '',
+      caminhoArquivo: dados.caminhoArquivo || '',
+      linkComentario: dados.linkComentario || '',
+      enviado: true,
+      enviado_em: new Date().toISOString(),
+      fbPostId: resultadoEnvio.postId,
+      fbPostUrl: resultadoEnvio.postUrl
+    });
+    salvarFilaFacebook(projectId, fila);
+
+    logProjeto(
+      projectId,
+      'FB_ESPELHAMENTO_SUCESSO',
+      `Post espelhado com sucesso na Página do Facebook! Link: ${resultadoEnvio.postUrl}`,
+      'success'
+    );
+
+    return {
+      publicado: true,
+      resultado: resultadoEnvio
+    };
+  } catch (err) {
+    logProjeto(
+      projectId,
+      'FB_ESPELHAMENTO_ERRO',
+      `Falha no espelhamento para o Facebook (o disparo do WhatsApp continuou normalmente): ${err.message}`,
+      'warn'
+    );
+    return {
+      publicado: false,
+      erro: err.message
+    };
+  }
+}
+
 module.exports = {
   obterConfigFacebook,
   salvarConfigFacebook,
@@ -476,5 +579,6 @@ module.exports = {
   limparEnviadosFacebook,
   adicionarReceitaAFilaFacebook,
   dispararProximoItemEsteiraFacebook,
-  verificarEDispararFacebook
+  verificarEDispararFacebook,
+  publicarEspelhamentoAutomatico
 };

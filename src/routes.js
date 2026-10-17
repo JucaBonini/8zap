@@ -1280,6 +1280,49 @@ router.post('/sessions/:projectId/facebook/receitas/:id/fila', async (req, res) 
   }
 });
 
+/**
+ * POST /sessions/:projectId/facebook/testar-espelhamento
+ * Dispara um post de teste espelhado na Página do Facebook usando a última receita pronta da Mary
+ */
+router.post('/sessions/:projectId/facebook/testar-espelhamento', async (req, res) => {
+  const { projectId } = req.params;
+  try {
+    const receitasManager = require('./receitasManager');
+    const lista = receitasManager.obterReceitas(projectId);
+    const receita = lista.find((r) => r.status === 'pronto') || lista[0];
+
+    if (!receita) {
+      return res.status(400).json({
+        sucesso: false,
+        erro: 'Nenhuma receita encontrada para teste. Gere uma receita na aba "Receitas IA (Mary)" primeiro.'
+      });
+    }
+
+    const resultado = await facebookManager.publicarEspelhamentoAutomatico(projectId, {
+      origem: 'receitas',
+      origemId: receita.id,
+      titulo: receita.titulo || 'Receita da Mary (Teste)',
+      tipo: (receita.imagemUrl || receita.imagemCaminhoFisico) ? 'imagem' : 'texto',
+      texto: receita.texto,
+      imagemUrl: receita.imagemUrl || '',
+      caminhoArquivo: receita.imagemCaminhoFisico || '',
+      linkComentario: receita.linkOriginal || ''
+    });
+
+    if (!resultado.publicado) {
+      throw new Error(resultado.erro || resultado.motivo || 'Falha ao publicar no Facebook.');
+    }
+
+    res.json({
+      sucesso: true,
+      mensagem: `Receita "${receita.titulo}" publicada com sucesso na sua Página do Facebook!`,
+      resultado
+    });
+  } catch (err) {
+    res.status(500).json({ sucesso: false, erro: err.message });
+  }
+});
+
 // ==========================================
 // ROTAS DE CONTROLE DE UTM & MÉTRICAS
 // ==========================================

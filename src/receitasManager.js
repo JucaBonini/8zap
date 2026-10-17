@@ -480,6 +480,23 @@ async function dispararReceitaAgora(projectId, receitaId, destinosSobrescritos =
     }
   });
 
+  // Espelhamento automático simultâneo para a Página do Facebook
+  try {
+    const facebookManager = require('./facebookManager');
+    facebookManager.publicarEspelhamentoAutomatico(projectId, {
+      origem: 'receitas',
+      origemId: receita.id,
+      titulo: receita.titulo || 'Receita da Mary',
+      tipo: temFoto ? 'imagem' : 'texto',
+      texto: receita.texto,
+      imagemUrl: receita.imagemUrl || '',
+      caminhoArquivo: receita.imagemCaminhoFisico || '',
+      linkComentario: receita.linkOriginal || ''
+    }).catch((err) => {
+      console.error('[Facebook Espelhamento Receitas Erro]:', err.message);
+    });
+  } catch (_) {}
+
   return { sucesso: true, resultados };
 }
 
