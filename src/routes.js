@@ -1140,4 +1140,145 @@ router.delete('/sessions/:projectId/receitas/:id', async (req, res) => {
   }
 });
 
+// ==========================================
+// ROTAS DE PÁGINA DO FACEBOOK (ESTEIRA BUFFER)
+// ==========================================
+
+const facebookManager = require('./facebookManager');
+const facebookService = require('./facebookService');
+
+/**
+ * GET /sessions/:projectId/facebook/config
+ */
+router.get('/sessions/:projectId/facebook/config', (req, res) => {
+  const { projectId } = req.params;
+  try {
+    const config = facebookManager.obterConfigFacebook(projectId);
+    res.json({ sucesso: true, config });
+  } catch (err) {
+    res.status(500).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * POST /sessions/:projectId/facebook/config
+ */
+router.post('/sessions/:projectId/facebook/config', (req, res) => {
+  const { projectId } = req.params;
+  try {
+    const config = facebookManager.salvarConfigFacebook(projectId, req.body || {});
+    res.json({ sucesso: true, mensagem: 'Configurações do Facebook salvas com sucesso!', config });
+  } catch (err) {
+    res.status(400).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * POST /sessions/:projectId/facebook/testar-conexao
+ */
+router.post('/sessions/:projectId/facebook/testar-conexao', async (req, res) => {
+  const { projectId } = req.params;
+  const { pageId, pageAccessToken } = req.body || {};
+  try {
+    const config = facebookManager.obterConfigFacebook(projectId);
+    const idParaTestar = pageId || config.pageId;
+    const tokenParaTestar = pageAccessToken || config.pageAccessToken;
+
+    const infoPagina = await facebookService.verificarConexaoPagina(idParaTestar, tokenParaTestar);
+
+    // Se informou nome ou foto, salva na config para agilizar a UI
+    if (infoPagina.nome) {
+      facebookManager.salvarConfigFacebook(projectId, {
+        nomePagina: infoPagina.nome,
+        fotoPagina: infoPagina.foto || ''
+      });
+    }
+
+    res.json({ sucesso: true, mensagem: `Conectado com sucesso à página "${infoPagina.nome}"!`, dados: infoPagina });
+  } catch (err) {
+    res.status(400).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * GET /sessions/:projectId/facebook/fila
+ */
+router.get('/sessions/:projectId/facebook/fila', (req, res) => {
+  const { projectId } = req.params;
+  try {
+    const fila = facebookManager.obterFilaFacebook(projectId);
+    res.json({ sucesso: true, fila });
+  } catch (err) {
+    res.status(500).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * POST /sessions/:projectId/facebook/fila
+ */
+router.post('/sessions/:projectId/facebook/fila', (req, res) => {
+  const { projectId } = req.params;
+  try {
+    const item = facebookManager.adicionarItemFilaFacebook(projectId, req.body || {});
+    res.json({ sucesso: true, mensagem: 'Post adicionado à Esteira do Facebook!', item });
+  } catch (err) {
+    res.status(400).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * DELETE /sessions/:projectId/facebook/fila/:id
+ */
+router.delete('/sessions/:projectId/facebook/fila/:id', (req, res) => {
+  const { projectId, id } = req.params;
+  try {
+    facebookManager.removerItemFilaFacebook(projectId, id);
+    res.json({ sucesso: true, mensagem: 'Item removido da esteira.' });
+  } catch (err) {
+    res.status(400).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * DELETE /sessions/:projectId/facebook/fila-enviados
+ */
+router.delete('/sessions/:projectId/facebook/fila-enviados', (req, res) => {
+  const { projectId } = req.params;
+  try {
+    const removidos = facebookManager.limparEnviadosFacebook(projectId);
+    res.json({ sucesso: true, mensagem: `${removidos} post(s) já enviados foram limpos do histórico.` });
+  } catch (err) {
+    res.status(500).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * POST /sessions/:projectId/facebook/disparar-agora
+ * Dispara manualmente o próximo post da esteira para teste imediato
+ */
+router.post('/sessions/:projectId/facebook/disparar-agora', async (req, res) => {
+  const { projectId } = req.params;
+  try {
+    const resultado = await facebookManager.dispararProximoItemEsteiraFacebook(projectId);
+    res.json({ sucesso: true, mensagem: 'Post disparado com sucesso para a Página do Facebook!', resultado });
+  } catch (err) {
+    res.status(500).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * POST /sessions/:projectId/facebook/receitas/:id/fila
+ * Envia uma Receita da Mary diretamente para a Esteira do Facebook
+ */
+router.post('/sessions/:projectId/facebook/receitas/:id/fila', async (req, res) => {
+  const { projectId, id } = req.params;
+  try {
+    const item = await facebookManager.adicionarReceitaAFilaFacebook(projectId, id);
+    res.json({ sucesso: true, mensagem: 'Receita enviada para a Esteira do Facebook com sucesso!', item });
+  } catch (err) {
+    res.status(500).json({ sucesso: false, erro: err.message });
+  }
+});
+
 module.exports = router;
+

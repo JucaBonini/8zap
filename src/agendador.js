@@ -464,6 +464,14 @@ async function executarCicloAgendador() {
     } catch (gradeErr) {
       console.error('[Agendador] Erro no módulo da Grade Diária:', gradeErr.message);
     }
+
+    // 5. Executa a checagem e disparo da Esteira da Página do Facebook
+    try {
+      const facebookManager = require('./facebookManager');
+      await facebookManager.verificarEDispararFacebook();
+    } catch (fbErr) {
+      console.error('[Agendador] Erro no módulo do Facebook:', fbErr.message);
+    }
   } catch (cicloErr) {
     console.error('[Agendador] Erro no ciclo de verificação:', cicloErr.message);
   }

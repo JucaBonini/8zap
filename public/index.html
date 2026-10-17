@@ -2420,6 +2420,9 @@
           <button class="sub-pill-btn" id="btnSub-sub-fila" onclick="trocarSubConteudo('sub-fila', event)">
             📝 Meus Posts (Fila Manual)
           </button>
+          <button class="sub-pill-btn" id="btnSub-sub-facebook" onclick="trocarSubConteudo('sub-facebook', event)" style="border-color: rgba(24, 119, 242, 0.4); color: #60a5fa;">
+            📘 Página Facebook
+          </button>
         </div>
 
         <!-- Sub-Aba 1: Receitas IA (Mary) -->
@@ -3037,7 +3040,7 @@
           </div>
 
           <!-- Opção Modo Esteira da Grade Diária -->
-          <div style="background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: var(--radius-sm); padding: 0.75rem 1rem; margin-bottom: 1.25rem;">
+          <div style="background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: var(--radius-sm); padding: 0.75rem 1rem; margin-bottom: 1rem;">
             <label style="display: flex; align-items: center; gap: 0.65rem; margin-bottom: 0; cursor: pointer;">
               <input type="checkbox" id="agendaModoEsteira" onchange="aoAlternarModoEsteiraFila()" style="width: 18px; height: 18px; accent-color: var(--accent-blue);">
               <div>
@@ -3047,6 +3050,23 @@
                 </span>
               </div>
             </label>
+          </div>
+
+          <!-- Opção Enviar também para Página do Facebook -->
+          <div style="background: rgba(24, 119, 242, 0.08); border: 1px solid rgba(24, 119, 242, 0.25); border-radius: var(--radius-sm); padding: 0.75rem 1rem; margin-bottom: 1.25rem;">
+            <label style="display: flex; align-items: center; gap: 0.65rem; margin-bottom: 0; cursor: pointer;">
+              <input type="checkbox" id="agendaTambemFacebook" onchange="aoAlternarTambemFacebookFila()" style="width: 18px; height: 18px; accent-color: #1877f2;">
+              <div>
+                <strong style="color: #60a5fa; font-size: 0.92rem;">📘 Enviar também para a Esteira da Página do Facebook</strong>
+                <span style="font-size: 0.76rem; color: var(--text-muted); display: block;">
+                  Coloca este mesmo post na fila da Página do Facebook com foto e texto nativo.
+                </span>
+              </div>
+            </label>
+            <div id="boxLinkComentarioFilaManual" style="display: none; margin-top: 0.6rem; padding-top: 0.6rem; border-top: 1px solid rgba(255,255,255,0.06);">
+              <label for="agendaLinkComentarioFb" style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Link do site para comentar automaticamente no 1º comentário (Opcional):</label>
+              <input type="url" id="agendaLinkComentarioFb" class="form-control" placeholder="https://descomplicandoreceitas.com.br/minha-receita/" style="font-size: 0.8rem;">
+            </div>
           </div>
 
           <div class="form-row" id="grupoAgendaDataHora">
@@ -3152,6 +3172,192 @@
         </div>
       </div>
       </div> <!-- Fim de #sub-fila -->
+
+      <!-- Sub-Aba 5: Página do Facebook (Esteira & Buffer) -->
+      <div id="sub-facebook" class="sub-content-panel">
+        <!-- Banner de Destaque do Facebook -->
+        <div style="background: linear-gradient(135deg, rgba(24, 119, 242, 0.15), rgba(30, 64, 175, 0.08)); border: 1px solid rgba(24, 119, 242, 0.35); border-radius: var(--radius-md); padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div style="display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 52px; height: 52px; border-radius: 14px; background: linear-gradient(135deg, #1877f2, #0d47a1); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; box-shadow: 0 0 25px rgba(24, 119, 242, 0.4); flex-shrink: 0;">
+              📘
+            </div>
+            <div>
+              <h2 style="font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 0.2rem; display: flex; align-items: center; gap: 0.5rem;">
+                Página do Facebook (Esteira Buffer)
+                <span class="badge" id="fbStatusBadge" style="font-size: 0.72rem; padding: 0.2rem 0.6rem; background: rgba(148, 163, 184, 0.2); color: #94a3b8;">Não Configurado</span>
+              </h2>
+              <p style="font-size: 0.82rem; color: var(--text-muted); max-width: 720px; line-height: 1.4;">
+                Postagens nativas de alta entrega orgânica (Foto HD + Texto Completo da Receita/Dica) consumidas sequencialmente da fila. Com o truque do link automático no <strong>1º comentário</strong> para o Facebook não derrubar o seu alcance!
+              </p>
+            </div>
+          </div>
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <div class="switch-container">
+              <span style="font-size: 0.85rem; color: var(--text-muted);">Esteira Ativa:</span>
+              <label class="switch">
+                <input type="checkbox" id="fbEsteiraAtiva" onchange="salvarConfigFacebookBtn(false)">
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 1: Conexão da Página & Estratégia de Comentário -->
+        <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+            <h3 style="margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+              🔑 Credenciais da Página (Meta Graph API)
+            </h3>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">
+              Obtenha o Page ID e o Page Access Token no <a href="https://developers.facebook.com/" target="_blank" style="color: #60a5fa; text-decoration: underline;">Meta for Developers ↗</a>
+            </span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
+            <div>
+              <label for="fbPageIdInput" style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.3rem; display: block;">Page ID (ID Numérico da Página):</label>
+              <input type="text" id="fbPageIdInput" class="form-control" placeholder="Ex: 102938475610293" style="font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;">
+            </div>
+            <div>
+              <label for="fbPageAccessTokenInput" style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.3rem; display: block;">Page Access Token (Token de Acesso da Página):</label>
+              <div style="display: flex; gap: 0.5rem;">
+                <input type="password" id="fbPageAccessTokenInput" class="form-control" placeholder="Cole aqui o token (EAAG...)" style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="toggleVisibilidadeTokenFb()" id="btnVerTokenFb" title="Ver/Ocultar Token" style="white-space: nowrap;">👁️</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card de Prévia da Página Conectada -->
+          <div id="boxPreviaPaginaFb" style="display: none; background: rgba(24, 119, 242, 0.08); border: 1px solid rgba(24, 119, 242, 0.25); border-radius: var(--radius-sm); padding: 0.85rem 1rem; margin-bottom: 1.25rem;">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
+              <div style="display: flex; align-items: center; gap: 0.85rem;">
+                <img id="fbAvatarPagina" src="" alt="Avatar" style="width: 44px; height: 44px; border-radius: 50%; border: 2px solid #1877f2; object-fit: cover;">
+                <div>
+                  <strong id="fbNomePagina" style="color: #fff; font-size: 0.95rem;">Nome da Página</strong>
+                  <p id="fbMetaPagina" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 1px;">0 seguidores • Publicada</p>
+                </div>
+              </div>
+              <div>
+                <a id="fbLinkPagina" href="#" target="_blank" class="btn btn-secondary btn-sm" style="font-size: 0.78rem;">🌐 Abrir no Facebook ↗</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Configuração do 1º Comentário Automático -->
+          <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 1rem; margin-bottom: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem; flex-wrap: wrap; gap: 0.5rem;">
+              <label style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0; cursor: pointer;">
+                <input type="checkbox" id="fbAutoPrimeiroComentario" style="width: 17px; height: 17px; accent-color: #1877f2;">
+                <strong style="color: #60a5fa; font-size: 0.9rem;">💬 Publicar link do site no 1º comentário automaticamente</strong>
+              </label>
+              <span class="badge" style="background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); font-size: 0.7rem;">
+                🚀 Antidrop Algoritmo da Meta
+              </span>
+            </div>
+            <p style="font-size: 0.76rem; color: var(--text-muted); margin-bottom: 0.6rem;">
+              O robô publica o post nativo (apenas com a imagem e a receita completa) e, 2 segundos depois, comenta com o link para direcionar tráfego ao site sem perder entrega no feed.
+            </p>
+            <div>
+              <label for="fbTemplateComentarioInput" style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.3rem; display: block;">Template do Comentário (use <code>{link}</code> onde a URL deve entrar):</label>
+              <textarea id="fbTemplateComentarioInput" class="form-control" rows="2" style="font-size: 0.82rem; font-family: inherit;"></textarea>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+            <button class="btn" onclick="salvarConfigFacebookBtn(true)">💾 Salvar Configurações</button>
+            <button class="btn btn-secondary" onclick="testarConexaoFacebookBtn()" id="btnTestarConexaoFb">🔄 Testar Conexão com Facebook</button>
+          </div>
+        </div>
+
+        <!-- Card 2: Grade de Horários da Esteira Facebook -->
+        <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+            <div>
+              <h3 style="margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                ⏰ Horários de Disparo da Esteira (Grade Diária Facebook)
+              </h3>
+              <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">
+                A cada horário atingido, o robô consome sequencialmente o próximo post da fila (FIFO).
+              </p>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="dispararAgoraFacebookBtn()" id="btnDispararAgoraFb" title="Disparar o próximo post da esteira neste exato momento">
+              ⚡ Disparar Próximo da Esteira Agora (Teste)
+            </button>
+          </div>
+
+          <!-- Tags de Horários Configurados -->
+          <div id="fbContainerHorarios" style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; min-height: 40px; align-items: center;">
+            <span style="color: var(--text-muted); font-size: 0.8rem;">Carregando horários...</span>
+          </div>
+
+          <!-- Adicionar Novo Horário -->
+          <div style="display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; background: rgba(255, 255, 255, 0.02); padding: 0.75rem 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+            <label for="fbNovoHorarioInput" style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0;">Novo Horário (HH:MM):</label>
+            <input type="time" id="fbNovoHorarioInput" class="form-control" value="09:00" style="width: 130px; font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; font-weight: 600;">
+            <button class="btn btn-secondary btn-sm" onclick="adicionarHorarioFacebookBtn()">➕ Adicionar Horário</button>
+            <button class="btn btn-secondary btn-sm" onclick="aplicarHorariosSugeridosFacebook()" title="Configura 4 horários nobres de alto engajamento culinário">⚡ Sugerir Horários (4x ao dia)</button>
+          </div>
+        </div>
+
+        <!-- Card 3: Fila de Espera / Buffer da Esteira -->
+        <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+            <div>
+              <h3 style="margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                📦 Posts Aguardando na Esteira (Buffer)
+                <span id="fbBadgeFilaContador" class="badge badge-connected" style="font-size: 0.75rem;">0 posts</span>
+              </h3>
+              <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">
+                Adicione receitas da aba <strong>Receitas IA (Mary)</strong> ou envie posts da aba <strong>Meus Posts</strong>.
+              </p>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+              <button class="btn btn-secondary btn-sm" onclick="carregarFilaFacebook()">🔄 Atualizar Fila</button>
+              <button class="btn btn-secondary btn-sm" onclick="trocarSubConteudo('sub-receitas')">🍳 Ir para Receitas da Mary →</button>
+            </div>
+          </div>
+
+          <div id="fbContainerFilaCards" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
+            <p style="color: var(--text-muted); font-size: 0.8rem; padding: 1rem;">Nenhum post pendente na Esteira do Facebook.</p>
+          </div>
+        </div>
+
+        <!-- Card 4: Histórico de Posts Enviados para o Facebook -->
+        <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+            <div>
+              <h3 style="margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                📜 Histórico de Posts Publicados no Facebook
+                <span id="fbBadgeEnviadosContador" class="badge" style="background: rgba(24, 119, 242, 0.2); color: #60a5fa; font-size: 0.75rem;">0 enviados</span>
+              </h3>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="limparEnviadosFacebookBtn()" id="btnLimparHistoricoFb" style="font-size: 0.75rem;">
+              🧹 Limpar Histórico de Enviados
+            </button>
+          </div>
+
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Status</th>
+                  <th>Mídia</th>
+                  <th>Título / Conteúdo</th>
+                  <th>Origem</th>
+                  <th>Publicado Em</th>
+                  <th>Link Oficial</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="tabelaHistoricoFacebookCorpo">
+                <tr>
+                  <td colspan="7" style="text-align: center; color: var(--text-muted);">Nenhum post publicado ainda.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div> <!-- Fim de #sub-facebook -->
       </div> <!-- Fim de #secao-conteudo -->
 
       <!-- SEÇÃO 3: AJUSTES & CONEXÕES -->
@@ -3742,6 +3948,7 @@
       carregarGradeProjeto();
       carregarFilaProjeto();
       carregarLogsProjeto();
+      carregarConfigFacebookSilencioso();
     }
 
     function atualizarCabecalhoProjeto(sessao) {
@@ -3941,6 +4148,9 @@
       } else if (subId === 'sub-fila') {
         carregarFilaProjeto();
         carregarCanaisFila();
+      } else if (subId === 'sub-facebook') {
+        carregarConfigFacebook();
+        carregarFilaFacebook();
       }
     }
 
@@ -5020,6 +5230,14 @@
       }
     }
 
+    function aoAlternarTambemFacebookFila() {
+      const chk = document.getElementById('agendaTambemFacebook');
+      const box = document.getElementById('boxLinkComentarioFilaManual');
+      if (box) {
+        box.style.display = (chk && chk.checked) ? 'block' : 'none';
+      }
+    }
+
     function cancelarEdicaoItemFila() {
       idItemFilaEmEdicao = null;
       document.getElementById('tituloFormFila').innerText = 'Agendar Nova Postagem Manual';
@@ -5029,6 +5247,9 @@
       const chkEsteira = document.getElementById('agendaModoEsteira');
       if (chkEsteira) chkEsteira.checked = false;
       aoAlternarModoEsteiraFila();
+      const chkFb = document.getElementById('agendaTambemFacebook');
+      if (chkFb) chkFb.checked = false;
+      aoAlternarTambemFacebookFila();
       document.querySelectorAll('.checkbox-canal-fila').forEach(cb => cb.checked = false);
       atualizarContadorCanaisFila();
       removerMidia('agenda');
@@ -5126,8 +5347,31 @@
           const data = await resp.json();
           if (data.sucesso) {
             mostrarToast(data.mensagem || (isEsteira ? '📦 Post adicionado à esteira da grade com sucesso!' : '📅 Post(s) agendado(s) com sucesso!'));
+
+            const tambemFacebook = Boolean(document.getElementById('agendaTambemFacebook')?.checked);
+            if (tambemFacebook) {
+              const linkComentarioManual = (document.getElementById('agendaLinkComentarioFb')?.value || '').trim();
+              await fetch(`/sessions/${projetoSelecionado}/facebook/fila`, {
+                method: 'POST',
+                headers: obterHeaders(),
+                body: JSON.stringify({
+                  origem: 'manual',
+                  tipo,
+                  url,
+                  texto: legenda || texto,
+                  linkComentario: linkComentarioManual
+                })
+              }).catch(() => {});
+              carregarFilaFacebook();
+            }
+
             document.getElementById('agendaTexto').value = '';
             document.getElementById('agendaLegenda').value = '';
+            const inputLinkFb = document.getElementById('agendaLinkComentarioFb');
+            if (inputLinkFb) inputLinkFb.value = '';
+            const chkFb = document.getElementById('agendaTambemFacebook');
+            if (chkFb) chkFb.checked = false;
+            aoAlternarTambemFacebookFila();
             if (manualInput) manualInput.value = '';
             document.querySelectorAll('.checkbox-canal-fila').forEach(cb => cb.checked = false);
             atualizarContadorCanaisFila();
@@ -6746,14 +6990,17 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
                 <span>${rec.imagemUrl ? `⚡ ${tamanhoKb} KB (3G 800x800)` : '💬 Post de Texto'}</span>
               </div>
               <div class="receita-actions">
-                <button class="btn btn-sm" onclick="dispararReceitaCardBtn('${rec.id}')" title="Disparar para os canais agora (se tiver foto vai com foto, se não tiver vai somente o texto da receita)" style="flex: 1; padding: 0.35rem 0.5rem; font-size: 0.78rem;">
+                <button class="btn btn-sm" onclick="dispararReceitaCardBtn('${rec.id}')" title="Disparar para os canais do WhatsApp agora" style="flex: 1; padding: 0.35rem 0.5rem; font-size: 0.78rem;">
                   🚀 Disparar
                 </button>
-                <button class="btn btn-secondary btn-sm" onclick="adicionarReceitaFilaBtn('${rec.id}')" title="Mandar para a Esteira (Fila da Grade)" style="padding: 0.35rem 0.55rem; font-size: 0.78rem;">
-                  📦 Esteira
+                <button class="btn btn-secondary btn-sm" onclick="adicionarReceitaFilaBtn('${rec.id}')" title="Mandar para a Esteira do WhatsApp" style="padding: 0.35rem 0.55rem; font-size: 0.78rem;">
+                  📦 Zap
+                </button>
+                <button class="btn btn-sm" onclick="adicionarReceitaFacebookBtn('${rec.id}')" title="Mandar para a Esteira da Página do Facebook" style="background: rgba(24, 119, 242, 0.18); color: #60a5fa; border: 1px solid rgba(24, 119, 242, 0.35); padding: 0.35rem 0.55rem; font-size: 0.78rem;">
+                  📘 Face
                 </button>
                 <button class="btn btn-secondary btn-sm" onclick="abrirModalEditarReceita('${rec.id}')" title="Anexar ou trocar foto manual da receita" style="padding: 0.35rem 0.55rem; font-size: 0.78rem;">
-                  ${rec.imagemUrl ? '📸 Trocar Foto' : '📸 Foto'}
+                  ${rec.imagemUrl ? '📸 Trocar' : '📸 Foto'}
                 </button>
                 <button class="btn btn-secondary btn-sm" onclick="abrirModalEditarReceita('${rec.id}')" title="Editar texto e ingredientes" style="padding: 0.35rem 0.55rem; font-size: 0.78rem;">
                   ✏️
@@ -7189,6 +7436,559 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
         }
       } catch (err) {
         mostrarToast(`Erro ao excluir: ${err.message}`, true);
+      }
+    }
+
+    // ==========================================
+    // MÓDULO PÁGINA DO FACEBOOK (ESTEIRA BUFFER)
+    // ==========================================
+
+    let configFacebookCache = null;
+
+    function toggleVisibilidadeTokenFb() {
+      const input = document.getElementById('fbPageAccessTokenInput');
+      const btn = document.getElementById('btnVerTokenFb');
+      if (!input) return;
+      if (input.type === 'password') {
+        input.type = 'text';
+        if (btn) btn.innerText = '🙈';
+      } else {
+        input.type = 'password';
+        if (btn) btn.innerText = '👁️';
+      }
+    }
+
+    async function carregarConfigFacebookSilencioso() {
+      if (!projetoSelecionado) return;
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/facebook/config`, {
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+        if (data.sucesso && data.config) {
+          configFacebookCache = data.config;
+          atualizarBadgeStatusFacebook(data.config);
+        }
+      } catch (_) {}
+    }
+
+    function atualizarBadgeStatusFacebook(config) {
+      const badge = document.getElementById('fbStatusBadge');
+      if (!badge) return;
+      if (!config.pageId || !config.pageAccessToken) {
+        badge.innerText = '⚪ Não Configurado';
+        badge.style.background = 'rgba(148, 163, 184, 0.2)';
+        badge.style.color = '#94a3b8';
+      } else if (config.ativo) {
+        const qtdHorarios = Array.isArray(config.horarios) ? config.horarios.length : 0;
+        badge.innerText = `🟢 Ativo (${qtdHorarios} horários/dia)`;
+        badge.style.background = 'rgba(34, 197, 94, 0.2)';
+        badge.style.color = '#4ade80';
+      } else {
+        badge.innerText = '⏸️ Pausado';
+        badge.style.background = 'rgba(251, 191, 36, 0.2)';
+        badge.style.color = '#fbbf24';
+      }
+    }
+
+    async function carregarConfigFacebook() {
+      if (!projetoSelecionado) return;
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/facebook/config`, {
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+
+        if (data.sucesso && data.config) {
+          configFacebookCache = data.config;
+          const c = data.config;
+
+          const chkAtiva = document.getElementById('fbEsteiraAtiva');
+          if (chkAtiva) chkAtiva.checked = Boolean(c.ativo);
+
+          const inputId = document.getElementById('fbPageIdInput');
+          if (inputId) inputId.value = c.pageId || '';
+
+          const inputToken = document.getElementById('fbPageAccessTokenInput');
+          if (inputToken) inputToken.value = c.pageAccessToken || '';
+
+          const chkComentario = document.getElementById('fbAutoPrimeiroComentario');
+          if (chkComentario) chkComentario.checked = c.autoPrimeiroComentario !== false;
+
+          const inputTemplate = document.getElementById('fbTemplateComentarioInput');
+          if (inputTemplate) inputTemplate.value = c.templateComentario || '👉 Veja a receita completa com o modo de preparo passo a passo no nosso site:\n{link}';
+
+          // Exibe prévia da página se já houver nome salvo
+          const boxPrevia = document.getElementById('boxPreviaPaginaFb');
+          const nomeEl = document.getElementById('fbNomePagina');
+          const avatarEl = document.getElementById('fbAvatarPagina');
+          const metaEl = document.getElementById('fbMetaPagina');
+          const linkEl = document.getElementById('fbLinkPagina');
+
+          if (c.nomePagina && boxPrevia) {
+            boxPrevia.style.display = 'block';
+            if (nomeEl) nomeEl.innerText = c.nomePagina;
+            if (avatarEl) {
+              if (c.fotoPagina) {
+                avatarEl.src = c.fotoPagina;
+                avatarEl.style.display = 'block';
+              } else {
+                avatarEl.style.display = 'none';
+              }
+            }
+            if (metaEl) metaEl.innerText = `Página Conectada • ID: ${c.pageId}`;
+            if (linkEl && c.pageId) {
+              linkEl.href = `https://facebook.com/${c.pageId}`;
+            }
+          } else if (boxPrevia) {
+            boxPrevia.style.display = 'none';
+          }
+
+          atualizarBadgeStatusFacebook(c);
+          renderizarHorariosFacebook(c.horarios || []);
+        }
+      } catch (err) {
+        console.error('Erro ao carregar config do Facebook:', err);
+      }
+    }
+
+    function renderizarHorariosFacebook(horarios) {
+      const container = document.getElementById('fbContainerHorarios');
+      if (!container) return;
+
+      if (!horarios || horarios.length === 0) {
+        container.innerHTML = '<span style="color: var(--text-muted); font-size: 0.8rem;">Nenhum horário programado para a Esteira do Facebook.</span>';
+        return;
+      }
+
+      const ordenados = [...horarios].sort();
+      container.innerHTML = ordenados.map(hora => `
+        <span style="display: inline-flex; align-items: center; gap: 0.4rem; background: rgba(24, 119, 242, 0.15); border: 1px solid rgba(24, 119, 242, 0.35); color: #60a5fa; padding: 0.35rem 0.65rem; border-radius: var(--radius-sm); font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; font-weight: 600;">
+          ⏰ ${hora}
+          <button type="button" onclick="removerHorarioFacebookBtn('${hora}')" title="Remover este horário" style="background: none; border: none; color: #f87171; cursor: pointer; font-size: 0.9rem; padding: 0 0.15rem; line-height: 1;">✕</button>
+        </span>
+      `).join('');
+    }
+
+    async function salvarConfigFacebookBtn(mostrarAviso = true) {
+      if (!projetoSelecionado) return;
+
+      const ativo = Boolean(document.getElementById('fbEsteiraAtiva')?.checked);
+      const pageId = (document.getElementById('fbPageIdInput')?.value || '').trim();
+      const pageAccessToken = (document.getElementById('fbPageAccessTokenInput')?.value || '').trim();
+      const autoPrimeiroComentario = Boolean(document.getElementById('fbAutoPrimeiroComentario')?.checked);
+      const templateComentario = (document.getElementById('fbTemplateComentarioInput')?.value || '').trim();
+
+      const payload = {
+        ativo,
+        pageId,
+        pageAccessToken,
+        autoPrimeiroComentario,
+        templateComentario
+      };
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/facebook/config`, {
+          method: 'POST',
+          headers: obterHeaders(),
+          body: JSON.stringify(payload)
+        });
+
+        const data = await resp.json();
+        if (data.sucesso) {
+          configFacebookCache = data.config;
+          atualizarBadgeStatusFacebook(data.config);
+          if (mostrarAviso) {
+            mostrarToast('✅ Configurações do Facebook salvas com sucesso!');
+          }
+        } else {
+          mostrarToast(`Erro: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro ao salvar: ${err.message}`, true);
+      }
+    }
+
+    async function testarConexaoFacebookBtn() {
+      if (!projetoSelecionado) return;
+
+      const pageId = (document.getElementById('fbPageIdInput')?.value || '').trim();
+      const pageAccessToken = (document.getElementById('fbPageAccessTokenInput')?.value || '').trim();
+
+      if (!pageId || !pageAccessToken) {
+        mostrarToast('⚠️ Preencha o Page ID e o Page Access Token antes de testar a conexão.', true);
+        return;
+      }
+
+      const btn = document.getElementById('btnTestarConexaoFb');
+      const textoOrig = btn ? btn.innerText : '🔄 Testar Conexão com Facebook';
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = '⏳ Conectando à Meta...';
+      }
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/facebook/testar-conexao`, {
+          method: 'POST',
+          headers: obterHeaders(),
+          body: JSON.stringify({ pageId, pageAccessToken })
+        });
+
+        const data = await resp.json();
+        if (data.sucesso && data.dados) {
+          mostrarToast(`🎉 ${data.mensagem}`, false);
+
+          const boxPrevia = document.getElementById('boxPreviaPaginaFb');
+          const nomeEl = document.getElementById('fbNomePagina');
+          const avatarEl = document.getElementById('fbAvatarPagina');
+          const metaEl = document.getElementById('fbMetaPagina');
+          const linkEl = document.getElementById('fbLinkPagina');
+
+          if (boxPrevia) boxPrevia.style.display = 'block';
+          if (nomeEl) nomeEl.innerText = data.dados.nome;
+          if (avatarEl) {
+            if (data.dados.foto) {
+              avatarEl.src = data.dados.foto;
+              avatarEl.style.display = 'block';
+            } else {
+              avatarEl.style.display = 'none';
+            }
+          }
+          if (metaEl) {
+            metaEl.innerText = `${data.dados.seguidores} seguidores • ${data.dados.publicada ? 'Página Publicada' : 'Rascunho'}`;
+          }
+          if (linkEl && data.dados.link) {
+            linkEl.href = data.dados.link;
+          }
+
+          await carregarConfigFacebook();
+        } else {
+          mostrarToast(`❌ Erro ao conectar: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`❌ Falha de rede: ${err.message}`, true);
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerText = textoOrig;
+        }
+      }
+    }
+
+    async function adicionarHorarioFacebookBtn() {
+      if (!projetoSelecionado) return;
+      const input = document.getElementById('fbNovoHorarioInput');
+      const novoHorario = input ? input.value.trim() : '';
+
+      if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(novoHorario)) {
+        mostrarToast('Selecione um horário válido no formato HH:MM.', true);
+        return;
+      }
+
+      const horariosAtuais = (configFacebookCache && Array.isArray(configFacebookCache.horarios))
+        ? [...configFacebookCache.horarios]
+        : ['08:30', '11:45', '15:30', '19:45'];
+
+      if (horariosAtuais.includes(novoHorario)) {
+        mostrarToast('Este horário já está configurado na esteira.', true);
+        return;
+      }
+
+      horariosAtuais.push(novoHorario);
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/facebook/config`, {
+          method: 'POST',
+          headers: obterHeaders(),
+          body: JSON.stringify({ horarios: horariosAtuais })
+        });
+        const data = await resp.json();
+        if (data.sucesso) {
+          configFacebookCache = data.config;
+          renderizarHorariosFacebook(data.config.horarios);
+          mostrarToast(`⏰ Horário ${novoHorario} adicionado à esteira!`);
+        }
+      } catch (err) {
+        mostrarToast(`Erro ao adicionar horário: ${err.message}`, true);
+      }
+    }
+
+    async function removerHorarioFacebookBtn(hora) {
+      if (!projetoSelecionado) return;
+      const horariosAtuais = (configFacebookCache && Array.isArray(configFacebookCache.horarios))
+        ? configFacebookCache.horarios.filter(h => h !== hora)
+        : [];
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/facebook/config`, {
+          method: 'POST',
+          headers: obterHeaders(),
+          body: JSON.stringify({ horarios: horariosAtuais })
+        });
+        const data = await resp.json();
+        if (data.sucesso) {
+          configFacebookCache = data.config;
+          renderizarHorariosFacebook(data.config.horarios);
+          mostrarToast(`Horário ${hora} removido.`);
+        }
+      } catch (err) {
+        mostrarToast(`Erro ao remover: ${err.message}`, true);
+      }
+    }
+
+    async function aplicarHorariosSugeridosFacebook() {
+      if (!projetoSelecionado) return;
+      const sugeridos = ['08:30', '11:45', '15:30', '19:45'];
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/facebook/config`, {
+          method: 'POST',
+          headers: obterHeaders(),
+          body: JSON.stringify({ horarios: sugeridos })
+        });
+        const data = await resp.json();
+        if (data.sucesso) {
+          configFacebookCache = data.config;
+          renderizarHorariosFacebook(data.config.horarios);
+          mostrarToast('⚡ 4 Horários ideais de culinária aplicados à Esteira Facebook!');
+        }
+      } catch (err) {
+        mostrarToast(`Erro: ${err.message}`, true);
+      }
+    }
+
+    async function carregarFilaFacebook() {
+      if (!projetoSelecionado) return;
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/facebook/fila`, {
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+
+        if (data.sucesso) {
+          const itens = Array.isArray(data.fila) ? data.fila : [];
+          const pendentes = itens.filter(i => !i.enviado);
+          const enviados = itens.filter(i => i.enviado).reverse();
+
+          // Atualiza Badges
+          const badgePendentes = document.getElementById('fbBadgeFilaContador');
+          if (badgePendentes) badgePendentes.innerText = `${pendentes.length} post(s)`;
+
+          const badgeEnviados = document.getElementById('fbBadgeEnviadosContador');
+          if (badgeEnviados) badgeEnviados.innerText = `${enviados.length} enviado(s)`;
+
+          // Renderiza Cards da Fila Pendente
+          const containerFila = document.getElementById('fbContainerFilaCards');
+          if (containerFila) {
+            if (pendentes.length === 0) {
+              containerFila.innerHTML = `
+                <div style="grid-column: 1 / -1; text-align: center; padding: 2rem; background: rgba(0,0,0,0.15); border-radius: var(--radius-sm); border: 1px dashed var(--border-color);">
+                  <span style="font-size: 2.2rem; display: block; margin-bottom: 0.5rem;">📦</span>
+                  <strong style="color: #fff; font-size: 0.95rem;">A Esteira do Facebook está vazia no momento</strong>
+                  <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">
+                    Vá na aba <strong>Receitas IA (Mary)</strong> e clique em <strong>📘 Face</strong> em qualquer receita para colocá-la na fila!
+                  </p>
+                  <button class="btn btn-secondary btn-sm" onclick="trocarSubConteudo('sub-receitas')" style="margin-top: 0.85rem;">
+                    🍳 Abrir Catálogo da Mary
+                  </button>
+                </div>
+              `;
+            } else {
+              containerFila.innerHTML = pendentes.map((item, idx) => {
+                const imagemSrc = item.imagemUrl || (item.caminhoArquivo ? `/uploads/${item.caminhoArquivo.split(/[/\\\\]/).pop()}` : null);
+                const tagPosicao = `<span style="font-size: 0.7rem; font-weight: 700; color: #60a5fa; background: rgba(24, 119, 242, 0.15); padding: 0.15rem 0.45rem; border-radius: 4px;">#${idx + 1} na fila</span>`;
+                const tagOrigem = item.origem === 'receitas'
+                  ? '<span style="font-size: 0.7rem; color: #fb923c;">🍳 Receita Mary</span>'
+                  : '<span style="font-size: 0.7rem; color: #4ade80;">📝 Manual</span>';
+
+                const temLink = Boolean(item.linkComentario);
+
+                return `
+                  <div style="background: rgba(18, 24, 38, 0.7); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 0.9rem; display: flex; flex-direction: column; gap: 0.6rem; position: relative;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                      ${tagPosicao}
+                      ${tagOrigem}
+                    </div>
+                    ${imagemSrc ? `
+                      <div style="width: 100%; height: 140px; border-radius: var(--radius-sm); overflow: hidden; background: #000;">
+                        <img src="${imagemSrc}" alt="${item.titulo}" style="width: 100%; height: 100%; object-fit: cover;">
+                      </div>
+                    ` : `
+                      <div style="width: 100%; height: 60px; border-radius: var(--radius-sm); background: rgba(255,255,255,0.03); display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 0.75rem;">
+                        💬 Post de Texto Nativo
+                      </div>
+                    `}
+                    <div>
+                      <strong style="color: #fff; font-size: 0.9rem; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        ${item.titulo || 'Post sem título'}
+                      </strong>
+                      <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.2rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.3;">
+                        ${item.texto}
+                      </p>
+                    </div>
+                    ${temLink ? `
+                      <div style="background: rgba(34, 197, 94, 0.08); border: 1px solid rgba(34, 197, 94, 0.2); border-radius: 4px; padding: 0.35rem 0.5rem; font-size: 0.7rem; color: #4ade80; display: flex; align-items: center; gap: 0.3rem;">
+                        <span>💬 1º Comentário atrelado:</span>
+                        <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px;">${item.linkComentario}</span>
+                      </div>
+                    ` : ''}
+                    <div style="margin-top: auto; display: flex; justify-content: flex-end; gap: 0.4rem; padding-top: 0.4rem; border-top: 1px solid rgba(255,255,255,0.05);">
+                      <button class="btn btn-danger btn-sm" onclick="removerItemFilaFacebookBtn('${item.id}')" title="Excluir da esteira" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">
+                        🗑 Remover
+                      </button>
+                    </div>
+                  </div>
+                `;
+              }).join('');
+            }
+          }
+
+          // Renderiza Histórico de Enviados
+          const tabelaHistorico = document.getElementById('tabelaHistoricoFacebookCorpo');
+          if (tabelaHistorico) {
+            if (enviados.length === 0) {
+              tabelaHistorico.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Nenhum post publicado no Facebook ainda.</td></tr>';
+            } else {
+              tabelaHistorico.innerHTML = enviados.map(item => {
+                const dataEnvio = item.enviado_em ? new Date(item.enviado_em).toLocaleString('pt-BR') : '--';
+                const imagemSrc = item.imagemUrl || (item.caminhoArquivo ? `/uploads/${item.caminhoArquivo.split(/[/\\\\]/).pop()}` : null);
+                const linkFacebook = item.fbPostUrl || (item.fbPostId ? `https://facebook.com/${item.fbPostId}` : null);
+
+                return `
+                  <tr>
+                    <td>
+                      <span class="badge badge-connected" style="font-size: 0.7rem; padding: 0.15rem 0.45rem;">
+                        <span class="badge-dot"></span> Enviado
+                      </span>
+                    </td>
+                    <td>
+                      ${imagemSrc ? `<img src="${imagemSrc}" alt="Mídia" style="width: 38px; height: 38px; border-radius: 6px; object-fit: cover;">` : '💬 Texto'}
+                    </td>
+                    <td style="max-width: 250px;">
+                      <strong style="color: #fff; font-size: 0.85rem; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.titulo || 'Post'}</strong>
+                      <span style="color: var(--text-muted); font-size: 0.75rem; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;">${item.texto}</span>
+                    </td>
+                    <td>
+                      <span style="font-size: 0.75rem; color: ${item.origem === 'receitas' ? '#fb923c' : '#4ade80'};">${item.origem === 'receitas' ? '🍳 Mary' : '📝 Manual'}</span>
+                    </td>
+                    <td style="font-size: 0.75rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;">
+                      ${dataEnvio}
+                    </td>
+                    <td>
+                      ${linkFacebook ? `
+                        <a href="${linkFacebook}" target="_blank" class="btn btn-secondary btn-sm" style="font-size: 0.72rem; padding: 0.2rem 0.5rem; color: #60a5fa; border-color: rgba(24, 119, 242, 0.4);">
+                          🌐 Ver Post ↗
+                        </a>
+                      ` : '<span style="color: var(--text-muted); font-size: 0.72rem;">--</span>'}
+                    </td>
+                    <td>
+                      <button class="btn btn-danger btn-sm" onclick="removerItemFilaFacebookBtn('${item.id}')" title="Excluir do histórico" style="padding: 0.2rem 0.45rem; font-size: 0.72rem;">
+                        🗑
+                      </button>
+                    </td>
+                  </tr>
+                `;
+              }).join('');
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Erro ao carregar fila do Facebook:', err);
+      }
+    }
+
+    async function removerItemFilaFacebookBtn(id) {
+      if (!projetoSelecionado) return;
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/facebook/fila/${id}`, {
+          method: 'DELETE',
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+        if (data.sucesso) {
+          mostrarToast('Post removido da esteira.');
+          await carregarFilaFacebook();
+        } else {
+          mostrarToast(`Erro: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro: ${err.message}`, true);
+      }
+    }
+
+    async function limparEnviadosFacebookBtn() {
+      if (!projetoSelecionado) return;
+      if (!confirm('Deseja limpar todos os posts que já foram publicados no Facebook deste histórico?')) return;
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/facebook/fila-enviados`, {
+          method: 'DELETE',
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+        if (data.sucesso) {
+          mostrarToast(data.mensagem || 'Histórico limpo com sucesso.');
+          await carregarFilaFacebook();
+        } else {
+          mostrarToast(`Erro: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro: ${err.message}`, true);
+      }
+    }
+
+    async function dispararAgoraFacebookBtn() {
+      if (!projetoSelecionado) return;
+      if (!confirm('⚡ Deseja disparar imediatamente o próximo post da Esteira para a sua Página do Facebook?')) return;
+
+      const btn = document.getElementById('btnDispararAgoraFb');
+      const textoOrig = btn ? btn.innerText : '⚡ Disparar Próximo da Esteira Agora (Teste)';
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = '⏳ Publicando no Facebook...';
+      }
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/facebook/disparar-agora`, {
+          method: 'POST',
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+        if (data.sucesso) {
+          mostrarToast('🎉 Post publicado com sucesso na Página do Facebook!', false);
+          await carregarFilaFacebook();
+        } else {
+          mostrarToast(`❌ Falha ao publicar: ${data.erro || data.motivo || 'Erro desconhecido'}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`❌ Erro no disparo: ${err.message}`, true);
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerText = textoOrig;
+        }
+      }
+    }
+
+    async function adicionarReceitaFacebookBtn(id) {
+      if (!projetoSelecionado) return;
+
+      try {
+        mostrarToast('Enviando receita para a Esteira do Facebook...');
+        const resp = await fetch(`/sessions/${projetoSelecionado}/facebook/receitas/${id}/fila`, {
+          method: 'POST',
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+        if (data.sucesso) {
+          mostrarToast('📘 Receita adicionada com sucesso à Esteira do Facebook!');
+          carregarFilaFacebook();
+        } else {
+          mostrarToast(`Erro: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro: ${err.message}`, true);
       }
     }
   </script>

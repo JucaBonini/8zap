@@ -8,7 +8,7 @@ const sessionManager = require('./sessionManager');
 const agendador = require('./agendador');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 // Middlewares globais
 app.use(cors());
