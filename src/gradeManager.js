@@ -141,7 +141,7 @@ function salvarConfigGrade(projectId, novaConfig) {
 /**
  * Adiciona um novo horário à Grade Diária
  * @param {string} projectId
- * @param {object} slot - { hora: '12:00', origem: 'manual'|'rss'|'campanhas' }
+ * @param {object} slot - { hora: '12:00', origem: 'manual'|'rss'|'campanhas'|'receitas' }
  * @returns {object}
  */
 function adicionarSlotGrade(projectId, slot) {
@@ -151,8 +151,8 @@ function adicionarSlotGrade(projectId, slot) {
   }
 
   const origemLimpa = (origem || 'manual').toLowerCase();
-  if (!['manual', 'rss', 'campanhas'].includes(origemLimpa)) {
-    throw new Error('Tipo de disparo inválido. Use "manual", "rss" ou "campanhas".');
+  if (!['manual', 'rss', 'campanhas', 'receitas'].includes(origemLimpa)) {
+    throw new Error('Tipo de disparo inválido. Use "manual", "rss", "campanhas" ou "receitas".');
   }
 
   const config = obterConfigGrade(projectId);
