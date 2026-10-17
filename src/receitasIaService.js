@@ -74,7 +74,14 @@ Você deve responder ESTRITAMENTE em formato JSON com o seguinte schema:
 
   if (!res.ok) {
     const erroJson = await res.json().catch(() => ({}));
-    throw new Error(`Falha na API da OpenAI (Texto): ${erroJson.error?.message || res.statusText}`);
+    const msg = erroJson.error?.message || res.statusText;
+    if (res.status === 401) {
+      throw new Error('Chave da OpenAI inválida (401 Unauthorized): Verifique se a sua chave sk-... foi copiada corretamente.');
+    }
+    if (res.status === 429) {
+      throw new Error('Cota da OpenAI esgotada ou limite de taxa atingido (429): Verifique seus créditos em platform.openai.com/billing ou selecione o Google Gemini que é gratuito.');
+    }
+    throw new Error(`Falha na API da OpenAI (Texto): ${msg}`);
   }
 
   const jsonResposta = await res.json();
@@ -115,7 +122,14 @@ async function gerarImagemOpenAi(apiKey, promptVisual) {
 
   if (!res.ok) {
     const erroJson = await res.json().catch(() => ({}));
-    throw new Error(`Falha na API da OpenAI (DALL-E 3): ${erroJson.error?.message || res.statusText}`);
+    const msg = erroJson.error?.message || res.statusText;
+    if (res.status === 400 && (msg.includes('billing') || msg.includes('quota'))) {
+      throw new Error(`Cota do DALL-E 3 insuficiente na sua conta OpenAI: ${msg}`);
+    }
+    if (res.status === 429) {
+      throw new Error(`Limite de taxa ou cota do DALL-E 3 atingido (429): ${msg}`);
+    }
+    throw new Error(`Falha na API da OpenAI (DALL-E 3): ${msg}`);
   }
 
   const dados = await res.json();
@@ -269,12 +283,33 @@ async function salvarImagemReceita(bufferImagem, idReceita) {
   };
 }
 
+/**
+ * Baixa uma foto gastronômica de contingência caso DALL-E 3 ou Imagen 3 atinjam limites de cota
+ */
+async function obterFotoCulinariaFallback(titulo = '') {
+  const fotosCuradas = [
+    'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=1024&auto=format&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=1024&auto=format&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1024&auto=format&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=1024&auto=format&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=1024&auto=format&fit=crop&q=80'
+  ];
+  const urlEscolhida = fotosCuradas[Math.floor(Math.random() * fotosCuradas.length)];
+  const res = await fetch(urlEscolhida);
+  if (!res.ok) {
+    throw new Error('Falha ao baixar foto culinária de contingência.');
+  }
+  const ab = await res.arrayBuffer();
+  return Buffer.from(ab);
+}
+
 module.exports = {
   PERSONA_PADRAO_MARY,
   gerarComOpenAi,
   gerarImagemOpenAi,
   gerarComGemini,
   gerarImagemGemini,
+  obterFotoCulinariaFallback,
   otimizarImagemPara3G,
   salvarImagemReceita
 };

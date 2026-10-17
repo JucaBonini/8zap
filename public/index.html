@@ -2445,20 +2445,79 @@
           </div>
         </div>
 
-        <!-- Banner Informativo de Chaves IA -->
-        <div style="background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: var(--radius-md); padding: 1rem 1.25rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
-          <div style="display: flex; align-items: center; gap: 0.75rem;">
-            <span style="font-size: 1.6rem;">🤖</span>
-            <div>
-              <strong style="color: #fff; font-size: 0.95rem;">Chaves de API da Inteligência Artificial (OpenAI &amp; Gemini)</strong>
-              <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">
-                As chaves de API do ChatGPT e Gemini são gerenciadas na aba <strong>⚙️ 3. Ajustes &amp; Conexões</strong>.
-              </p>
+        <!-- Banner Inteligente de Status & Chaves de IA da Mary -->
+        <div style="background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: var(--radius-md); padding: 1rem 1.25rem; margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <span style="font-size: 1.6rem;">🤖</span>
+              <div>
+                <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                  <strong style="color: #fff; font-size: 0.95rem;">Motor de Inteligência Artificial da Mary</strong>
+                  <span id="badgeStatusIaReceitas" class="badge" style="background: rgba(239, 68, 68, 0.18); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.35); font-size: 0.75rem; padding: 0.2rem 0.55rem;">
+                    🔴 Nenhuma Chave de IA Configurada
+                  </span>
+                </div>
+                <p id="subtextoStatusIaReceitas" style="font-size: 0.78rem; color: var(--text-muted); margin-top: 3px;">
+                  Para a Mary criar receitas e fotos gastronômicas com ChatGPT ou Gemini, insira sua chave abaixo.
+                </p>
+              </div>
+            </div>
+            <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+              <button type="button" class="btn btn-primary btn-sm" onclick="toggleConfigIaRapidaReceitas()" id="btnToggleConfigIaReceitas" style="font-size: 0.78rem;">
+                🔑 Inserir / Trocar Chave Aqui
+              </button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="navegarAbaPrincipal('config')" style="font-size: 0.78rem;">
+                ⚙️ Ajustes Completos →
+              </button>
             </div>
           </div>
-          <button type="button" class="btn btn-secondary btn-sm" onclick="navegarAbaPrincipal('config')">
-            ⚙️ Gerenciar Chaves de IA na Aba Ajustes →
-          </button>
+
+          <!-- Gaveta Rápida de Configuração de Chave IA -->
+          <div id="boxConfigIaRapidaReceitas" style="display: none; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.08);">
+            <div style="font-size: 0.82rem; font-weight: 600; color: #fff; margin-bottom: 0.75rem;">
+              ⚡ Configuração Rápida de Inteligência Artificial (ChatGPT &amp; Gemini):
+            </div>
+            <div class="provedor-toggle-group" style="margin-bottom: 0.75rem;">
+              <div class="provedor-card-btn active" id="btnProvQuickOpenai" onclick="selecionarProvedorIaRapido('openai')" style="padding: 0.6rem 0.8rem; min-width: 180px;">
+                <span class="icone" style="font-size: 1.3rem;">🤖</span>
+                <div class="info">
+                  <h4 style="font-size: 0.85rem;">ChatGPT (OpenAI)</h4>
+                  <span style="font-size: 0.7rem;">GPT-4o-mini + DALL-E 3</span>
+                </div>
+              </div>
+              <div class="provedor-card-btn" id="btnProvQuickGemini" onclick="selecionarProvedorIaRapido('gemini')" style="padding: 0.6rem 0.8rem; min-width: 180px;">
+                <span class="icone" style="font-size: 1.3rem;">✨</span>
+                <div class="info">
+                  <h4 style="font-size: 0.85rem;">Google Gemini</h4>
+                  <span style="font-size: 0.7rem;">Gemini 2.0 Flash + Imagen 3</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row" style="margin-bottom: 0.75rem;">
+              <div class="form-group" style="flex: 1;">
+                <label for="recApiKeyOpenaiRapida" style="font-size: 0.78rem; font-weight: 600;">OpenAI API Key (ChatGPT &amp; DALL-E 3):</label>
+                <div style="position: relative;">
+                  <input type="password" id="recApiKeyOpenaiRapida" class="form-control" placeholder="sk-proj-..." style="font-family: monospace; padding-right: 40px; font-size: 0.82rem;">
+                  <button type="button" onclick="toggleSenhaInput('recApiKeyOpenaiRapida')" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); cursor: pointer;">👁️</button>
+                </div>
+                <span style="font-size: 0.7rem; color: var(--text-muted);">Obtenha em: <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener" style="color: var(--accent-blue);">platform.openai.com/api-keys</a></span>
+              </div>
+              <div class="form-group" style="flex: 1;">
+                <label for="recApiKeyGeminiRapida" style="font-size: 0.78rem; font-weight: 600;">Google Gemini API Key (Grátis):</label>
+                <div style="position: relative;">
+                  <input type="password" id="recApiKeyGeminiRapida" class="form-control" placeholder="AIzaSy..." style="font-family: monospace; padding-right: 40px; font-size: 0.82rem;">
+                  <button type="button" onclick="toggleSenhaInput('recApiKeyGeminiRapida')" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); cursor: pointer;">👁️</button>
+                </div>
+                <span style="font-size: 0.7rem; color: var(--text-muted);">Obtenha grátis em: <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" style="color: var(--accent-blue);">aistudio.google.com/apikey</a></span>
+              </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+              <button type="button" class="btn btn-secondary btn-sm" onclick="toggleConfigIaRapidaReceitas()">Cancelar</button>
+              <button type="button" class="btn btn-sm" onclick="salvarConfigIaRapidaReceitas()">💾 Salvar Chave &amp; Ativar Agora</button>
+            </div>
+          </div>
         </div>
 
         <!-- Card 2: Gerador de Receitas (Avulso & Lote) -->
@@ -6221,6 +6280,9 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
       provedorIaSelecionado = prov;
       document.getElementById('btnProvedorOpenai')?.classList.toggle('active', prov === 'openai');
       document.getElementById('btnProvedorGemini')?.classList.toggle('active', prov === 'gemini');
+      document.getElementById('btnProvQuickOpenai')?.classList.toggle('active', prov === 'openai');
+      document.getElementById('btnProvQuickGemini')?.classList.toggle('active', prov === 'gemini');
+      atualizarBadgeStatusIaReceitas();
     }
 
     function toggleSenhaInput(id) {
@@ -6234,6 +6296,132 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
       if (txt) {
         txt.value = PERSONA_PADRAO_MARY_JS;
         mostrarToast('Voz padrão da Mary restaurada!');
+      }
+    }
+
+    function atualizarBadgeStatusIaReceitas(cfg) {
+      const config = cfg || configReceitasCache || {};
+      const provedor = provedorIaSelecionado || config.provedor || 'openai';
+      const keyOpenai = (config.apiKeyOpenai || document.getElementById('recApiKeyOpenaiRapida')?.value || document.getElementById('recApiKeyOpenai')?.value || '').trim();
+      const keyGemini = (config.apiKeyGemini || document.getElementById('recApiKeyGeminiRapida')?.value || document.getElementById('recApiKeyGemini')?.value || '').trim();
+
+      const badge = document.getElementById('badgeStatusIaReceitas');
+      const subtexto = document.getElementById('subtextoStatusIaReceitas');
+      const btnToggle = document.getElementById('btnToggleConfigIaReceitas');
+
+      if (provedor === 'openai') {
+        if (keyOpenai) {
+          if (badge) {
+            badge.style.background = 'rgba(34, 197, 94, 0.18)';
+            badge.style.color = '#4ade80';
+            badge.style.borderColor = 'rgba(34, 197, 94, 0.35)';
+            badge.innerHTML = '🟢 ChatGPT (OpenAI) Conectado';
+          }
+          if (subtexto) {
+            subtexto.innerHTML = 'Pronta para criar receitas irresistíveis com <strong>GPT-4o-mini</strong> e fotografia gastronômica <strong>DALL-E 3</strong>.';
+          }
+          if (btnToggle) btnToggle.innerHTML = '⚙️ Trocar Chave OpenAI';
+        } else {
+          if (badge) {
+            badge.style.background = 'rgba(239, 68, 68, 0.18)';
+            badge.style.color = '#f87171';
+            badge.style.borderColor = 'rgba(239, 68, 68, 0.35)';
+            badge.innerHTML = '🔴 Chave OpenAI Não Configurada';
+          }
+          if (subtexto) {
+            subtexto.innerHTML = 'Para a Mary gerar receitas e fotos com ChatGPT, insira sua <strong>OpenAI API Key</strong> abaixo.';
+          }
+          if (btnToggle) btnToggle.innerHTML = '🔑 Inserir OpenAI Key Aqui';
+        }
+      } else {
+        if (keyGemini) {
+          if (badge) {
+            badge.style.background = 'rgba(34, 197, 94, 0.18)';
+            badge.style.color = '#4ade80';
+            badge.style.borderColor = 'rgba(34, 197, 94, 0.35)';
+            badge.innerHTML = '🟢 Google Gemini Conectado (Grátis)';
+          }
+          if (subtexto) {
+            subtexto.innerHTML = 'Pronta para criar receitas com <strong>Gemini 2.0 Flash</strong> e fotografia gastronômica <strong>Imagen 3</strong>.';
+          }
+          if (btnToggle) btnToggle.innerHTML = '⚙️ Trocar Chave Gemini';
+        } else {
+          if (badge) {
+            badge.style.background = 'rgba(239, 68, 68, 0.18)';
+            badge.style.color = '#f87171';
+            badge.style.borderColor = 'rgba(239, 68, 68, 0.35)';
+            badge.innerHTML = '🔴 Chave Gemini Não Configurada';
+          }
+          if (subtexto) {
+            subtexto.innerHTML = 'Para a Mary gerar receitas gratuitamente, insira sua <strong>Gemini API Key</strong> abaixo.';
+          }
+          if (btnToggle) btnToggle.innerHTML = '🔑 Inserir Gemini Key Aqui';
+        }
+      }
+    }
+
+    function toggleConfigIaRapidaReceitas(forcarAbrir = null) {
+      const box = document.getElementById('boxConfigIaRapidaReceitas');
+      if (!box) return;
+      const abrir = forcarAbrir !== null ? forcarAbrir : (box.style.display === 'none' || !box.style.display);
+      box.style.display = abrir ? 'block' : 'none';
+      if (abrir) {
+        box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        const inputFoco = (provedorIaSelecionado === 'gemini') ? 'recApiKeyGeminiRapida' : 'recApiKeyOpenaiRapida';
+        setTimeout(() => document.getElementById(inputFoco)?.focus(), 150);
+      }
+    }
+
+    function selecionarProvedorIaRapido(prov) {
+      selecionarProvedorIa(prov);
+    }
+
+    async function salvarConfigIaRapidaReceitas() {
+      if (!projetoSelecionado) return;
+
+      const keyOpenai = document.getElementById('recApiKeyOpenaiRapida')?.value.trim() || document.getElementById('recApiKeyOpenai')?.value.trim() || '';
+      const keyGemini = document.getElementById('recApiKeyGeminiRapida')?.value.trim() || document.getElementById('recApiKeyGemini')?.value.trim() || '';
+
+      if (provedorIaSelecionado === 'openai' && !keyOpenai) {
+        mostrarToast('⚠️ Por favor, cole sua Chave de API da OpenAI (sk-...) para usar o ChatGPT!', true);
+        document.getElementById('recApiKeyOpenaiRapida')?.focus();
+        return;
+      }
+
+      if (provedorIaSelecionado === 'gemini' && !keyGemini) {
+        mostrarToast('⚠️ Por favor, cole sua Chave de API do Google Gemini!', true);
+        document.getElementById('recApiKeyGeminiRapida')?.focus();
+        return;
+      }
+
+      try {
+        mostrarToast('Salvando chave de Inteligência Artificial...');
+        const resp = await fetch(`/sessions/${projetoSelecionado}/receitas/config`, {
+          method: 'POST',
+          headers: obterHeaders(),
+          body: JSON.stringify({
+            provedor: provedorIaSelecionado,
+            apiKeyOpenai: keyOpenai,
+            apiKeyGemini: keyGemini
+          })
+        });
+
+        const data = await resp.json();
+        if (data.sucesso) {
+          configReceitasCache = data.config;
+          const inputAjustesOpenai = document.getElementById('recApiKeyOpenai');
+          if (inputAjustesOpenai) inputAjustesOpenai.value = keyOpenai;
+          const inputAjustesGemini = document.getElementById('recApiKeyGemini');
+          if (inputAjustesGemini) inputAjustesGemini.value = keyGemini;
+
+          atualizarBadgeStatusIaReceitas(data.config);
+          toggleConfigIaRapidaReceitas(false);
+          mostrarToast('✨ Motor de Inteligência Artificial ativado com sucesso!');
+        } else {
+          mostrarToast(`Erro ao salvar chave: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro ao conectar: ${err.message}`, true);
       }
     }
 
@@ -6252,9 +6440,13 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
 
           const keyOpenai = document.getElementById('recApiKeyOpenai');
           if (keyOpenai) keyOpenai.value = data.config.apiKeyOpenai || '';
+          const keyOpenaiRapida = document.getElementById('recApiKeyOpenaiRapida');
+          if (keyOpenaiRapida) keyOpenaiRapida.value = data.config.apiKeyOpenai || '';
 
           const keyGemini = document.getElementById('recApiKeyGemini');
           if (keyGemini) keyGemini.value = data.config.apiKeyGemini || '';
+          const keyGeminiRapida = document.getElementById('recApiKeyGeminiRapida');
+          if (keyGeminiRapida) keyGeminiRapida.value = data.config.apiKeyGemini || '';
 
           const resolucao = document.getElementById('recResolucao');
           if (resolucao) resolucao.value = String(data.config.resolucaoImagem || 800);
@@ -6266,6 +6458,8 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
           if (persona) {
             persona.value = data.config.personaCustom || PERSONA_PADRAO_MARY_JS;
           }
+
+          atualizarBadgeStatusIaReceitas(data.config);
         }
       } catch (err) {
         console.error('Erro ao carregar configurações de receitas:', err);
@@ -6302,6 +6496,11 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
         const data = await resp.json();
         if (data.sucesso) {
           configReceitasCache = data.config;
+          const keyOpenaiRapida = document.getElementById('recApiKeyOpenaiRapida');
+          if (keyOpenaiRapida) keyOpenaiRapida.value = apiKeyOpenai;
+          const keyGeminiRapida = document.getElementById('recApiKeyGeminiRapida');
+          if (keyGeminiRapida) keyGeminiRapida.value = apiKeyGemini;
+          atualizarBadgeStatusIaReceitas(data.config);
           mostrarToast('✅ Configurações de Receitas IA salvas com sucesso!');
         } else {
           mostrarToast(`Erro ao salvar: ${data.erro}`, true);
@@ -6470,6 +6669,21 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
     async function gerarReceitaAvulsaBtn() {
       if (!projetoSelecionado) return;
 
+      const keyOpenai = (document.getElementById('recApiKeyOpenaiRapida')?.value || document.getElementById('recApiKeyOpenai')?.value || configReceitasCache?.apiKeyOpenai || '').trim();
+      const keyGemini = (document.getElementById('recApiKeyGeminiRapida')?.value || document.getElementById('recApiKeyGemini')?.value || configReceitasCache?.apiKeyGemini || '').trim();
+      const provedor = provedorIaSelecionado || configReceitasCache?.provedor || 'openai';
+
+      if (provedor === 'openai' && !keyOpenai) {
+        mostrarToast('⚠️ Insira sua OpenAI API Key abaixo para gerar com ChatGPT e DALL-E!', true);
+        toggleConfigIaRapidaReceitas(true);
+        return;
+      }
+      if (provedor === 'gemini' && !keyGemini) {
+        mostrarToast('⚠️ Insira sua Gemini API Key abaixo para gerar com Google Gemini!', true);
+        toggleConfigIaRapidaReceitas(true);
+        return;
+      }
+
       const inputTema = document.getElementById('recTemaInput');
       const tema = inputTema ? inputTema.value.trim() : '';
 
@@ -6477,9 +6691,14 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
       const boxStatus = document.getElementById('boxStatusGeracaoReceita');
       const txtStatus = document.getElementById('textoStatusGeracaoReceita');
       const subtxtStatus = document.getElementById('subtextoStatusGeracaoReceita');
+      const spinner = boxStatus ? boxStatus.querySelector('.spinner') : null;
 
       btn.disabled = true;
       boxStatus.style.display = 'block';
+      boxStatus.style.background = 'rgba(251, 146, 60, 0.08)';
+      boxStatus.style.borderColor = 'rgba(251, 146, 60, 0.3)';
+      if (spinner) spinner.style.display = 'inline-block';
+      txtStatus.style.color = '#fb923c';
       txtStatus.innerText = 'Cozinhando a receita com a Mary...';
       subtxtStatus.innerText = 'Escrevendo modo de preparo humanizado e gerando fotografia gastronômica em alta resolução...';
 
@@ -6489,7 +6708,9 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
           headers: obterHeaders(),
           body: JSON.stringify({
             tema,
-            provedor: provedorIaSelecionado,
+            provedor,
+            apiKeyOpenai: keyOpenai,
+            apiKeyGemini: keyGemini,
             resolucao: Number(document.getElementById('recResolucao')?.value) || 800
           })
         });
@@ -6498,20 +6719,53 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
         if (data.sucesso) {
           mostrarToast(`✨ ${data.mensagem}`);
           if (inputTema) inputTema.value = '';
+          boxStatus.style.display = 'none';
           await carregarReceitas();
+          await carregarConfigReceitas();
         } else {
+          boxStatus.style.display = 'block';
+          boxStatus.style.background = 'rgba(239, 68, 68, 0.12)';
+          boxStatus.style.borderColor = 'rgba(239, 68, 68, 0.35)';
+          if (spinner) spinner.style.display = 'none';
+          txtStatus.style.color = '#f87171';
+          txtStatus.innerText = '❌ Falha ao Gerar Receita com IA';
+          subtxtStatus.innerHTML = `<strong>Motivo:</strong> ${data.erro}<br><div style="margin-top: 8px; display: flex; gap: 0.5rem;"><button type="button" class="btn btn-sm btn-primary" onclick="toggleConfigIaRapidaReceitas(true)">🔑 Verificar / Inserir Chave</button><button type="button" class="btn btn-sm btn-secondary" onclick="document.getElementById('boxStatusGeracaoReceita').style.display='none'">Fechar Aviso</button></div>`;
           mostrarToast(`Erro ao gerar: ${data.erro}`, true);
+          if (data.erro && (data.erro.toLowerCase().includes('chave') || data.erro.toLowerCase().includes('api key') || data.erro.toLowerCase().includes('openai'))) {
+            toggleConfigIaRapidaReceitas(true);
+          }
         }
       } catch (err) {
+        boxStatus.style.display = 'block';
+        boxStatus.style.background = 'rgba(239, 68, 68, 0.12)';
+        boxStatus.style.borderColor = 'rgba(239, 68, 68, 0.35)';
+        if (spinner) spinner.style.display = 'none';
+        txtStatus.style.color = '#f87171';
+        txtStatus.innerText = '❌ Erro de Comunicação na Geração';
+        subtxtStatus.innerHTML = `${err.message}<br><button type="button" class="btn btn-sm btn-secondary" onclick="document.getElementById('boxStatusGeracaoReceita').style.display='none'" style="margin-top: 6px;">Fechar</button>`;
         mostrarToast(`Erro na geração: ${err.message}`, true);
       } finally {
         btn.disabled = false;
-        boxStatus.style.display = 'none';
       }
     }
 
     async function gerarLoteReceitasBtn() {
       if (!projetoSelecionado) return;
+
+      const keyOpenai = (document.getElementById('recApiKeyOpenaiRapida')?.value || document.getElementById('recApiKeyOpenai')?.value || configReceitasCache?.apiKeyOpenai || '').trim();
+      const keyGemini = (document.getElementById('recApiKeyGeminiRapida')?.value || document.getElementById('recApiKeyGemini')?.value || configReceitasCache?.apiKeyGemini || '').trim();
+      const provedor = provedorIaSelecionado || configReceitasCache?.provedor || 'openai';
+
+      if (provedor === 'openai' && !keyOpenai) {
+        mostrarToast('⚠️ Insira sua OpenAI API Key abaixo para gerar o lote com ChatGPT!', true);
+        toggleConfigIaRapidaReceitas(true);
+        return;
+      }
+      if (provedor === 'gemini' && !keyGemini) {
+        mostrarToast('⚠️ Insira sua Gemini API Key abaixo para gerar o lote com Gemini!', true);
+        toggleConfigIaRapidaReceitas(true);
+        return;
+      }
 
       const qtd = Number(document.getElementById('recQtdLoteSelect')?.value) || 5;
       if (!confirm(`Deseja iniciar a geração em lote de ${qtd} receitas completas com fotos gastronômicas?\n\nIsso pode levar de 1 a 2 minutos dependendo da fila de processamento da IA.`)) {
@@ -6522,9 +6776,14 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
       const boxStatus = document.getElementById('boxStatusGeracaoReceita');
       const txtStatus = document.getElementById('textoStatusGeracaoReceita');
       const subtxtStatus = document.getElementById('subtextoStatusGeracaoReceita');
+      const spinner = boxStatus ? boxStatus.querySelector('.spinner') : null;
 
       btn.disabled = true;
       boxStatus.style.display = 'block';
+      boxStatus.style.background = 'rgba(251, 146, 60, 0.08)';
+      boxStatus.style.borderColor = 'rgba(251, 146, 60, 0.3)';
+      if (spinner) spinner.style.display = 'inline-block';
+      txtStatus.style.color = '#fb923c';
       txtStatus.innerText = `Processando lote de ${qtd} receitas...`;
       subtxtStatus.innerText = 'A Mary está preparando os pratos e gerando as fotos uma a uma...';
 
@@ -6532,21 +6791,43 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
         const resp = await fetch(`/sessions/${projetoSelecionado}/receitas/gerar-lote`, {
           method: 'POST',
           headers: obterHeaders(),
-          body: JSON.stringify({ quantidade: qtd })
+          body: JSON.stringify({
+            quantidade: qtd,
+            apiKeyOpenai: keyOpenai,
+            apiKeyGemini: keyGemini
+          })
         });
 
         const data = await resp.json();
         if (data.sucesso) {
           mostrarToast(`🎉 ${data.mensagem}`);
+          boxStatus.style.display = 'none';
           await carregarReceitas();
+          await carregarConfigReceitas();
         } else {
+          boxStatus.style.display = 'block';
+          boxStatus.style.background = 'rgba(239, 68, 68, 0.12)';
+          boxStatus.style.borderColor = 'rgba(239, 68, 68, 0.35)';
+          if (spinner) spinner.style.display = 'none';
+          txtStatus.style.color = '#f87171';
+          txtStatus.innerText = '❌ Falha ao Gerar Lote de Receitas';
+          subtxtStatus.innerHTML = `<strong>Motivo:</strong> ${data.erro}<br><div style="margin-top: 8px; display: flex; gap: 0.5rem;"><button type="button" class="btn btn-sm btn-primary" onclick="toggleConfigIaRapidaReceitas(true)">🔑 Verificar / Inserir Chave</button><button type="button" class="btn btn-sm btn-secondary" onclick="document.getElementById('boxStatusGeracaoReceita').style.display='none'">Fechar Aviso</button></div>`;
           mostrarToast(`Erro ao gerar lote: ${data.erro}`, true);
+          if (data.erro && (data.erro.toLowerCase().includes('chave') || data.erro.toLowerCase().includes('api key'))) {
+            toggleConfigIaRapidaReceitas(true);
+          }
         }
       } catch (err) {
+        boxStatus.style.display = 'block';
+        boxStatus.style.background = 'rgba(239, 68, 68, 0.12)';
+        boxStatus.style.borderColor = 'rgba(239, 68, 68, 0.35)';
+        if (spinner) spinner.style.display = 'none';
+        txtStatus.style.color = '#f87171';
+        txtStatus.innerText = '❌ Erro no Lote de Receitas';
+        subtxtStatus.innerHTML = `${err.message}<br><button type="button" class="btn btn-sm btn-secondary" onclick="document.getElementById('boxStatusGeracaoReceita').style.display='none'" style="margin-top: 6px;">Fechar</button>`;
         mostrarToast(`Erro no lote: ${err.message}`, true);
       } finally {
         btn.disabled = false;
-        boxStatus.style.display = 'none';
       }
     }
 

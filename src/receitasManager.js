@@ -126,6 +126,20 @@ async function gerarReceita(projectId, opcoes = {}) {
   const personaCustom = opcoes.personaCustom || config.personaCustom || '';
   const tema = opcoes.tema || '';
 
+  const apiKeyOpenai = (opcoes.apiKeyOpenai || config.apiKeyOpenai || process.env.OPENAI_API_KEY || '').trim();
+  const apiKeyGemini = (opcoes.apiKeyGemini || config.apiKeyGemini || process.env.GEMINI_API_KEY || '').trim();
+
+  // Se o usuário enviou uma chave nas opções da requisição, salva para o projeto
+  if (opcoes.apiKeyOpenai || opcoes.apiKeyGemini) {
+    try {
+      salvarConfigReceitas(projectId, {
+        apiKeyOpenai,
+        apiKeyGemini,
+        provedor
+      });
+    } catch (_) {}
+  }
+
   const idReceita = crypto.randomUUID();
 
   logProjeto(
@@ -139,9 +153,9 @@ async function gerarReceita(projectId, opcoes = {}) {
   let bufferBrutoImagem;
 
   if (provedor === 'gemini') {
-    const apiKey = config.apiKeyGemini;
+    const apiKey = apiKeyGemini;
     if (!apiKey) {
-      throw new Error('Chave da API do Google Gemini (API Key) não configurada.');
+      throw new Error('Chave da API do Google Gemini não configurada. Insira sua chave Gemini no painel.');
     }
 
     resultadoTexto = await receitasIaService.gerarComGemini(
@@ -182,9 +196,9 @@ async function gerarReceita(projectId, opcoes = {}) {
     }
   } else {
     // Provedor padrão: OpenAI (ChatGPT + DALL-E 3)
-    const apiKey = config.apiKeyOpenai;
+    const apiKey = apiKeyOpenai;
     if (!apiKey) {
-      throw new Error('Chave da API da OpenAI (API Key) não configurada.');
+      throw new Error('Chave da API da OpenAI (ChatGPT) não configurada. Insira sua OpenAI API Key no painel.');
     }
 
     resultadoTexto = await receitasIaService.gerarComOpenAi(
@@ -201,10 +215,31 @@ async function gerarReceita(projectId, opcoes = {}) {
       'info'
     );
 
-    bufferBrutoImagem = await receitasIaService.gerarImagemOpenAi(
-      apiKey,
-      resultadoTexto.promptVisualIngles
-    );
+    try {
+      bufferBrutoImagem = await receitasIaService.gerarImagemOpenAi(
+        apiKey,
+        resultadoTexto.promptVisualIngles
+      );
+    } catch (errDalle) {
+      logProjeto(
+        projectId,
+        'RECEITAS_AVISO_DALLE',
+        `Aviso no DALL-E 3: ${errDalle.message}. Acionando foto culinária de contingência...`,
+        'warn'
+      );
+      if (config.apiKeyGemini) {
+        try {
+          bufferBrutoImagem = await receitasIaService.gerarImagemGemini(
+            config.apiKeyGemini,
+            resultadoTexto.promptVisualIngles
+          );
+        } catch (_) {
+          bufferBrutoImagem = await receitasIaService.obterFotoCulinariaFallback(resultadoTexto.titulo);
+        }
+      } else {
+        bufferBrutoImagem = await receitasIaService.obterFotoCulinariaFallback(resultadoTexto.titulo);
+      }
+    }
   }
 
   // Otimiza a foto para ficar levíssima (~90-130 KB) e nítida para o 3G brasileiro
@@ -251,7 +286,7 @@ async function gerarReceita(projectId, opcoes = {}) {
  * @param {string} projectId
  * @param {object} param1 - { quantidade, temas }
  */
-async function gerarLoteReceitas(projectId, { quantidade = 5, temas = [] } = {}) {
+async function gerarLoteReceitas(projectId, { quantidade = 5, temas = [], apiKeyOpenai, apiKeyGemini, provedor } = {}) {
   const qtdFinal = Math.min(Math.max(Number(quantidade) || 1, 1), 50);
   const receitasCriadas = [];
 
@@ -260,7 +295,7 @@ async function gerarLoteReceitas(projectId, { quantidade = 5, temas = [] } = {})
   for (let i = 0; i < qtdFinal; i++) {
     const temaAtual = temas[i] || '';
     try {
-      const rec = await gerarReceita(projectId, { tema: temaAtual });
+      const rec = await gerarReceita(projectId, { tema: temaAtual, apiKeyOpenai, apiKeyGemini, provedor });
       receitasCriadas.push(rec);
 
       // Pequena pausa amigável para evitar rate-limit

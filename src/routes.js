@@ -1024,9 +1024,9 @@ router.get('/sessions/:projectId/receitas', (req, res) => {
  */
 router.post('/sessions/:projectId/receitas/gerar', async (req, res) => {
   const { projectId } = req.params;
-  const { tema, personaCustom, provedor, resolucao } = req.body || {};
+  const { tema, personaCustom, provedor, resolucao, apiKeyOpenai, apiKeyGemini } = req.body || {};
   try {
-    const receita = await receitasManager.gerarReceita(projectId, { tema, personaCustom, provedor, resolucao });
+    const receita = await receitasManager.gerarReceita(projectId, { tema, personaCustom, provedor, resolucao, apiKeyOpenai, apiKeyGemini });
     res.json({ sucesso: true, mensagem: `Receita "${receita.titulo}" gerada com sucesso!`, receita });
   } catch (err) {
     res.status(500).json({ sucesso: false, erro: err.message });
@@ -1038,9 +1038,9 @@ router.post('/sessions/:projectId/receitas/gerar', async (req, res) => {
  */
 router.post('/sessions/:projectId/receitas/gerar-lote', async (req, res) => {
   const { projectId } = req.params;
-  const { quantidade, temas } = req.body || {};
+  const { quantidade, temas, apiKeyOpenai, apiKeyGemini } = req.body || {};
   try {
-    const receitas = await receitasManager.gerarLoteReceitas(projectId, { quantidade, temas });
+    const receitas = await receitasManager.gerarLoteReceitas(projectId, { quantidade, temas, apiKeyOpenai, apiKeyGemini });
     res.json({ sucesso: true, mensagem: `${receitas.length} receitas geradas com sucesso!`, receitas });
   } catch (err) {
     res.status(500).json({ sucesso: false, erro: err.message });
