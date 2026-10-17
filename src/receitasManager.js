@@ -151,8 +151,10 @@ async function gerarReceita(projectId, opcoes = {}) {
 
   let resultadoTexto;
   let bufferBrutoImagem;
+  let provedorFinal = provedor;
 
   if (provedor === 'gemini') {
+    provedorFinal = 'gemini';
     const apiKey = apiKeyGemini;
     if (!apiKey) {
       throw new Error('Chave da API do Google Gemini não configurada. Insira sua chave Gemini no painel.');
@@ -190,6 +192,7 @@ async function gerarReceita(projectId, opcoes = {}) {
           config.apiKeyOpenai,
           resultadoTexto.promptVisualIngles
         );
+        provedorFinal = 'dall-e-3';
       } else {
         throw errGeminiImg;
       }
@@ -215,7 +218,7 @@ async function gerarReceita(projectId, opcoes = {}) {
       'info'
     );
 
-    let provedorFinal = 'dall-e-3';
+    provedorFinal = 'dall-e-3';
     try {
       bufferBrutoImagem = await receitasIaService.gerarImagemOpenAi(
         apiKey,
