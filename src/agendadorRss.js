@@ -3,6 +3,7 @@ const path = require('path');
 const rssFetcher = require('./rssFetcher');
 const destinosManager = require('./destinos');
 const sessionManager = require('./sessionManager');
+const utmManager = require('./utmManager');
 const { logProjeto } = require('./logger');
 const { comLockProjeto } = require('./agendador');
 
@@ -75,11 +76,12 @@ function sortearAbertura() {
  * @param {object} [config]
  * @returns {string}
  */
-function formatarMensagemArtigo(artigo, config = {}) {
+function formatarMensagemArtigo(artigo, config = {}, projectId = 'Receitas') {
   const abertura = sortearAbertura();
   const titulo = artigo.titulo || '';
   const resumo = artigo.resumo || '';
-  const link = artigo.link || '';
+  const linkOriginal = artigo.link || '';
+  const link = utmManager.anexarUtm(linkOriginal, 'rss', projectId);
 
   if (config.templateMensagem && typeof config.templateMensagem === 'string' && config.templateMensagem.trim().length > 0) {
     return config.templateMensagem
@@ -380,7 +382,7 @@ async function processarDisparoArtigoRss(projectId, config, horarioAtual) {
     }
 
     // Monta a mensagem profissional com Abertura, Título, Resumo, Chamada para Ação (CTA) e Link
-    const textoMensagem = formatarMensagemArtigo(artigo, config);
+    const textoMensagem = formatarMensagemArtigo(artigo, config, projectId);
 
     logProjeto(
       projectId,

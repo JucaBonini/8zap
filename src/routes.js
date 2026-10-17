@@ -1280,5 +1280,72 @@ router.post('/sessions/:projectId/facebook/receitas/:id/fila', async (req, res) 
   }
 });
 
+// ==========================================
+// ROTAS DE CONTROLE DE UTM & MÉTRICAS
+// ==========================================
+
+const utmManager = require('./utmManager');
+
+/**
+ * GET /sessions/:projectId/utm/config
+ * Retorna as configurações de UTM do projeto
+ */
+router.get('/sessions/:projectId/utm/config', (req, res) => {
+  const { projectId } = req.params;
+  try {
+    const config = utmManager.obterConfigUtm(projectId);
+    res.json({ sucesso: true, config });
+  } catch (err) {
+    res.status(500).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * POST /sessions/:projectId/utm/config
+ * Salva as configurações de UTM do projeto
+ */
+router.post('/sessions/:projectId/utm/config', (req, res) => {
+  const { projectId } = req.params;
+  try {
+    const config = utmManager.salvarConfigUtm(projectId, req.body || {});
+    res.json({ sucesso: true, mensagem: 'Configurações de UTM salvas com sucesso!', config });
+  } catch (err) {
+    res.status(400).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * POST /sessions/:projectId/utm/gerar-link
+ * Gera e testa uma URL com os parâmetros de UTM aplicados
+ */
+router.post('/sessions/:projectId/utm/gerar-link', (req, res) => {
+  const { projectId } = req.params;
+  const { url, canal, content } = req.body || {};
+  try {
+    if (!url || typeof url !== 'string') {
+      return res.status(400).json({ sucesso: false, erro: 'URL é obrigatória para gerar o link com UTM.' });
+    }
+    const urlComUtm = utmManager.anexarUtm(url.trim(), canal || 'facebook', projectId, { content });
+    res.json({ sucesso: true, urlOriginal: url, canal: canal || 'facebook', urlComUtm });
+  } catch (err) {
+    res.status(400).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * GET /sessions/:projectId/utm/estatisticas
+ * Retorna estatísticas de cliques do link ponte
+ */
+router.get('/sessions/:projectId/utm/estatisticas', (req, res) => {
+  const { projectId } = req.params;
+  try {
+    const estatisticas = utmManager.obterEstatisticasPonte(projectId);
+    res.json({ sucesso: true, estatisticas });
+  } catch (err) {
+    res.status(500).json({ sucesso: false, erro: err.message });
+  }
+});
+
 module.exports = router;
+
 

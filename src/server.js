@@ -42,6 +42,32 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Rota pública de Redirecionamento Inteligente / Link Ponte (com contagem de cliques)
+app.get('/r/:slug', (req, res) => {
+  const { slug } = req.params;
+  try {
+    const utmManager = require('./utmManager');
+    const config = utmManager.obterConfigUtm('Receitas');
+    const ponte = config.linkPonte || {};
+
+    if (!ponte.ativo || ponte.slug !== String(slug).toLowerCase()) {
+      return res.status(404).send('Link não encontrado ou inativo.');
+    }
+
+    const destino = ponte.destino || 'https://whatsapp.com/channel/0029Va5fCv1FXUuaQxDdVg0H';
+
+    utmManager.registrarCliquePonte('Receitas', {
+      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '',
+      referer: req.headers['referer'] || req.headers['referrer'] || 'direto',
+      userAgent: req.headers['user-agent'] || ''
+    });
+
+    return res.redirect(destino);
+  } catch (err) {
+    return res.status(500).send('Erro no redirecionamento.');
+  }
+});
+
 // Registrar rotas da API
 app.use('/', rotas);
 app.use('/api', rotas);

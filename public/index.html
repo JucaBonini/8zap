@@ -2423,6 +2423,9 @@
           <button class="sub-pill-btn" id="btnSub-sub-facebook" onclick="trocarSubConteudo('sub-facebook', event)" style="border-color: rgba(24, 119, 242, 0.4); color: #60a5fa;">
             📘 Página Facebook
           </button>
+          <button class="sub-pill-btn" id="btnSub-sub-utms" onclick="trocarSubConteudo('sub-utms', event)" style="border-color: rgba(168, 85, 247, 0.4); color: #c084fc;">
+            🎯 Controle de UTMs &amp; Métricas
+          </button>
         </div>
 
         <!-- Sub-Aba 1: Receitas IA (Mary) -->
@@ -3358,6 +3361,235 @@
           </div>
         </div>
       </div> <!-- Fim de #sub-facebook -->
+
+      <!-- Sub-Aba 6: Controle Central de UTMs & Métricas de Tráfego -->
+      <div id="sub-utms" class="sub-content-panel">
+        <!-- Banner Principal -->
+        <div style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.12), rgba(126, 34, 206, 0.05)); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: var(--radius-md); padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div style="display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #a855f7, #7e22ce); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; box-shadow: 0 0 20px rgba(168, 85, 247, 0.35);">
+              🎯
+            </div>
+            <div>
+              <h2 style="font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 0.2rem;">Controle Central de UTMs &amp; Métricas de Tráfego</h2>
+              <p style="font-size: 0.82rem; color: var(--text-muted); max-width: 680px;">
+                Tagueamento automático e padronizado para Google Analytics 4 (GA4). Cada link disparado no Facebook, Canais, Grupos ou RSS recebe os parâmetros corretos para você saber com precisão de onde vêm suas visitas e receitas de anúncios.
+              </p>
+            </div>
+          </div>
+          <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <label style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0; cursor: pointer; background: rgba(0,0,0,0.3); padding: 0.5rem 0.85rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+              <input type="checkbox" id="utmAtivoGlobal" style="width: 18px; height: 18px; accent-color: #a855f7;" onchange="salvarConfigUtmForm()">
+              <strong style="color: #c084fc; font-size: 0.85rem;">Rastreamento Global Ativo</strong>
+            </label>
+          </div>
+        </div>
+
+        <!-- Card 1: Link Ponte & Rastreador do Canal do WhatsApp -->
+        <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+            <div>
+              <h3 style="margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                🔗 Link Ponte de Redirecionamento (Métricas para o Canal do WhatsApp)
+              </h3>
+              <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">
+                Como o WhatsApp não possui Google Analytics nativo, use este atalho para <strong>contabilizar quantas pessoas entraram no seu canal</strong> através do Facebook!
+              </p>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="carregarEstatisticasPonte()">🔄 Atualizar Métricas</button>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.25rem; flex-wrap: wrap;">
+            <!-- Configuração do Link Ponte -->
+            <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 1rem;">
+              <div class="form-row" style="margin-bottom: 0.75rem;">
+                <div class="form-group" style="flex: 1;">
+                  <label for="utmPonteSlug" style="font-size: 0.78rem; font-weight: 600;">Atalho / Slug da Rota:</label>
+                  <div style="display: flex; align-items: center; gap: 0.4rem;">
+                    <span style="color: var(--text-muted); font-size: 0.82rem; font-family: monospace;">/r/</span>
+                    <input type="text" id="utmPonteSlug" class="form-control" value="canal-whatsapp" style="font-family: monospace; font-size: 0.85rem;" onchange="atualizarPreviewLinkPonte()">
+                  </div>
+                </div>
+                <div class="form-group" style="flex: 2;">
+                  <label for="utmPonteDestino" style="font-size: 0.78rem; font-weight: 600;">Destino Real (Link Oficial do Canal WhatsApp):</label>
+                  <input type="url" id="utmPonteDestino" class="form-control" value="https://whatsapp.com/channel/0029Va5fCv1FXUuaQxDdVg0H" style="font-size: 0.85rem;">
+                </div>
+              </div>
+
+              <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: var(--radius-sm); padding: 0.75rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                <div>
+                  <span style="font-size: 0.72rem; color: var(--text-muted); display: block;">Seu Link Ponte Rastreador:</span>
+                  <strong id="utmPonteUrlCompleta" style="color: #c084fc; font-size: 0.85rem; font-family: monospace;">http://localhost:3001/r/canal-whatsapp</strong>
+                </div>
+                <div style="display: flex; gap: 0.4rem;">
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="copiarLinkPonte()" style="font-size: 0.78rem;">📋 Copiar Link</button>
+                  <a id="utmPonteLinkTestar" href="/r/canal-whatsapp" target="_blank" class="btn btn-secondary btn-sm" style="font-size: 0.78rem;">↗ Testar Redirecionamento</a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Contador de Cliques ao Vivo -->
+            <div style="background: rgba(168, 85, 247, 0.05); border: 1px solid rgba(168, 85, 247, 0.25); border-radius: var(--radius-sm); padding: 1rem; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+              <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Total de Cliques Registrados</span>
+              <div id="utmTotalCliquesBadge" style="font-size: 2.4rem; font-weight: 800; color: #c084fc; margin: 0.4rem 0;">0</div>
+              <span id="utmUltimoCliqueTexto" style="font-size: 0.72rem; color: var(--text-muted);">Nenhum clique registrado ainda</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2: Configuração de UTMs por Canal de Disparo -->
+        <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+            <div>
+              <h3 style="margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                ⚙️ Parâmetros de UTM por Canal
+              </h3>
+              <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">
+                O 8zap anexa automaticamente estes parâmetros aos links das receitas quando enviados para cada canal.
+              </p>
+            </div>
+            <button class="btn" onclick="salvarConfigUtmForm()">💾 Salvar Configurações de UTM</button>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem;">
+            <!-- Canal 1: Facebook -->
+            <div style="background: rgba(24, 119, 242, 0.04); border: 1px solid rgba(24, 119, 242, 0.3); border-radius: var(--radius-sm); padding: 1rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <strong style="color: #60a5fa; font-size: 0.9rem;">📘 Página Facebook</strong>
+                <label style="display: flex; align-items: center; gap: 0.3rem; margin: 0; cursor: pointer;">
+                  <input type="checkbox" id="utmFbAtivo" style="accent-color: #1877f2;">
+                  <span style="font-size: 0.75rem; color: var(--text-muted);">Ativo</span>
+                </label>
+              </div>
+              <div class="form-group" style="margin-bottom: 0.5rem;">
+                <label style="font-size: 0.72rem; color: var(--text-muted);">utm_source:</label>
+                <input type="text" id="utmFbSource" class="form-control" value="facebook" style="font-size: 0.8rem; padding: 0.35rem 0.6rem;">
+              </div>
+              <div class="form-group" style="margin-bottom: 0.5rem;">
+                <label style="font-size: 0.72rem; color: var(--text-muted);">utm_medium:</label>
+                <input type="text" id="utmFbMedium" class="form-control" value="comment" style="font-size: 0.8rem; padding: 0.35rem 0.6rem;">
+              </div>
+              <div class="form-group" style="margin-bottom: 0.5rem;">
+                <label style="font-size: 0.72rem; color: var(--text-muted);">utm_campaign:</label>
+                <input type="text" id="utmFbCampaign" class="form-control" value="fanpage-mary" style="font-size: 0.8rem; padding: 0.35rem 0.6rem;">
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label style="font-size: 0.72rem; color: var(--text-muted);">utm_content:</label>
+                <input type="text" id="utmFbContent" class="form-control" value="receita-detalhada" style="font-size: 0.8rem; padding: 0.35rem 0.6rem;">
+              </div>
+            </div>
+
+            <!-- Canal 2: Canal do WhatsApp -->
+            <div style="background: rgba(37, 211, 102, 0.04); border: 1px solid rgba(37, 211, 102, 0.3); border-radius: var(--radius-sm); padding: 1rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <strong style="color: #4ade80; font-size: 0.9rem;">📢 Canal WhatsApp (Newsletter)</strong>
+                <label style="display: flex; align-items: center; gap: 0.3rem; margin: 0; cursor: pointer;">
+                  <input type="checkbox" id="utmCanalAtivo" style="accent-color: #25d366;">
+                  <span style="font-size: 0.75rem; color: var(--text-muted);">Ativo</span>
+                </label>
+              </div>
+              <div class="form-group" style="margin-bottom: 0.5rem;">
+                <label style="font-size: 0.72rem; color: var(--text-muted);">utm_source:</label>
+                <input type="text" id="utmCanalSource" class="form-control" value="whatsapp" style="font-size: 0.8rem; padding: 0.35rem 0.6rem;">
+              </div>
+              <div class="form-group" style="margin-bottom: 0.5rem;">
+                <label style="font-size: 0.72rem; color: var(--text-muted);">utm_medium:</label>
+                <input type="text" id="utmCanalMedium" class="form-control" value="canal" style="font-size: 0.8rem; padding: 0.35rem 0.6rem;">
+              </div>
+              <div class="form-group" style="margin-bottom: 0.5rem;">
+                <label style="font-size: 0.72rem; color: var(--text-muted);">utm_campaign:</label>
+                <input type="text" id="utmCanalCampaign" class="form-control" value="receitas-vip" style="font-size: 0.8rem; padding: 0.35rem 0.6rem;">
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label style="font-size: 0.72rem; color: var(--text-muted);">utm_content:</label>
+                <input type="text" id="utmCanalContent" class="form-control" value="disparo-diario" style="font-size: 0.8rem; padding: 0.35rem 0.6rem;">
+              </div>
+            </div>
+
+            <!-- Canal 3: Grupos do WhatsApp -->
+            <div style="background: rgba(14, 165, 233, 0.04); border: 1px solid rgba(14, 165, 233, 0.3); border-radius: var(--radius-sm); padding: 1rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <strong style="color: #38bdf8; font-size: 0.9rem;">👥 Grupos WhatsApp</strong>
+                <label style="display: flex; align-items: center; gap: 0.3rem; margin: 0; cursor: pointer;">
+                  <input type="checkbox" id="utmGruposAtivo" style="accent-color: #0ea5e9;">
+                  <span style="font-size: 0.75rem; color: var(--text-muted);">Ativo</span>
+                </label>
+              </div>
+              <div class="form-group" style="margin-bottom: 0.5rem;">
+                <label style="font-size: 0.72rem; color: var(--text-muted);">utm_source:</label>
+                <input type="text" id="utmGruposSource" class="form-control" value="whatsapp" style="font-size: 0.8rem; padding: 0.35rem 0.6rem;">
+              </div>
+              <div class="form-group" style="margin-bottom: 0.5rem;">
+                <label style="font-size: 0.72rem; color: var(--text-muted);">utm_medium:</label>
+                <input type="text" id="utmGruposMedium" class="form-control" value="grupos" style="font-size: 0.8rem; padding: 0.35rem 0.6rem;">
+              </div>
+              <div class="form-group" style="margin-bottom: 0.5rem;">
+                <label style="font-size: 0.72rem; color: var(--text-muted);">utm_campaign:</label>
+                <input type="text" id="utmGruposCampaign" class="form-control" value="disparo-grupos" style="font-size: 0.8rem; padding: 0.35rem 0.6rem;">
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label style="font-size: 0.72rem; color: var(--text-muted);">utm_content:</label>
+                <input type="text" id="utmGruposContent" class="form-control" value="receita-grupo" style="font-size: 0.8rem; padding: 0.35rem 0.6rem;">
+              </div>
+            </div>
+
+            <!-- Canal 4: RSS Notícias -->
+            <div style="background: rgba(249, 115, 22, 0.04); border: 1px solid rgba(249, 115, 22, 0.3); border-radius: var(--radius-sm); padding: 1rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <strong style="color: #fb923c; font-size: 0.9rem;">📰 Feed RSS (Artigos)</strong>
+                <label style="display: flex; align-items: center; gap: 0.3rem; margin: 0; cursor: pointer;">
+                  <input type="checkbox" id="utmRssAtivo" style="accent-color: #f97316;">
+                  <span style="font-size: 0.75rem; color: var(--text-muted);">Ativo</span>
+                </label>
+              </div>
+              <div class="form-group" style="margin-bottom: 0.5rem;">
+                <label style="font-size: 0.72rem; color: var(--text-muted);">utm_source:</label>
+                <input type="text" id="utmRssSource" class="form-control" value="rss" style="font-size: 0.8rem; padding: 0.35rem 0.6rem;">
+              </div>
+              <div class="form-group" style="margin-bottom: 0.5rem;">
+                <label style="font-size: 0.72rem; color: var(--text-muted);">utm_medium:</label>
+                <input type="text" id="utmRssMedium" class="form-control" value="feed-auto" style="font-size: 0.8rem; padding: 0.35rem 0.6rem;">
+              </div>
+              <div class="form-group" style="margin-bottom: 0.5rem;">
+                <label style="font-size: 0.72rem; color: var(--text-muted);">utm_campaign:</label>
+                <input type="text" id="utmRssCampaign" class="form-control" value="rss-receitas" style="font-size: 0.8rem; padding: 0.35rem 0.6rem;">
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label style="font-size: 0.72rem; color: var(--text-muted);">utm_content:</label>
+                <input type="text" id="utmRssContent" class="form-control" value="artigo-site" style="font-size: 0.8rem; padding: 0.35rem 0.6rem;">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3: Testador e Simulador de Links com UTM (Instantâneo) -->
+        <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+          <h3 style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+            🧪 Simulador &amp; Gerador Instantâneo de Links com UTM
+          </h3>
+          <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 1rem;">
+            Cole qualquer link do seu site para simular e copiar na hora a versão oficial com parâmetros de UTM correspondentes ao canal escolhido.
+          </p>
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.75rem;">
+            <input type="url" id="utmSimuladorUrl" class="form-control" placeholder="https://descomplicandoreceitas.com.br/bolo-de-cenoura/" style="flex: 2; min-width: 280px; font-size: 0.85rem;">
+            <select id="utmSimuladorCanal" class="form-control" style="flex: 1; min-width: 180px; font-size: 0.85rem;">
+              <option value="facebook">📘 Facebook (1º Comentário)</option>
+              <option value="whatsapp_canal">📢 Canal do WhatsApp</option>
+              <option value="whatsapp_grupo">👥 Grupos do WhatsApp</option>
+              <option value="rss">📰 Feed RSS</option>
+            </select>
+            <button class="btn" type="button" onclick="testarGeradorUtm()" style="white-space: nowrap;">⚡ Gerar Link com UTM</button>
+          </div>
+
+          <div id="utmSimuladorResultadoBox" style="display: none; background: rgba(0,0,0,0.35); border: 1px solid rgba(168, 85, 247, 0.4); border-radius: var(--radius-sm); padding: 0.85rem 1rem; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 250px; overflow-x: auto;">
+              <span style="font-size: 0.72rem; color: var(--text-muted); display: block;">Link Gerado com UTM:</span>
+              <span id="utmSimuladorLinkTexto" style="color: #4ade80; font-size: 0.85rem; font-family: monospace; word-break: break-all;"></span>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="copiarLinkUtmGerado()">📋 Copiar Link</button>
+          </div>
+        </div>
+      </div> <!-- Fim de #sub-utms -->
       </div> <!-- Fim de #secao-conteudo -->
 
       <!-- SEÇÃO 3: AJUSTES & CONEXÕES -->
@@ -4151,6 +4383,9 @@
       } else if (subId === 'sub-facebook') {
         carregarConfigFacebook();
         carregarFilaFacebook();
+      } else if (subId === 'sub-utms') {
+        carregarConfigUtm();
+        carregarEstatisticasPonte();
       }
     }
 
@@ -7517,7 +7752,7 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
           if (chkComentario) chkComentario.checked = c.autoPrimeiroComentario !== false;
 
           const inputTemplate = document.getElementById('fbTemplateComentarioInput');
-          if (inputTemplate) inputTemplate.value = c.templateComentario || '👉 Veja a receita completa com o modo de preparo passo a passo no nosso site:\n{link}';
+          if (inputTemplate) inputTemplate.value = c.templateComentario || '👉 Veja a receita completa com o modo de preparo passo a passo no nosso site:\n{link}\n\n📲 Receba nossas receitas diárias direto no seu WhatsApp:\n👉 https://whatsapp.com/channel/0029Va5fCv1FXUuaQxDdVg0H';
 
           // Exibe prévia da página se já houver nome salvo
           const boxPrevia = document.getElementById('boxPreviaPaginaFb');
@@ -7990,6 +8225,233 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
       } catch (err) {
         mostrarToast(`Erro: ${err.message}`, true);
       }
+    }
+
+    // ==========================================
+    // MÓDULO DE CONTROLE DE UTMS & MÉTRICAS
+    // ==========================================
+
+    let configUtmCache = null;
+
+    function atualizarPreviewLinkPonte() {
+      const slug = (document.getElementById('utmPonteSlug')?.value || 'canal-whatsapp').trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
+      const urlCompleta = `${window.location.origin}/r/${slug}`;
+      const elem = document.getElementById('utmPonteUrlCompleta');
+      if (elem) elem.innerText = urlCompleta;
+      const linkTeste = document.getElementById('utmPonteLinkTestar');
+      if (linkTeste) linkTeste.href = `/r/${slug}`;
+    }
+
+    async function carregarConfigUtm() {
+      if (!projetoSelecionado) return;
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/utm/config`, {
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+
+        if (data.sucesso && data.config) {
+          configUtmCache = data.config;
+          const cfg = data.config;
+
+          const checkGlobal = document.getElementById('utmAtivoGlobal');
+          if (checkGlobal) checkGlobal.checked = cfg.ativoGlobal !== false;
+
+          // Facebook
+          const fb = cfg.canais?.facebook || {};
+          if (document.getElementById('utmFbAtivo')) document.getElementById('utmFbAtivo').checked = !!fb.ativo;
+          if (document.getElementById('utmFbSource')) document.getElementById('utmFbSource').value = fb.source || 'facebook';
+          if (document.getElementById('utmFbMedium')) document.getElementById('utmFbMedium').value = fb.medium || 'comment';
+          if (document.getElementById('utmFbCampaign')) document.getElementById('utmFbCampaign').value = fb.campaign || 'fanpage-mary';
+          if (document.getElementById('utmFbContent')) document.getElementById('utmFbContent').value = fb.content || '';
+
+          // Canal WhatsApp
+          const canal = cfg.canais?.whatsapp_canal || {};
+          if (document.getElementById('utmCanalAtivo')) document.getElementById('utmCanalAtivo').checked = !!canal.ativo;
+          if (document.getElementById('utmCanalSource')) document.getElementById('utmCanalSource').value = canal.source || 'whatsapp';
+          if (document.getElementById('utmCanalMedium')) document.getElementById('utmCanalMedium').value = canal.medium || 'canal';
+          if (document.getElementById('utmCanalCampaign')) document.getElementById('utmCanalCampaign').value = canal.campaign || 'receitas-vip';
+          if (document.getElementById('utmCanalContent')) document.getElementById('utmCanalContent').value = canal.content || '';
+
+          // Grupos WhatsApp
+          const grupos = cfg.canais?.whatsapp_grupo || {};
+          if (document.getElementById('utmGruposAtivo')) document.getElementById('utmGruposAtivo').checked = !!grupos.ativo;
+          if (document.getElementById('utmGruposSource')) document.getElementById('utmGruposSource').value = grupos.source || 'whatsapp';
+          if (document.getElementById('utmGruposMedium')) document.getElementById('utmGruposMedium').value = grupos.medium || 'grupos';
+          if (document.getElementById('utmGruposCampaign')) document.getElementById('utmGruposCampaign').value = grupos.campaign || 'disparo-grupos';
+          if (document.getElementById('utmGruposContent')) document.getElementById('utmGruposContent').value = grupos.content || '';
+
+          // RSS
+          const rss = cfg.canais?.rss || {};
+          if (document.getElementById('utmRssAtivo')) document.getElementById('utmRssAtivo').checked = !!rss.ativo;
+          if (document.getElementById('utmRssSource')) document.getElementById('utmRssSource').value = rss.source || 'rss';
+          if (document.getElementById('utmRssMedium')) document.getElementById('utmRssMedium').value = rss.medium || 'feed-auto';
+          if (document.getElementById('utmRssCampaign')) document.getElementById('utmRssCampaign').value = rss.campaign || 'rss-receitas';
+          if (document.getElementById('utmRssContent')) document.getElementById('utmRssContent').value = rss.content || '';
+
+          // Link Ponte
+          const ponte = cfg.linkPonte || {};
+          if (document.getElementById('utmPonteSlug')) document.getElementById('utmPonteSlug').value = ponte.slug || 'canal-whatsapp';
+          if (document.getElementById('utmPonteDestino')) document.getElementById('utmPonteDestino').value = ponte.destino || 'https://whatsapp.com/channel/0029Va5fCv1FXUuaQxDdVg0H';
+
+          atualizarPreviewLinkPonte();
+        }
+      } catch (err) {
+        console.error('Erro ao carregar configurações de UTM:', err);
+      }
+    }
+
+    async function salvarConfigUtmForm() {
+      if (!projetoSelecionado) return;
+
+      const payload = {
+        ativoGlobal: document.getElementById('utmAtivoGlobal')?.checked !== false,
+        canais: {
+          facebook: {
+            ativo: !!document.getElementById('utmFbAtivo')?.checked,
+            source: document.getElementById('utmFbSource')?.value || 'facebook',
+            medium: document.getElementById('utmFbMedium')?.value || 'comment',
+            campaign: document.getElementById('utmFbCampaign')?.value || 'fanpage-mary',
+            content: document.getElementById('utmFbContent')?.value || ''
+          },
+          whatsapp_canal: {
+            ativo: !!document.getElementById('utmCanalAtivo')?.checked,
+            source: document.getElementById('utmCanalSource')?.value || 'whatsapp',
+            medium: document.getElementById('utmCanalMedium')?.value || 'canal',
+            campaign: document.getElementById('utmCanalCampaign')?.value || 'receitas-vip',
+            content: document.getElementById('utmCanalContent')?.value || ''
+          },
+          whatsapp_grupo: {
+            ativo: !!document.getElementById('utmGruposAtivo')?.checked,
+            source: document.getElementById('utmGruposSource')?.value || 'whatsapp',
+            medium: document.getElementById('utmGruposMedium')?.value || 'grupos',
+            campaign: document.getElementById('utmGruposCampaign')?.value || 'disparo-grupos',
+            content: document.getElementById('utmGruposContent')?.value || ''
+          },
+          rss: {
+            ativo: !!document.getElementById('utmRssAtivo')?.checked,
+            source: document.getElementById('utmRssSource')?.value || 'rss',
+            medium: document.getElementById('utmRssMedium')?.value || 'feed-auto',
+            campaign: document.getElementById('utmRssCampaign')?.value || 'rss-receitas',
+            content: document.getElementById('utmRssContent')?.value || ''
+          }
+        },
+        linkPonte: {
+          ativo: true,
+          slug: (document.getElementById('utmPonteSlug')?.value || 'canal-whatsapp').trim().toLowerCase(),
+          destino: (document.getElementById('utmPonteDestino')?.value || 'https://whatsapp.com/channel/0029Va5fCv1FXUuaQxDdVg0H').trim(),
+          titulo: 'Canal Oficial de Receitas no WhatsApp'
+        }
+      };
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/utm/config`, {
+          method: 'POST',
+          headers: obterHeaders(),
+          body: JSON.stringify(payload)
+        });
+        const data = await resp.json();
+
+        if (data.sucesso) {
+          configUtmCache = data.config;
+          atualizarPreviewLinkPonte();
+          mostrarToast('🎯 Configurações de UTM salvas com sucesso!');
+        } else {
+          mostrarToast(`Erro: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro ao salvar UTM: ${err.message}`, true);
+      }
+    }
+
+    async function carregarEstatisticasPonte() {
+      if (!projetoSelecionado) return;
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/utm/estatisticas`, {
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+
+        if (data.sucesso && data.estatisticas) {
+          const stats = data.estatisticas;
+          const badgeCliques = document.getElementById('utmTotalCliquesBadge');
+          if (badgeCliques) badgeCliques.innerText = stats.totalCliques || 0;
+
+          const textoUltimo = document.getElementById('utmUltimoCliqueTexto');
+          if (textoUltimo) {
+            if (stats.ultimoCliqueEm) {
+              const d = new Date(stats.ultimoCliqueEm);
+              textoUltimo.innerText = `Último clique: ${d.toLocaleDateString('pt-BR')} às ${d.toLocaleTimeString('pt-BR')}`;
+            } else {
+              textoUltimo.innerText = 'Nenhum clique registrado ainda';
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Erro ao carregar estatísticas do link ponte:', err);
+      }
+    }
+
+    function copiarLinkPonte() {
+      const slug = (document.getElementById('utmPonteSlug')?.value || 'canal-whatsapp').trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
+      const urlCompleta = `${window.location.origin}/r/${slug}`;
+
+      navigator.clipboard.writeText(urlCompleta).then(() => {
+        mostrarToast('📋 Link Ponte copiado para a área de transferência!');
+      }).catch(() => {
+        mostrarToast('Não foi possível copiar automaticamente.', true);
+      });
+    }
+
+    async function testarGeradorUtm() {
+      if (!projetoSelecionado) return;
+
+      const urlInput = document.getElementById('utmSimuladorUrl');
+      const canalInput = document.getElementById('utmSimuladorCanal');
+      const url = urlInput?.value?.trim();
+      const canal = canalInput?.value || 'facebook';
+
+      if (!url) {
+        mostrarToast('⚠️ Insira uma URL para simular o link com UTM.', true);
+        urlInput?.focus();
+        return;
+      }
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/utm/gerar-link`, {
+          method: 'POST',
+          headers: obterHeaders(),
+          body: JSON.stringify({ url, canal })
+        });
+        const data = await resp.json();
+
+        if (data.sucesso) {
+          const box = document.getElementById('utmSimuladorResultadoBox');
+          const texto = document.getElementById('utmSimuladorLinkTexto');
+          if (box && texto) {
+            box.style.display = 'flex';
+            texto.innerText = data.urlComUtm;
+          }
+          mostrarToast('✨ Link gerado com UTM com sucesso!');
+        } else {
+          mostrarToast(`Erro: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro ao gerar link: ${err.message}`, true);
+      }
+    }
+
+    function copiarLinkUtmGerado() {
+      const texto = document.getElementById('utmSimuladorLinkTexto')?.innerText;
+      if (!texto) return;
+
+      navigator.clipboard.writeText(texto).then(() => {
+        mostrarToast('📋 Link com UTM copiado com sucesso!');
+      }).catch(() => {
+        mostrarToast('Não foi possível copiar o link.', true);
+      });
     }
   </script>
 

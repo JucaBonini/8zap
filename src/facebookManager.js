@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const facebookService = require('./facebookService');
+const utmManager = require('./utmManager');
 const { logProjeto } = require('./logger');
 
 const diretorioData = path.join(__dirname, '..', 'data');
@@ -81,7 +82,7 @@ function obterConfigFacebook(projectId) {
     fotoPagina: '',
     horarios: ['08:30', '11:45', '15:30', '19:45'],
     autoPrimeiroComentario: true,
-    templateComentario: '👉 Veja a receita completa com o modo de preparo passo a passo no nosso site:\n{link}'
+    templateComentario: '👉 Veja a receita completa com o modo de preparo passo a passo no nosso site:\n{link}\n\n📲 Receba nossas receitas diárias direto no seu WhatsApp:\n👉 https://whatsapp.com/channel/0029Va5fCv1FXUuaQxDdVg0H'
   };
 
   if (!fs.existsSync(caminho)) {
@@ -325,7 +326,8 @@ async function dispararProximoItemEsteiraFacebook(projectId) {
   let comentarioFinal = null;
   if (config.autoPrimeiroComentario && item.linkComentario && item.linkComentario.trim()) {
     const template = config.templateComentario || '👉 Veja a receita completa no nosso site:\n{link}';
-    comentarioFinal = template.replace('{link}', item.linkComentario.trim());
+    const linkComUtm = utmManager.anexarUtm(item.linkComentario.trim(), 'facebook', projectId);
+    comentarioFinal = template.replace('{link}', linkComUtm);
   }
 
   try {
