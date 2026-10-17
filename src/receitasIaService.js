@@ -284,17 +284,104 @@ async function salvarImagemReceita(bufferImagem, idReceita) {
 }
 
 /**
- * Baixa uma foto gastronômica de contingência caso DALL-E 3 ou Imagen 3 atinjam limites de cota
+ * Gera a imagem usando DALL-E 2 como alternativa caso DALL-E 3 esteja restrito por tier de faturamento
+ */
+async function gerarImagemDalle2(apiKey, promptVisual) {
+  const promptFinal = `${promptVisual}, authentic raw photograph, culinary editorial food shot, natural ambient lighting, no CGI, no text`;
+
+  const res = await fetch('https://api.openai.com/v1/images/generations', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`
+    },
+    body: JSON.stringify({
+      model: 'dall-e-2',
+      prompt: promptFinal.slice(0, 950),
+      n: 1,
+      size: '1024x1024',
+      response_format: 'b64_json'
+    })
+  });
+
+  if (!res.ok) {
+    const erroJson = await res.json().catch(() => ({}));
+    throw new Error(`Falha no DALL-E 2: ${erroJson.error?.message || res.statusText}`);
+  }
+
+  const dados = await res.json();
+  const base64 = dados.data?.[0]?.b64_json;
+  if (!base64) {
+    throw new Error('DALL-E 2 não retornou dados de imagem em Base64.');
+  }
+
+  return Buffer.from(base64, 'base64');
+}
+
+/**
+ * Baixa uma foto gastronômica de contingência condizente com o prato
+ * Mapeia o título da receita para fotografias reais de alta resolução da culinária brasileira
  */
 async function obterFotoCulinariaFallback(titulo = '') {
-  const fotosCuradas = [
-    'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=1024&auto=format&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=1024&auto=format&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1024&auto=format&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=1024&auto=format&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=1024&auto=format&fit=crop&q=80'
-  ];
-  const urlEscolhida = fotosCuradas[Math.floor(Math.random() * fotosCuradas.length)];
+  const t = (titulo || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+  let fotos = [];
+
+  if (t.includes('feijoad') || t.includes('feijao') || t.includes('tropeiro') || t.includes('tutu') || t.includes('baiao')) {
+    fotos = [
+      'https://images.unsplash.com/photo-1543339308-43e59d6b73a6?w=1024&auto=format&fit=crop&q=80', // Feijoada / feijão preto suculento
+      'https://images.unsplash.com/photo-1574484284002-952d92456975?w=1024&auto=format&fit=crop&q=80'  // Feijoada tradicional completa
+    ];
+  } else if (t.includes('carne') || t.includes('costela') || t.includes('bife') || t.includes('picanha') || t.includes('churrasc') || t.includes('picadinho') || t.includes('almondeg') || t.includes('moido') || t.includes('porco') || t.includes('lombo') || t.includes('suino') || t.includes('panela')) {
+    fotos = [
+      'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1024&auto=format&fit=crop&q=80', // Picadinho com molho e legumes
+      'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=1024&auto=format&fit=crop&q=80', // Carne assada suculenta
+      'https://images.unsplash.com/photo-1544025162-d76694265947?w=1024&auto=format&fit=crop&q=80'  // Costela assada com barbecue/molho
+    ];
+  } else if (t.includes('frango') || t.includes('galinh') || t.includes('strogonoff') || t.includes('coxa') || t.includes('sobrecoxa') || t.includes('file de frango')) {
+    fotos = [
+      'https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?w=1024&auto=format&fit=crop&q=80', // Frango assado dourado com batatas
+      'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=1024&auto=format&fit=crop&q=80', // Strogonoff de frango cremoso
+      'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?w=1024&auto=format&fit=crop&q=80'  // Frango crocante
+    ];
+  } else if (t.includes('peixe') || t.includes('moqueca') || t.includes('camarao') || t.includes('bacalha') || t.includes('tilapia') || t.includes('salmao') || t.includes('frutos do mar')) {
+    fotos = [
+      'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=1024&auto=format&fit=crop&q=80', // Moqueca na panela de barro
+      'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=1024&auto=format&fit=crop&q=80', // Peixe grelhado com legumes
+      'https://images.unsplash.com/photo-1559737558-2f5a35f4523b?w=1024&auto=format&fit=crop&q=80'  // Camarão refogado com ervas
+    ];
+  } else if (t.includes('massa') || t.includes('macarrao') || t.includes('lasanh') || t.includes('espaguete') || t.includes('nhoque') || t.includes('pizza') || t.includes('penne') || t.includes('risoto')) {
+    fotos = [
+      'https://images.unsplash.com/photo-1574894709920-11b28e7367e3?w=1024&auto=format&fit=crop&q=80', // Lasanha dourada com queijo derretido
+      'https://images.unsplash.com/photo-1621996346565-e3d5d6281691?w=1024&auto=format&fit=crop&q=80', // Massa caseira italiana
+      'https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=1024&auto=format&fit=crop&q=80'  // Espaguete à bolonhesa
+    ];
+  } else if (t.includes('sopa') || t.includes('caldo') || t.includes('canja') || t.includes('creme') || t.includes('mandioca') || t.includes('abobora')) {
+    fotos = [
+      'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=1024&auto=format&fit=crop&q=80', // Sopa cremosa
+      'https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=1024&auto=format&fit=crop&q=80'  // Caldo quente na tigela
+    ];
+  } else if (t.includes('doce') || t.includes('bolo') || t.includes('torta') || t.includes('pudim') || t.includes('chocolate') || t.includes('brigadeiro') || t.includes('pave') || t.includes('sobremesa')) {
+    fotos = [
+      'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=1024&auto=format&fit=crop&q=80', // Bolo de chocolate com cobertura
+      'https://images.unsplash.com/photo-1587314168485-3236d6710814?w=1024&auto=format&fit=crop&q=80', // Pudim lisinho com calda
+      'https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=1024&auto=format&fit=crop&q=80'  // Torta doce
+    ];
+  } else if (t.includes('salada') || t.includes('salpicao') || t.includes('legume') || t.includes('saudavel')) {
+    fotos = [
+      'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=1024&auto=format&fit=crop&q=80', // Salada fresca de folhas e legumes
+      'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=1024&auto=format&fit=crop&q=80'
+    ];
+  } else {
+    // Prato clássico caseiro de comida de mãe brasileira
+    fotos = [
+      'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1024&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=1024&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?w=1024&auto=format&fit=crop&q=80'
+    ];
+  }
+
+  const urlEscolhida = fotos[Math.floor(Math.random() * fotos.length)];
   const res = await fetch(urlEscolhida);
   if (!res.ok) {
     throw new Error('Falha ao baixar foto culinária de contingência.');
@@ -307,6 +394,7 @@ module.exports = {
   PERSONA_PADRAO_MARY,
   gerarComOpenAi,
   gerarImagemOpenAi,
+  gerarImagemDalle2,
   gerarComGemini,
   gerarImagemGemini,
   obterFotoCulinariaFallback,

@@ -6692,9 +6692,12 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
           ? `<span class="badge badge-connected" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;"><span class="badge-dot"></span>Postada</span>`
           : `<span class="badge badge-aguardando_qr" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;"><span class="badge-dot"></span>Pronta na Esteira</span>`;
 
-        const badgeProvedor = rec.provedor === 'gemini'
-          ? `✨ Gemini / Imagen 3`
-          : `🤖 OpenAI / DALL-E 3`;
+        let badgeProvedor = '🤖 DALL-E 3';
+        if (rec.provedor === 'gemini') badgeProvedor = '✨ Gemini';
+        else if (rec.provedor === 'dall-e-2') badgeProvedor = '🤖 DALL-E 2';
+        else if (rec.provedor === 'curadoria') badgeProvedor = '🍲 Foto Fiel Curada';
+        else if (rec.provedor === 'usuario') badgeProvedor = '👤 Foto Própria';
+        else if (rec.provedor === 'openai') badgeProvedor = '🤖 OpenAI / DALL-E 3';
 
         const dataFormatada = rec.criadoEm ? new Date(rec.criadoEm).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '';
 
@@ -6975,12 +6978,74 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
       const rec = receitasCache.find(r => r.id === id);
       if (!rec) return;
 
+      editNovaFotoBase64 = null;
       document.getElementById('editReceitaId').value = rec.id;
       document.getElementById('editReceitaTitulo').value = rec.titulo || '';
       document.getElementById('editReceitaTexto').value = rec.texto || '';
 
+      const preview = document.getElementById('editReceitaPreviewFoto');
+      if (preview) preview.src = rec.imagemUrl;
+
+      const badge = document.getElementById('editBadgeFotoAlterada');
+      if (badge) badge.style.display = 'none';
+
+      const fileInput = document.getElementById('editReceitaArquivoFoto');
+      if (fileInput) fileInput.value = '';
+
+      const urlInput = document.getElementById('editReceitaUrlFoto');
+      if (urlInput) urlInput.value = '';
+
+      const boxUrl = document.getElementById('boxInputUrlNovaFoto');
+      if (boxUrl) boxUrl.style.display = 'none';
+
       const modal = document.getElementById('modalEditarReceita');
       if (modal) modal.classList.remove('hidden');
+    }
+
+    let editNovaFotoBase64 = null;
+
+    function aoSelecionarArquivoNovaFoto(event) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      if (!file.type.startsWith('image/')) {
+        mostrarToast('Por favor, selecione um arquivo de imagem válido (JPG, PNG, WebP).', true);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        editNovaFotoBase64 = e.target.result;
+        const preview = document.getElementById('editReceitaPreviewFoto');
+        if (preview) preview.src = editNovaFotoBase64;
+        const badge = document.getElementById('editBadgeFotoAlterada');
+        if (badge) badge.style.display = 'block';
+        mostrarToast('✨ Foto selecionada com sucesso! Clique em "Salvar Alterações".');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function toggleInputUrlNovaFoto() {
+      const box = document.getElementById('boxInputUrlNovaFoto');
+      if (!box) return;
+      box.style.display = (box.style.display === 'none' || !box.style.display) ? 'block' : 'none';
+      if (box.style.display === 'block') {
+        document.getElementById('editReceitaUrlFoto')?.focus();
+      }
+    }
+
+    function aplicarUrlNovaFoto() {
+      const url = document.getElementById('editReceitaUrlFoto')?.value.trim();
+      if (!url) {
+        mostrarToast('Cole o link completo da imagem.', true);
+        return;
+      }
+      const preview = document.getElementById('editReceitaPreviewFoto');
+      if (preview) preview.src = url;
+      const badge = document.getElementById('editBadgeFotoAlterada');
+      if (badge) badge.style.display = 'block';
+      editNovaFotoBase64 = null;
+      mostrarToast('Link aplicado no preview! Clique em "Salvar Alterações".');
     }
 
     function fecharModalEditarReceita() {
@@ -6994,22 +7059,35 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
       const id = document.getElementById('editReceitaId')?.value;
       const titulo = document.getElementById('editReceitaTitulo')?.value.trim();
       const texto = document.getElementById('editReceitaTexto')?.value.trim();
+      const urlFoto = document.getElementById('editReceitaUrlFoto')?.value.trim();
 
       if (!id || !titulo || !texto) {
         mostrarToast('Preencha o título e o texto da receita.', true);
         return;
       }
 
+      const btnSalvar = document.getElementById('btnSalvarEdicaoReceitaModal');
+      if (btnSalvar) {
+        btnSalvar.disabled = true;
+        btnSalvar.innerText = 'Salvando & Otimizando...';
+      }
+
       try {
+        mostrarToast('Salvando alterações da receita...');
         const resp = await fetch(`/sessions/${projetoSelecionado}/receitas/${id}`, {
           method: 'PUT',
           headers: obterHeaders(),
-          body: JSON.stringify({ titulo, texto })
+          body: JSON.stringify({
+            titulo,
+            texto,
+            novaImagemBase64: editNovaFotoBase64,
+            novaImagemUrl: urlFoto
+          })
         });
 
         const data = await resp.json();
         if (data.sucesso) {
-          mostrarToast('✅ Receita atualizada com sucesso!');
+          mostrarToast('✅ Receita e foto atualizadas com sucesso!');
           fecharModalEditarReceita();
           await carregarReceitas();
         } else {
@@ -7017,6 +7095,11 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
         }
       } catch (err) {
         mostrarToast(`Erro ao atualizar: ${err.message}`, true);
+      } finally {
+        if (btnSalvar) {
+          btnSalvar.disabled = false;
+          btnSalvar.innerText = '💾 Salvar Alterações';
+        }
       }
     }
 
@@ -7045,12 +7128,44 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
 
   <!-- Modal para Editar Receita da Mary -->
   <div id="modalEditarReceita" class="login-overlay hidden" style="z-index: 9999;">
-    <div class="login-card" style="max-width: 650px; width: 95%;">
+    <div class="login-card" style="max-width: 680px; width: 95%; max-height: 90vh; overflow-y: auto;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-        <h3 style="font-size: 1.15rem; color: #fff;">✏️ Editar Receita da Mary</h3>
+        <h3 style="font-size: 1.15rem; color: #fff;">✏️ Editar Receita &amp; Trocar Fotografia</h3>
         <button type="button" onclick="fecharModalEditarReceita()" style="background: none; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer;">✕</button>
       </div>
       <input type="hidden" id="editReceitaId">
+
+      <!-- Seção da Foto Gastronômica -->
+      <div style="display: flex; gap: 1rem; align-items: flex-start; margin-bottom: 1.25rem; background: rgba(0,0,0,0.3); padding: 0.9rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color); flex-wrap: wrap;">
+        <div style="position: relative; width: 120px; height: 120px; flex-shrink: 0; border-radius: var(--radius-sm); overflow: hidden; border: 1px solid var(--border-color); background: #111;">
+          <img id="editReceitaPreviewFoto" src="" alt="Foto da Receita" style="width: 100%; height: 100%; object-fit: cover;">
+          <span id="editBadgeFotoAlterada" style="display: none; position: absolute; bottom: 0; left: 0; right: 0; background: #22c55e; color: #fff; font-size: 0.68rem; text-align: center; padding: 2px 4px; font-weight: 600;">Nova Foto</span>
+        </div>
+        <div style="flex: 1; min-width: 250px;">
+          <label style="font-size: 0.82rem; font-weight: 600; color: #fff; margin-bottom: 0.4rem; display: block;">
+            📸 Trocar Fotografia do Prato:
+          </label>
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.5rem;">
+            <input type="file" id="editReceitaArquivoFoto" accept="image/*" style="display: none;" onchange="aoSelecionarArquivoNovaFoto(event)">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('editReceitaArquivoFoto').click()" style="font-size: 0.78rem;">
+              📁 Enviar Foto do Computador / Celular
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="toggleInputUrlNovaFoto()" style="font-size: 0.78rem;">
+              🔗 Colar Link de Imagem Web
+            </button>
+          </div>
+          <div id="boxInputUrlNovaFoto" style="display: none; margin-top: 0.5rem;">
+            <div style="display: flex; gap: 0.4rem;">
+              <input type="url" id="editReceitaUrlFoto" class="form-control" placeholder="https://exemplo.com/minha-feijoada.jpg" style="font-size: 0.8rem; padding: 0.35rem 0.6rem;">
+              <button type="button" class="btn btn-sm" onclick="aplicarUrlNovaFoto()" style="font-size: 0.78rem;">Aplicar</button>
+            </div>
+          </div>
+          <span style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-top: 0.35rem;">
+            ⚡ A nova foto será comprimida e otimizada automaticamente para 800x800 JPEG progressivo (~90-130 KB).
+          </span>
+        </div>
+      </div>
+
       <div class="form-group">
         <label for="editReceitaTitulo">Título do Prato:</label>
         <input type="text" id="editReceitaTitulo" class="form-control" style="font-weight: 600;">
@@ -7061,7 +7176,7 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
       </div>
       <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem;">
         <button type="button" class="btn btn-secondary" onclick="fecharModalEditarReceita()">Cancelar</button>
-        <button type="button" class="btn" onclick="salvarEdicaoReceitaBtn()">💾 Salvar Alterações</button>
+        <button type="button" class="btn" id="btnSalvarEdicaoReceitaModal" onclick="salvarEdicaoReceitaBtn()">💾 Salvar Alterações</button>
       </div>
     </div>
   </div>

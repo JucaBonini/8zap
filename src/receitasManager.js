@@ -215,29 +215,34 @@ async function gerarReceita(projectId, opcoes = {}) {
       'info'
     );
 
+    let provedorFinal = 'dall-e-3';
     try {
       bufferBrutoImagem = await receitasIaService.gerarImagemOpenAi(
         apiKey,
         resultadoTexto.promptVisualIngles
       );
-    } catch (errDalle) {
+    } catch (errDalle3) {
       logProjeto(
         projectId,
-        'RECEITAS_AVISO_DALLE',
-        `Aviso no DALL-E 3: ${errDalle.message}. Acionando foto culinária de contingência...`,
+        'RECEITAS_AVISO_DALLE3',
+        `Aviso no DALL-E 3: ${errDalle3.message}. Tentando DALL-E 2...`,
         'warn'
       );
-      if (config.apiKeyGemini) {
-        try {
-          bufferBrutoImagem = await receitasIaService.gerarImagemGemini(
-            config.apiKeyGemini,
-            resultadoTexto.promptVisualIngles
-          );
-        } catch (_) {
-          bufferBrutoImagem = await receitasIaService.obterFotoCulinariaFallback(resultadoTexto.titulo);
-        }
-      } else {
+      try {
+        bufferBrutoImagem = await receitasIaService.gerarImagemDalle2(
+          apiKey,
+          resultadoTexto.promptVisualIngles
+        );
+        provedorFinal = 'dall-e-2';
+      } catch (errDalle2) {
+        logProjeto(
+          projectId,
+          'RECEITAS_AVISO_DALLE2',
+          `DALL-E 2 também indisponível na conta. Buscando foto fiel para "${resultadoTexto.titulo}" no acervo curado...`,
+          'warn'
+        );
         bufferBrutoImagem = await receitasIaService.obterFotoCulinariaFallback(resultadoTexto.titulo);
+        provedorFinal = 'curadoria';
       }
     }
   }
@@ -256,7 +261,7 @@ async function gerarReceita(projectId, opcoes = {}) {
     imagemCaminhoFisico: infoArquivo.caminhoFisico,
     tamanhoBytes: infoArquivo.tamanhoBytes,
     resolucao: `${resolucao}x${resolucao}`,
-    provedor,
+    provedor: provedorFinal,
     status: 'pronto',
     enviadoEm: null,
     destinosEnviados: [],
@@ -318,9 +323,9 @@ async function gerarLoteReceitas(projectId, { quantidade = 5, temas = [], apiKey
 }
 
 /**
- * Atualiza o texto ou título de uma receita
+ * Atualiza o texto, título e/ou foto de uma receita
  */
-async function atualizarReceita(projectId, receitaId, novosDados) {
+async function atualizarReceita(projectId, receitaId, novosDados = {}) {
   return comLockProjeto(projectId, async () => {
     const lista = obterReceitas(projectId);
     const index = lista.findIndex((r) => r.id === receitaId);
@@ -330,6 +335,38 @@ async function atualizarReceita(projectId, receitaId, novosDados) {
 
     if (novosDados.titulo) lista[index].titulo = novosDados.titulo.trim();
     if (novosDados.texto) lista[index].texto = novosDados.texto.trim();
+
+    // Se o usuário enviou uma nova foto (Upload de arquivo em Base64 ou URL)
+    if (novosDados.novaImagemBase64) {
+      const base64Limpo = novosDados.novaImagemBase64.replace(/^data:image\/\w+;base64,/, '');
+      const bufferBruto = Buffer.from(base64Limpo, 'base64');
+      const resolucao = Number(lista[index].resolucao?.split('x')[0]) || 800;
+      const bufferOtimizado = await receitasIaService.otimizarImagemPara3G(bufferBruto, resolucao, 80);
+      const infoArquivo = await receitasIaService.salvarImagemReceita(bufferOtimizado, receitaId);
+      lista[index].imagemUrl = `${infoArquivo.urlPublica}?t=${Date.now()}`;
+      lista[index].imagemCaminhoFisico = infoArquivo.caminhoFisico;
+      lista[index].tamanhoBytes = infoArquivo.tamanhoBytes;
+      lista[index].provedor = 'usuario';
+      logProjeto(projectId, 'RECEITAS_FOTO_ALTERADA', `Foto da receita "${lista[index].titulo}" atualizada por upload.`, 'info');
+    } else if (novosDados.novaImagemUrl && novosDados.novaImagemUrl.trim()) {
+      const url = novosDados.novaImagemUrl.trim();
+      if (!url.startsWith('/uploads/')) {
+        const res = await fetch(url);
+        if (!res.ok) {
+          throw new Error('Não foi possível baixar a imagem da URL fornecida.');
+        }
+        const ab = await res.arrayBuffer();
+        const bufferBruto = Buffer.from(ab);
+        const resolucao = Number(lista[index].resolucao?.split('x')[0]) || 800;
+        const bufferOtimizado = await receitasIaService.otimizarImagemPara3G(bufferBruto, resolucao, 80);
+        const infoArquivo = await receitasIaService.salvarImagemReceita(bufferOtimizado, receitaId);
+        lista[index].imagemUrl = `${infoArquivo.urlPublica}?t=${Date.now()}`;
+        lista[index].imagemCaminhoFisico = infoArquivo.caminhoFisico;
+        lista[index].tamanhoBytes = infoArquivo.tamanhoBytes;
+        lista[index].provedor = 'usuario';
+        logProjeto(projectId, 'RECEITAS_FOTO_ALTERADA', `Foto da receita "${lista[index].titulo}" atualizada por link externo.`, 'info');
+      }
+    }
 
     salvarReceitas(projectId, lista);
     return lista[index];
@@ -369,23 +406,37 @@ async function regerarImagemReceita(projectId, receitaId) {
     throw new Error(`Receita ID "${receitaId}" não encontrada.`);
   }
 
-  logProjeto(projectId, 'RECEITAS_REGERANDO_FOTO', `Regerando foto para "${receita.titulo}"...`, 'info');
+  logProjeto(projectId, 'RECEITAS_REGERANDO_FOTO', `Regerando foto culinária para "${receita.titulo}"...`, 'info');
 
   const provedor = config.provedor || 'openai';
   let bufferBruto;
+  let provedorFoto = 'dall-e-3';
 
   if (provedor === 'gemini') {
     try {
       bufferBruto = await receitasIaService.gerarImagemGemini(config.apiKeyGemini, receita.promptVisual);
+      provedorFoto = 'gemini';
     } catch (_) {
-      if (config.apiKeyOpenai) {
-        bufferBruto = await receitasIaService.gerarImagemOpenAi(config.apiKeyOpenai, receita.promptVisual);
-      } else {
+      try {
+        bufferBruto = await receitasIaService.obterFotoCulinariaFallback(receita.titulo);
+        provedorFoto = 'curadoria';
+      } catch (e) {
         throw _;
       }
     }
   } else {
-    bufferBruto = await receitasIaService.gerarImagemOpenAi(config.apiKeyOpenai, receita.promptVisual);
+    try {
+      bufferBruto = await receitasIaService.gerarImagemOpenAi(config.apiKeyOpenai, receita.promptVisual);
+      provedorFoto = 'dall-e-3';
+    } catch (errD3) {
+      try {
+        bufferBruto = await receitasIaService.gerarImagemDalle2(config.apiKeyOpenai, receita.promptVisual);
+        provedorFoto = 'dall-e-2';
+      } catch (errD2) {
+        bufferBruto = await receitasIaService.obterFotoCulinariaFallback(receita.titulo);
+        provedorFoto = 'curadoria';
+      }
+    }
   }
 
   const resolucao = Number(config.resolucaoImagem) || 800;
@@ -400,6 +451,7 @@ async function regerarImagemReceita(projectId, receitaId) {
       rec.imagemUrl = `${infoArquivo.urlPublica}?t=${Date.now()}`;
       rec.imagemCaminhoFisico = infoArquivo.caminhoFisico;
       rec.tamanhoBytes = infoArquivo.tamanhoBytes;
+      rec.provedor = provedorFoto;
       salvarReceitas(projectId, listaAtualizada);
     }
     return rec;
