@@ -671,6 +671,8 @@ router.post('/sessions/:projectId/rss/disparar-agora', async (req, res) => {
 
 const campanhasManager = require('./campanhasManager');
 const agendadorCampanhas = require('./agendadorCampanhas');
+const shopeeService = require('./shopeeService');
+const receitasManager = require('./receitasManager');
 
 /**
  * GET /sessions/:projectId/campanhas/config
@@ -800,6 +802,80 @@ router.post('/sessions/:projectId/campanhas/disparar-agora', async (req, res) =>
   }
 });
 
+/**
+ * POST /sessions/:projectId/campanhas/shopee/buscar
+ * Busca produtos na Shopee usando a Shopee Affiliate Open API (ou modo demonstração)
+ */
+router.post('/sessions/:projectId/campanhas/shopee/buscar', async (req, res) => {
+  const { projectId } = req.params;
+  const { keyword = 'cozinha', limit = 12, sortType = 5 } = req.body || {};
+
+  try {
+    const configCampanhas = campanhasManager.obterConfigCampanhas(projectId);
+    const appId = (req.body.appId || configCampanhas.shopeeAppId || process.env.SHOPEE_APP_ID || '').trim();
+    const secret = (req.body.secret || configCampanhas.shopeeSecret || process.env.SHOPEE_SECRET || '').trim();
+
+    const resultado = await shopeeService.buscarProdutosShopee({
+      appId,
+      secret,
+      keyword,
+      limit,
+      sortType
+    });
+
+    res.json(resultado);
+  } catch (err) {
+    res.status(500).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * POST /sessions/:projectId/campanhas/shopee/importar
+ * Converte um produto da Shopee em item de campanha e gera copy persuasiva com IA
+ */
+router.post('/sessions/:projectId/campanhas/shopee/importar', async (req, res) => {
+  const { projectId } = req.params;
+  const { produto, gerarCopyIa = true, tomVoz = '' } = req.body || {};
+
+  if (!produto || !produto.titulo || !produto.link) {
+    return res.status(400).json({ sucesso: false, erro: 'Dados do produto incompletos (título e link são obrigatórios).' });
+  }
+
+  try {
+    let legendaFinal = '';
+
+    if (gerarCopyIa) {
+      const configIa = receitasManager.obterConfigReceitas(projectId);
+      legendaFinal = await shopeeService.gerarCopyOfertaShopee({
+        produto,
+        apiKeyOpenai: configIa.apiKeyOpenai || process.env.OPENAI_API_KEY || '',
+        apiKeyGemini: configIa.apiKeyGemini || process.env.GEMINI_API_KEY || '',
+        provedor: configIa.provedor || 'openai',
+        tomVoz
+      });
+    }
+
+    const itemSalvo = await campanhasManager.adicionarItemCampanha(projectId, {
+      tipo: 'shopee',
+      titulo: produto.titulo,
+      destaque: produto.destaque || (produto.desconto ? `${produto.desconto} de Desconto` : ''),
+      preco: produto.preco || '',
+      link: produto.link,
+      imagem: produto.imagem || '',
+      legenda: legendaFinal,
+      ativo: true
+    });
+
+    res.json({
+      sucesso: true,
+      mensagem: `Oferta "${produto.titulo}" adicionada com sucesso ao Banco de Campanhas!`,
+      item: itemSalvo
+    });
+  } catch (err) {
+    res.status(400).json({ sucesso: false, erro: err.message });
+  }
+});
+
 // ==========================================
 // ROTAS DA GRADE DIÁRIA MESTRA (TIMELINE)
 // ==========================================
@@ -903,7 +979,6 @@ router.post('/sessions/:projectId/grade/slots/:slotId/testar', async (req, res) 
 // ==========================================
 // ROTAS DE RECEITAS IA (MARY)
 // ==========================================
-const receitasManager = require('./receitasManager');
 
 /**
  * GET /sessions/:projectId/receitas/config

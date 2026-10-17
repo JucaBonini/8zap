@@ -2117,6 +2117,13 @@
       color: var(--text-muted);
       display: block;
     }
+
+    /* Cards do Radar Shopee */
+    .shopee-card-item:hover {
+      transform: translateY(-2px);
+      border-color: rgba(37, 211, 102, 0.4) !important;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
   </style>
 </head>
 <body>
@@ -2754,9 +2761,84 @@
           </div>
         </div>
 
-        <!-- Card 2: Cadastro / Edição de Item (Shopee / Imagem) -->
+        <!-- Card: Radar Autônomo da Shopee (API Oficial & Copy IA) -->
         <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
-          <h3 id="tituloFormCampanha" style="margin-bottom: 1rem;">+ Adicionar Nova Oferta ou Imagem à Fila</h3>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+            <div>
+              <h3 style="margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                🛍️ Radar de Achadinhos da Shopee (Afiliado Oficial &amp; IA)
+              </h3>
+              <p style="font-size: 0.8rem; color: var(--text-muted);">
+                Busque produtos em alta com desconto na Shopee, converta no seu link de afiliado e gere copies persuasivas com Inteligência Artificial.
+              </p>
+            </div>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="toggleConfigApiShopee()" id="btnToggleConfigShopee" style="font-size: 0.78rem;">
+              ⚙️ Credenciais da Shopee API
+            </button>
+          </div>
+
+          <!-- Painel Expansível de Credenciais da Shopee -->
+          <div id="boxConfigApiShopee" style="display: none; background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 1rem; margin-bottom: 1.25rem;">
+            <div style="font-size: 0.82rem; font-weight: 600; color: #fff; margin-bottom: 0.5rem;">
+              🔑 Credenciais da Shopee Affiliate Open API:
+            </div>
+            <div class="form-row">
+              <div class="form-group" style="flex: 1;">
+                <label for="campShopeeAppId" style="font-size: 0.78rem;">Shopee App ID:</label>
+                <input type="text" id="campShopeeAppId" class="form-control" placeholder="Ex: 12345678" style="font-family: monospace;">
+              </div>
+              <div class="form-group" style="flex: 2;">
+                <label for="campShopeeSecret" style="font-size: 0.78rem;">Shopee Secret Key:</label>
+                <div style="position: relative;">
+                  <input type="password" id="campShopeeSecret" class="form-control" placeholder="Ex: a1b2c3d4e5f6..." style="font-family: monospace; padding-right: 40px;">
+                  <button type="button" onclick="toggleSenhaInput('campShopeeSecret')" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); cursor: pointer;">👁️</button>
+                </div>
+              </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem;">
+              <span style="font-size: 0.72rem; color: var(--text-muted);">
+                Obtenha em: <a href="https://affiliate.shopee.com.br/" target="_blank" rel="noopener" style="color: var(--accent-blue);">affiliate.shopee.com.br</a> &gt; Ferramentas &gt; Open API
+              </span>
+              <button type="button" class="btn btn-sm" onclick="salvarConfiguracoesCampanhas()" style="font-size: 0.78rem;">
+                💾 Salvar Credenciais Shopee
+              </button>
+            </div>
+          </div>
+
+          <!-- Barra de Busca Rápida de Produtos Shopee -->
+          <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: flex-end; margin-bottom: 1rem;">
+            <div style="flex: 2; min-width: 220px;">
+              <label for="buscaShopeeInput" style="font-size: 0.8rem; margin-bottom: 0.35rem; display: block;">Categoria, Prato ou Produto Desejado:</label>
+              <input type="text" id="buscaShopeeInput" class="form-control" placeholder="Ex: cozinha, airfryer, panelas, utilidades, fone..." value="cozinha">
+            </div>
+            <div style="flex: 1; min-width: 140px;">
+              <label for="buscaShopeeSort" style="font-size: 0.8rem; margin-bottom: 0.35rem; display: block;">Filtro / Ordenação:</label>
+              <select id="buscaShopeeSort" class="form-control">
+                <option value="5" selected>🔥 Mais Vendidos</option>
+                <option value="6">🏷️ Maior Desconto</option>
+                <option value="1">⭐ Melhores Avaliações</option>
+              </select>
+            </div>
+            <div>
+              <button type="button" class="btn btn-primary" id="btnBuscarShopee" onclick="buscarAchadinhosShopeeBtn()" style="box-shadow: 0 0 15px var(--primary-glow); white-space: nowrap;">
+                🔎 Buscar Achadinhos na Shopee
+              </button>
+            </div>
+          </div>
+
+          <!-- Grid de Resultados da Shopee -->
+          <div id="containerResultadosShopee" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; margin-top: 1rem;">
+            <div style="text-align: center; padding: 2rem; color: var(--text-muted); width: 100%; grid-column: 1 / -1; background: rgba(255,255,255,0.01); border-radius: var(--radius-sm); border: 1px dashed var(--border-color);">
+              <span style="font-size: 2rem; display: block; margin-bottom: 0.5rem;">🛍️</span>
+              <p style="font-size: 0.9rem; color: #fff; margin-bottom: 0.25rem;">Radar Shopee Pronto</p>
+              <span style="font-size: 0.78rem;">Digite um tema acima e clique em <strong>"Buscar Achadinhos na Shopee"</strong> para carregar as melhores ofertas com link de afiliado e copy IA.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2: Cadastro Manual de Oferta ou Imagem à Fila -->
+        <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
+          <h3 id="tituloFormCampanha" style="margin-bottom: 1rem;">✍️ Cadastro Manual de Oferta ou Imagem</h3>
           <form id="formNovoItemCampanha" onsubmit="adicionarNovoItemCampanha(event)">
             <div class="form-row">
               <div class="form-group" style="flex: 1;">
@@ -5123,6 +5205,13 @@
           document.getElementById('campQtdDia').value = configCampanhasAtual.quantidadePorDia || 5;
           document.getElementById('campTemplateShopee').value = configCampanhasAtual.templateShopee || '';
 
+          if (document.getElementById('campShopeeAppId')) {
+            document.getElementById('campShopeeAppId').value = configCampanhasAtual.shopeeAppId || '';
+          }
+          if (document.getElementById('campShopeeSecret')) {
+            document.getElementById('campShopeeSecret').value = configCampanhasAtual.shopeeSecret || '';
+          }
+
           renderizarHorariosCampanhas(configCampanhasAtual.horarios || []);
           carregarDestinosCampanhas();
         }
@@ -5277,6 +5366,8 @@
       const cooldownDias = parseInt(document.getElementById('campCooldownDias').value, 10) || 7;
       const quantidadePorDia = parseInt(document.getElementById('campQtdDia').value, 10) || 5;
       const templateShopee = document.getElementById('campTemplateShopee').value;
+      const shopeeAppId = document.getElementById('campShopeeAppId')?.value.trim() || '';
+      const shopeeSecret = document.getElementById('campShopeeSecret')?.value.trim() || '';
 
       // Coleta destinos marcados na tela de campanhas
       const checkboxes = document.querySelectorAll('.camp-destino-checkbox:checked');
@@ -5288,6 +5379,8 @@
         cooldownDias,
         quantidadePorDia,
         templateShopee,
+        shopeeAppId,
+        shopeeSecret,
         horarios: configCampanhasAtual.horarios || [],
         destinosPermitidos
       };
@@ -5324,6 +5417,176 @@
       } else {
         colPreco.style.display = 'block';
         colLink.style.display = 'block';
+      }
+    }
+
+    // ==========================================
+    // 🛍️ RADAR AUTÔNOMO SHOPEE & COPY COM IA
+    // ==========================================
+    function toggleConfigApiShopee() {
+      const box = document.getElementById('boxConfigApiShopee');
+      const btn = document.getElementById('btnToggleConfigShopee');
+      if (!box) return;
+      const visivel = box.style.display !== 'none';
+      box.style.display = visivel ? 'none' : 'block';
+      if (btn) btn.innerText = visivel ? '⚙️ Credenciais da Shopee API' : '✕ Fechar Credenciais';
+    }
+
+    let achadinhosShopeeCache = [];
+
+    async function buscarAchadinhosShopeeBtn() {
+      if (!projetoSelecionado) return;
+
+      const inputBusca = document.getElementById('buscaShopeeInput');
+      const keyword = (inputBusca?.value || 'cozinha').trim();
+      const sortType = document.getElementById('buscaShopeeSort')?.value || '5';
+      const container = document.getElementById('containerResultadosShopee');
+      const btn = document.getElementById('btnBuscarShopee');
+
+      btn.disabled = true;
+      btn.innerHTML = '🔄 Buscando na Shopee...';
+      container.innerHTML = `
+        <div style="text-align: center; padding: 2rem; color: var(--text-muted); width: 100%; grid-column: 1 / -1;">
+          <div class="spinner" style="margin: 0 auto 0.75rem auto;"></div>
+          <p>Consultando a Shopee Affiliate Open API para "${keyword}"...</p>
+        </div>
+      `;
+
+      try {
+        const appId = document.getElementById('campShopeeAppId')?.value.trim() || '';
+        const secret = document.getElementById('campShopeeSecret')?.value.trim() || '';
+
+        const resp = await fetch(`/sessions/${projetoSelecionado}/campanhas/shopee/buscar`, {
+          method: 'POST',
+          headers: obterHeaders(),
+          body: JSON.stringify({ keyword, sortType, appId, secret, limit: 12 })
+        });
+        const data = await resp.json();
+
+        if (data.sucesso && Array.isArray(data.produtos)) {
+          achadinhosShopeeCache = data.produtos;
+          renderizarAchadinhosShopee(data.produtos, data.simulado, data.mensagem);
+        } else {
+          container.innerHTML = `
+            <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: var(--radius-sm); padding: 1.25rem; color: #fca5a5; width: 100%; grid-column: 1 / -1;">
+              <strong>⚠️ Falha na busca da Shopee:</strong>
+              <p style="margin-top: 0.35rem; font-size: 0.85rem;">${data.erro || 'Não foi possível consultar a Shopee.'}</p>
+            </div>
+          `;
+        }
+      } catch (err) {
+        container.innerHTML = `
+          <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: var(--radius-sm); padding: 1.25rem; color: #fca5a5; width: 100%; grid-column: 1 / -1;">
+            <strong>Erro de conexão:</strong> ${err.message}
+          </div>
+        `;
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '🔎 Buscar Achadinhos na Shopee';
+      }
+    }
+
+    function renderizarAchadinhosShopee(produtos, simulado = false, msgSimulado = '') {
+      const container = document.getElementById('containerResultadosShopee');
+      if (!container) return;
+
+      if (!produtos || produtos.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 2rem; color: var(--text-muted); width: 100%; grid-column: 1 / -1;">
+            <p>Nenhum produto encontrado para esse termo na Shopee. Tente outra palavra-chave (ex: panelas, airfryer, fone, utilidades).</p>
+          </div>
+        `;
+        return;
+      }
+
+      let bannerSimulado = '';
+      if (simulado) {
+        bannerSimulado = `
+          <div style="grid-column: 1 / -1; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: var(--radius-sm); padding: 0.75rem 1rem; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+            <div style="font-size: 0.8rem; color: #7dd3fc;">
+              💡 <strong>Modo Demonstração:</strong> Você pode testar e aprovar os achadinhos abaixo agora mesmo! Quando inserir seu App ID & Secret da Shopee acima, os produtos reais da sua conta serão listados aqui.
+            </div>
+          </div>
+        `;
+      }
+
+      container.innerHTML = bannerSimulado + produtos.map((p, idx) => {
+        return `
+          <div class="shopee-card-item" style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: var(--radius-md); overflow: hidden; display: flex; flex-direction: column; transition: all 0.2s ease;">
+            <div style="position: relative; width: 100%; height: 160px; background: rgba(0,0,0,0.3); overflow: hidden;">
+              <img src="${p.imagem}" alt="${p.titulo}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://placehold.co/400x400/1e293b/white?text=Foto+Shopee'">
+              ${p.desconto ? `<span style="position: absolute; top: 8px; left: 8px; background: #ef4444; color: #fff; font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.4);">${p.desconto}</span>` : ''}
+              <span style="position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.65); backdrop-filter: blur(4px); color: #fbbf24; font-size: 0.72rem; font-weight: 600; padding: 0.2rem 0.45rem; border-radius: 4px;">⭐ ${p.avaliacao}</span>
+            </div>
+            <div style="padding: 0.9rem; display: flex; flex-direction: column; flex: 1;">
+              <h4 style="font-size: 0.85rem; color: #fff; line-height: 1.35; margin-bottom: 0.5rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;" title="${p.titulo}">
+                ${p.titulo}
+              </h4>
+              <div style="display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 0.75rem;">
+                <span style="font-size: 1.15rem; font-weight: 800; color: #4ade80;">${p.preco}</span>
+                <span style="font-size: 0.72rem; color: var(--text-muted);">${p.vendas} vendidos</span>
+              </div>
+              <div style="margin-top: auto; display: flex; flex-direction: column; gap: 0.4rem;">
+                <button type="button" class="btn btn-primary btn-sm" onclick="importarAchadinhoShopeeBtn(${idx}, true)" id="btnImportarShopee-${idx}" style="font-size: 0.75rem; width: 100%;">
+                  ✨ Importar com Copy IA
+                </button>
+                <div style="display: flex; gap: 0.35rem;">
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="importarAchadinhoShopeeBtn(${idx}, false)" style="font-size: 0.7rem; flex: 1;" title="Importar sem gerar copy por IA (usando template)">
+                    📥 Importar Simples
+                  </button>
+                  <a href="${p.link}" target="_blank" rel="noopener" class="btn btn-secondary btn-sm" style="font-size: 0.7rem; padding: 0.35rem 0.5rem;" title="Abrir link na Shopee">
+                    🔗
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function importarAchadinhoShopeeBtn(index, gerarCopyIa = true) {
+      if (!projetoSelecionado) return;
+      const produto = achadinhosShopeeCache[index];
+      if (!produto) return;
+
+      const btn = document.getElementById(`btnImportarShopee-${index}`);
+      const txtOriginal = btn ? btn.innerHTML : '';
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '✨ Criando Copy IA...';
+      }
+
+      try {
+        mostrarToast('Processando achadinho e gerando copy com IA...');
+        const resp = await fetch(`/sessions/${projetoSelecionado}/campanhas/shopee/importar`, {
+          method: 'POST',
+          headers: obterHeaders(),
+          body: JSON.stringify({ produto, gerarCopyIa })
+        });
+        const data = await resp.json();
+
+        if (data.sucesso) {
+          mostrarToast(`🎉 ${data.mensagem}`);
+          if (btn) {
+            btn.innerHTML = '✅ Adicionado à Fila!';
+            btn.style.background = 'rgba(37, 211, 102, 0.2)';
+            btn.style.borderColor = 'var(--primary)';
+          }
+          await carregarItensCampanhas();
+        } else {
+          mostrarToast(`Erro ao importar: ${data.erro}`, true);
+          if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = txtOriginal;
+          }
+        }
+      } catch (err) {
+        mostrarToast(`Erro: ${err.message}`, true);
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = txtOriginal;
+        }
       }
     }
 

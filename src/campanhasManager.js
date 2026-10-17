@@ -112,7 +112,12 @@ function obterConfigPadrao() {
     ],
     destinosPermitidos: [],
     templateShopee: '🔥 *ACHADINHO IMPERDÍVEL!* 🔥\n\n🛍️ *{titulo}*\n{destaque}\n{preco}\n\n👉 *Acesse pelo link oficial para garantir com desconto:* 👇\n🛒 {link}',
-    templateImagem: '✨ *{titulo}*\n\n{destaque}\n\n{link}'
+    templateImagem: '✨ *{titulo}*\n\n{destaque}\n\n{link}',
+    // Configurações do Radar / Robô Shopee
+    shopeeAppId: '',
+    shopeeSecret: '',
+    shopeeCategoriaPadrao: 'cozinha',
+    shopeeDescontoMinimo: 20
   };
 }
 
