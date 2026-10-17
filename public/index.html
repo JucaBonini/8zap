@@ -2513,10 +2513,12 @@
               </div>
             </div>
 
-            <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+            <div style="display: flex; justify-content: flex-end; gap: 0.5rem; flex-wrap: wrap;">
               <button type="button" class="btn btn-secondary btn-sm" onclick="toggleConfigIaRapidaReceitas()">Cancelar</button>
+              <button type="button" class="btn btn-secondary btn-sm" id="btnTestarChaveIaRapida" onclick="testarConexaoIaRapida()">🧪 Testar Conexão</button>
               <button type="button" class="btn btn-sm" onclick="salvarConfigIaRapidaReceitas()">💾 Salvar Chave &amp; Ativar Agora</button>
             </div>
+            <div id="resultadoTesteChaveIa" style="display: none; margin-top: 0.75rem; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); font-size: 0.78rem;"></div>
           </div>
         </div>
 
@@ -6372,8 +6374,78 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
       }
     }
 
-    function selecionarProvedorIaRapido(prov) {
-      selecionarProvedorIa(prov);
+    async function testarConexaoIaRapida() {
+      if (!projetoSelecionado) return;
+
+      const keyOpenai = document.getElementById('recApiKeyOpenaiRapida')?.value.trim() || document.getElementById('recApiKeyOpenai')?.value.trim() || configReceitasCache?.apiKeyOpenai || '';
+      const keyGemini = document.getElementById('recApiKeyGeminiRapida')?.value.trim() || document.getElementById('recApiKeyGemini')?.value.trim() || configReceitasCache?.apiKeyGemini || '';
+      const boxRes = document.getElementById('resultadoTesteChaveIa');
+      const btn = document.getElementById('btnTestarChaveIaRapida');
+
+      if (provedorIaSelecionado === 'openai' && !keyOpenai) {
+        mostrarToast('⚠️ Cole sua OpenAI API Key para testar!', true);
+        document.getElementById('recApiKeyOpenaiRapida')?.focus();
+        return;
+      }
+      if (provedorIaSelecionado === 'gemini' && !keyGemini) {
+        mostrarToast('⚠️ Cole sua Gemini API Key para testar!', true);
+        document.getElementById('recApiKeyGeminiRapida')?.focus();
+        return;
+      }
+
+      try {
+        if (btn) btn.disabled = true;
+        if (boxRes) {
+          boxRes.style.display = 'block';
+          boxRes.style.background = 'rgba(251, 146, 60, 0.12)';
+          boxRes.style.color = '#fb923c';
+          boxRes.style.border = '1px solid rgba(251, 146, 60, 0.3)';
+          boxRes.innerHTML = '⏳ Testando conexão com o modelo de IA... Aguarde alguns instantes...';
+        }
+
+        const resp = await fetch(`/sessions/${projetoSelecionado}/receitas/testar-chave`, {
+          method: 'POST',
+          headers: obterHeaders(),
+          body: JSON.stringify({
+            provedor: provedorIaSelecionado,
+            apiKeyOpenai: keyOpenai,
+            apiKeyGemini: keyGemini
+          })
+        });
+
+        const data = await resp.json();
+        if (data.sucesso) {
+          if (boxRes) {
+            boxRes.style.display = 'block';
+            boxRes.style.background = 'rgba(34, 197, 94, 0.15)';
+            boxRes.style.color = '#4ade80';
+            boxRes.style.border = '1px solid rgba(34, 197, 94, 0.35)';
+            boxRes.innerHTML = `✅ <strong>Conexão bem sucedida:</strong> ${data.mensagem}`;
+          }
+          mostrarToast('✅ Chave de IA testada e funcionando!');
+          await carregarConfigReceitas();
+        } else {
+          if (boxRes) {
+            boxRes.style.display = 'block';
+            boxRes.style.background = 'rgba(239, 68, 68, 0.15)';
+            boxRes.style.color = '#f87171';
+            boxRes.style.border = '1px solid rgba(239, 68, 68, 0.35)';
+            boxRes.innerHTML = `❌ <strong>Falha no teste:</strong> ${data.erro}`;
+          }
+          mostrarToast(`Falha no teste: ${data.erro}`, true);
+        }
+      } catch (err) {
+        if (boxRes) {
+          boxRes.style.display = 'block';
+          boxRes.style.background = 'rgba(239, 68, 68, 0.15)';
+          boxRes.style.color = '#f87171';
+          boxRes.style.border = '1px solid rgba(239, 68, 68, 0.35)';
+          boxRes.innerHTML = `❌ <strong>Erro de comunicação:</strong> ${err.message}`;
+        }
+        mostrarToast(`Erro ao testar: ${err.message}`, true);
+      } finally {
+        if (btn) btn.disabled = false;
+      }
     }
 
     async function salvarConfigIaRapidaReceitas() {

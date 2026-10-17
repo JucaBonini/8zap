@@ -516,6 +516,79 @@ async function adicionarAFilaManual(projectId, receitaId, agendadoPara = null) {
   return resultado;
 }
 
+/**
+ * Testa a conexão com a API da IA (OpenAI ou Gemini)
+ */
+async function testarChaveIa(projectId, { provedor = 'openai', apiKeyOpenai, apiKeyGemini } = {}) {
+  const config = obterConfigReceitas(projectId);
+  const prov = provedor || config.provedor || 'openai';
+
+  if (prov === 'gemini') {
+    const key = (apiKeyGemini || config.apiKeyGemini || process.env.GEMINI_API_KEY || '').trim();
+    if (!key) {
+      throw new Error('Nenhuma chave do Google Gemini foi informada.');
+    }
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}`);
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(`Google Gemini rejeitou a chave: ${err.error?.message || res.statusText}`);
+    }
+    if (apiKeyGemini) {
+      try {
+        salvarConfigReceitas(projectId, { apiKeyGemini: key, provedor: 'gemini' });
+      } catch (_) {}
+    }
+    return {
+      mensagem: 'Chave do Google Gemini conectada com sucesso!',
+      provedor: 'gemini'
+    };
+  } else {
+    // OpenAI
+    const key = (apiKeyOpenai || config.apiKeyOpenai || process.env.OPENAI_API_KEY || '').trim();
+    if (!key) {
+      throw new Error('Nenhuma chave da OpenAI foi informada. Insira sua OpenAI API Key (sk-proj-...).');
+    }
+
+    // Faz uma requisição de teste leve ao ChatGPT (gpt-4o-mini, 5 tokens)
+    const resTexto = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${key}`
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [{ role: 'user', content: 'Responda apenas: OK' }],
+        max_tokens: 5
+      })
+    });
+
+    if (!resTexto.ok) {
+      const err = await resTexto.json().catch(() => ({}));
+      const msg = err.error?.message || resTexto.statusText;
+      if (resTexto.status === 401) {
+        throw new Error(`Chave OpenAI não autorizada (401): ${msg}. Verifique se copiou a chave completa.`);
+      }
+      if (resTexto.status === 429) {
+        throw new Error(`Cota esgotada na OpenAI (429): ${msg}. Se você acabou de recarregar créditos ($3), o gateway da OpenAI costuma demorar entre 5 a 15 minutos para liberar a API.`);
+      }
+      throw new Error(`OpenAI retornou erro (${resTexto.status}): ${msg}`);
+    }
+
+    // Se o usuário passou a chave no teste e foi bem sucedido, já salva
+    if (apiKeyOpenai) {
+      try {
+        salvarConfigReceitas(projectId, { apiKeyOpenai: key, provedor: 'openai' });
+      } catch (_) {}
+    }
+
+    return {
+      mensagem: 'Chave da OpenAI 100% operacional! O modelo GPT-4o-mini respondeu com sucesso.',
+      provedor: 'openai'
+    };
+  }
+}
+
 module.exports = {
   obterConfigReceitas,
   salvarConfigReceitas,
@@ -527,5 +600,6 @@ module.exports = {
   regerarImagemReceita,
   dispararReceitaAgora,
   dispararProximaReceita,
-  adicionarAFilaManual
+  adicionarAFilaManual,
+  testarChaveIa
 };

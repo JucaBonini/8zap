@@ -1007,6 +1007,20 @@ router.post('/sessions/:projectId/receitas/config', (req, res) => {
 });
 
 /**
+ * POST /sessions/:projectId/receitas/testar-chave
+ */
+router.post('/sessions/:projectId/receitas/testar-chave', async (req, res) => {
+  const { projectId } = req.params;
+  const { provedor, apiKeyOpenai, apiKeyGemini } = req.body || {};
+  try {
+    const resultado = await receitasManager.testarChaveIa(projectId, { provedor, apiKeyOpenai, apiKeyGemini });
+    res.json({ sucesso: true, ...resultado });
+  } catch (err) {
+    res.status(400).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
  * GET /sessions/:projectId/receitas
  */
 router.get('/sessions/:projectId/receitas', (req, res) => {
