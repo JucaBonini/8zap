@@ -495,13 +495,19 @@ async function enviarMensagem(projectId, dadosMensagem) {
       payload = { text: texto };
     } else if (tipoNormalizado === 'imagem') {
       if (!url) {
-        throw new Error('O campo "url" é obrigatório para mensagens do tipo imagem');
+        // Fallback seguro: se não tiver imagem anexada, envia como mensagem de texto formatada
+        const textoDisparo = (legenda || texto || '').trim();
+        if (!textoDisparo) {
+          throw new Error('Mensagem vazia: informe um texto ou uma imagem para enviar.');
+        }
+        payload = { text: textoDisparo };
+      } else {
+        const midiaFinal = resolverOrigemMidia(url);
+        payload = {
+          image: { url: midiaFinal },
+          caption: legenda || texto || ''
+        };
       }
-      const midiaFinal = resolverOrigemMidia(url);
-      payload = {
-        image: { url: midiaFinal },
-        caption: legenda || texto || ''
-      };
     } else if (tipoNormalizado === 'video') {
       if (!url) {
         throw new Error('O campo "url" é obrigatório para mensagens do tipo video');

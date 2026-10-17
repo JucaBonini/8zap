@@ -114,15 +114,36 @@ function salvarReceitas(projectId, lista) {
 }
 
 /**
- * Gera uma nova receita completa com texto na voz da Mary + foto apetitosa otimizada para 3G
+ * Obtém a lista de pratos / receitas geradas nos últimos 30 dias para evitar repetições
+ */
+function obterPratosRecentes(projectId, dias = 30) {
+  const receitas = obterReceitas(projectId);
+  const limiteData = new Date(Date.now() - dias * 24 * 60 * 60 * 1000);
+  const pratos = [];
+
+  for (const r of receitas) {
+    const data = r.criadoEm ? new Date(r.criadoEm) : null;
+    if (!data || data >= limiteData) {
+      if (r.titulo) {
+        const nomeLimpo = r.titulo.replace(/[*_~`]/g, '').trim();
+        if (nomeLimpo) pratos.push(nomeLimpo);
+      }
+    }
+  }
+
+  return Array.from(new Set(pratos));
+}
+
+/**
+ * Gera uma nova receita completa com texto na voz da Mary (Texto Rápido sem IA de Imagem)
+ * Garante que nenhuma receita se repita nos últimos 30 dias de disparo.
+ * O usuário pode subir fotos manualmente se desejar; caso contrário, é postada somente a receita.
  * @param {string} projectId
- * @param {object} [opcoes] - { tema, personaCustom, provedor, resolucao }
+ * @param {object} [opcoes] - { tema, personaCustom, provedor }
  */
 async function gerarReceita(projectId, opcoes = {}) {
   const config = obterConfigReceitas(projectId);
   const provedor = opcoes.provedor || config.provedor || 'openai';
-  const resolucao = Number(opcoes.resolucao) || config.resolucaoImagem || 800;
-  const qualidade = Number(config.qualidadeCompressao) || 80;
   const personaCustom = opcoes.personaCustom || config.personaCustom || '';
   const tema = opcoes.tema || '';
 
@@ -141,20 +162,18 @@ async function gerarReceita(projectId, opcoes = {}) {
   }
 
   const idReceita = crypto.randomUUID();
+  const pratosRecentes = obterPratosRecentes(projectId, 30);
 
   logProjeto(
     projectId,
     'RECEITAS_GERANDO',
-    `Iniciando geração de receita com IA [${provedor.toUpperCase()}]... ${tema ? `Tema: "${tema}"` : '(Prato surpresa da Mary)'}`,
+    `Iniciando geração de receita inédita com IA [${provedor.toUpperCase()}] (Filtro 30 dias ativo: ${pratosRecentes.length} prato(s) já cadastrado(s))... ${tema ? `Tema: "${tema}"` : '(Sugestão inédita da Mary)'}`,
     'info'
   );
 
   let resultadoTexto;
-  let bufferBrutoImagem;
-  let provedorFinal = provedor;
 
   if (provedor === 'gemini') {
-    provedorFinal = 'gemini';
     const apiKey = apiKeyGemini;
     if (!apiKey) {
       throw new Error('Chave da API do Google Gemini não configurada. Insira sua chave Gemini no painel.');
@@ -164,41 +183,11 @@ async function gerarReceita(projectId, opcoes = {}) {
       apiKey,
       config.modeloTextoGemini,
       tema,
-      personaCustom
+      personaCustom,
+      pratosRecentes
     );
-
-    logProjeto(
-      projectId,
-      'RECEITAS_TEXTO_OK',
-      `Receita "${resultadoTexto.titulo}" criada pelo Gemini! Gerando fotografia gastronômica...`,
-      'info'
-    );
-
-    // Gera a imagem usando Imagen 3 (ou fallback para OpenAI se configurada)
-    try {
-      bufferBrutoImagem = await receitasIaService.gerarImagemGemini(
-        apiKey,
-        resultadoTexto.promptVisualIngles
-      );
-    } catch (errGeminiImg) {
-      logProjeto(
-        projectId,
-        'RECEITAS_AVISO_IMAGEM',
-        `Aviso no Imagen 3: ${errGeminiImg.message}. Verificando se há chave OpenAI de contingência...`,
-        'warn'
-      );
-      if (config.apiKeyOpenai) {
-        bufferBrutoImagem = await receitasIaService.gerarImagemOpenAi(
-          config.apiKeyOpenai,
-          resultadoTexto.promptVisualIngles
-        );
-        provedorFinal = 'dall-e-3';
-      } else {
-        throw errGeminiImg;
-      }
-    }
   } else {
-    // Provedor padrão: OpenAI (ChatGPT + DALL-E 3)
+    // Provedor padrão: OpenAI (ChatGPT)
     const apiKey = apiKeyOpenai;
     if (!apiKey) {
       throw new Error('Chave da API da OpenAI (ChatGPT) não configurada. Insira sua OpenAI API Key no painel.');
@@ -208,63 +197,28 @@ async function gerarReceita(projectId, opcoes = {}) {
       apiKey,
       config.modeloTextoOpenai,
       tema,
-      personaCustom
+      personaCustom,
+      pratosRecentes
     );
-
-    logProjeto(
-      projectId,
-      'RECEITAS_TEXTO_OK',
-      `Receita "${resultadoTexto.titulo}" criada pela OpenAI! Gerando fotografia com DALL-E 3...`,
-      'info'
-    );
-
-    provedorFinal = 'dall-e-3';
-    try {
-      bufferBrutoImagem = await receitasIaService.gerarImagemOpenAi(
-        apiKey,
-        resultadoTexto.promptVisualIngles
-      );
-    } catch (errDalle3) {
-      logProjeto(
-        projectId,
-        'RECEITAS_AVISO_DALLE3',
-        `Aviso no DALL-E 3: ${errDalle3.message}. Tentando DALL-E 2...`,
-        'warn'
-      );
-      try {
-        bufferBrutoImagem = await receitasIaService.gerarImagemDalle2(
-          apiKey,
-          resultadoTexto.promptVisualIngles
-        );
-        provedorFinal = 'dall-e-2';
-      } catch (errDalle2) {
-        logProjeto(
-          projectId,
-          'RECEITAS_AVISO_DALLE2',
-          `DALL-E 2 também indisponível na conta. Buscando foto fiel para "${resultadoTexto.titulo}" no acervo curado...`,
-          'warn'
-        );
-        bufferBrutoImagem = await receitasIaService.obterFotoCulinariaFallback(resultadoTexto.titulo);
-        provedorFinal = 'curadoria';
-      }
-    }
   }
 
-  // Otimiza a foto para ficar levíssima (~90-130 KB) e nítida para o 3G brasileiro
-  logProjeto(projectId, 'RECEITAS_OTIMIZANDO', `Comprimindo foto para ${resolucao}x${resolucao} (JPEG Progressivo / 3G)...`, 'info');
-  const bufferOtimizado = await receitasIaService.otimizarImagemPara3G(bufferBrutoImagem, resolucao, qualidade);
-  const infoArquivo = await receitasIaService.salvarImagemReceita(bufferOtimizado, idReceita);
+  logProjeto(
+    projectId,
+    'RECEITAS_TEXTO_OK',
+    `Receita inédita "${resultadoTexto.titulo}" criada pela Mary com sucesso! Pronta para postagem ou anexo manual de foto.`,
+    'info'
+  );
 
   const novaReceita = {
     id: idReceita,
     titulo: resultadoTexto.titulo,
     texto: resultadoTexto.mensagemWhatsApp,
-    promptVisual: resultadoTexto.promptVisualIngles,
-    imagemUrl: infoArquivo.urlPublica,
-    imagemCaminhoFisico: infoArquivo.caminhoFisico,
-    tamanhoBytes: infoArquivo.tamanhoBytes,
-    resolucao: `${resolucao}x${resolucao}`,
-    provedor: provedorFinal,
+    promptVisual: '',
+    imagemUrl: null,
+    imagemCaminhoFisico: null,
+    tamanhoBytes: 0,
+    resolucao: '800x800',
+    provedor: 'texto_puro',
     status: 'pronto',
     enviadoEm: null,
     destinosEnviados: [],
@@ -278,11 +232,10 @@ async function gerarReceita(projectId, opcoes = {}) {
     salvarReceitas(projectId, lista);
   });
 
-  const tamanhoKb = (infoArquivo.tamanhoBytes / 1024).toFixed(1);
   logProjeto(
     projectId,
     'RECEITAS_SUCESSO',
-    `Receita "${novaReceita.titulo}" gerada com sucesso! Foto salva: ${tamanhoKb} KB (Ultra-leve).`,
+    `Receita "${novaReceita.titulo}" salva no catálogo com sucesso!`,
     'success'
   );
 
@@ -369,6 +322,18 @@ async function atualizarReceita(projectId, receitaId, novosDados = {}) {
         lista[index].provedor = 'usuario';
         logProjeto(projectId, 'RECEITAS_FOTO_ALTERADA', `Foto da receita "${lista[index].titulo}" atualizada por link externo.`, 'info');
       }
+    }
+
+    // Se o usuário solicitou remover a foto (postar somente texto)
+    if (novosDados.removerFoto) {
+      if (lista[index].imagemCaminhoFisico && fs.existsSync(lista[index].imagemCaminhoFisico)) {
+        try { fs.unlinkSync(lista[index].imagemCaminhoFisico); } catch (_) {}
+      }
+      lista[index].imagemUrl = null;
+      lista[index].imagemCaminhoFisico = null;
+      lista[index].tamanhoBytes = 0;
+      lista[index].provedor = 'texto_puro';
+      logProjeto(projectId, 'RECEITAS_FOTO_REMOVIDA', `Foto removida da receita "${lista[index].titulo}". O prato será postado exclusivamente como texto.`, 'info');
     }
 
     salvarReceitas(projectId, lista);
@@ -483,14 +448,18 @@ async function dispararReceitaAgora(projectId, receitaId, destinosSobrescritos =
 
   logProjeto(projectId, 'RECEITAS_DISPARANDO', `Disparando receita "${receita.titulo}" para ${destinos.length} destino(s)...`, 'info');
 
+  const temFoto = Boolean(receita.imagemUrl || receita.imagemCaminhoFisico);
+  const midiaFinal = temFoto ? (receita.imagemCaminhoFisico || receita.imagemUrl) : null;
+
   const resultados = [];
   for (const destino of destinos) {
     try {
       const res = await sessionManager.enviarMensagem(projectId, {
         to: destino,
-        type: 'imagem',
-        url: receita.imagemCaminhoFisico || receita.imagemUrl,
-        legenda: receita.texto
+        type: temFoto ? 'imagem' : 'texto',
+        url: midiaFinal,
+        legenda: temFoto ? receita.texto : undefined,
+        texto: receita.texto
       });
       resultados.push({ destino, sucesso: true, id: res.mensagemId });
     } catch (err) {
@@ -558,10 +527,12 @@ async function adicionarAFilaManual(projectId, receitaId, agendadoPara = null) {
     throw new Error(`Receita ID "${receitaId}" não encontrada.`);
   }
 
+  const temFoto = Boolean(receita.imagemUrl || receita.imagemCaminhoFisico);
   const itemFila = {
-    tipo: 'image',
-    url: receita.imagemUrl,
+    tipo: temFoto ? 'imagem' : 'texto',
+    url: temFoto ? receita.imagemUrl : null,
     legenda: receita.texto,
+    texto: receita.texto,
     agendado_para: agendadoPara || null,
     esteira: !agendadoPara // se não tiver data específica, vai para a esteira buffer da grade
   };

@@ -40,19 +40,27 @@ Must follow these rules:
 - NO hands, NO people, NO plastic look, NO cartoonish 3D render, NO watermarks, NO text written inside the image.`;
 
 /**
- * Gera o texto da receita e o prompt da imagem usando OpenAI (ChatGPT)
+ * Gera o texto humanizado da receita usando OpenAI (ChatGPT)
+ * Aplica regra rigorosa de NÃO repetição de pratos dos últimos 30 dias
  */
-async function gerarComOpenAi(apiKey, modeloTexto = 'gpt-4o-mini', tema = '', personaCustom = '') {
+async function gerarComOpenAi(apiKey, modeloTexto = 'gpt-4o-mini', tema = '', personaCustom = '', pratosRecentes = []) {
   const promptSistema = (personaCustom && personaCustom.trim()) ? personaCustom.trim() : PERSONA_PADRAO_MARY;
 
+  const listaRecentes = Array.isArray(pratosRecentes) && pratosRecentes.length > 0
+    ? `\nREGRA OBRIGATÓRIA DE CARDÁPIO INÉDITO (ÚLTIMOS 30 DIAS):
+Para manter o catálogo variado e com receitas únicas para o mês inteiro, é PROIBIDO repetir qualquer um dos seguintes pratos preparados nos últimos 30 dias:
+- ${pratosRecentes.slice(0, 50).join('\n- ')}
+Crie um prato brasileiro totalmente INÉDITO, diferente dos listados acima e irresistível!`
+    : '';
+
   const promptUsuario = `Crie uma receita irresistível de comida caseira brasileira.
-${tema && tema.trim() ? `Tema ou Prato solicitado: "${tema.trim()}".` : 'Escolha um prato clássico, muito apetitoso, popular e aconchegante para almoço ou jantar de família.'}
+${tema && tema.trim() ? `Tema ou Prato solicitado: "${tema.trim()}".` : 'Escolha um prato clássico, muito apetitoso, popular e aconchegante para almoço, jantar ou sobremesa de família.'}
+${listaRecentes}
 
 Você deve responder ESTRITAMENTE em formato JSON com o seguinte schema:
 {
   "titulo": "Nome do prato em caixa alta",
-  "mensagemWhatsApp": "Texto completo formatado da receita na voz da Mary para postar no WhatsApp com emojis e negrito",
-  "promptVisualIngles": "Detailed English food photography prompt describing the cooked dish: ${INSTRUCAO_PROMPT_FOTO}"
+  "mensagemWhatsApp": "Texto completo formatado da receita na voz da Mary para postar no WhatsApp com emojis e negrito"
 }`;
 
   const res = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -94,12 +102,12 @@ Você deve responder ESTRITAMENTE em formato JSON com o seguinte schema:
   return {
     titulo: dados.titulo || 'RECEITA DA MARY',
     mensagemWhatsApp: dados.mensagemWhatsApp,
-    promptVisualIngles: dados.promptVisualIngles
+    promptVisualIngles: ''
   };
 }
 
 /**
- * Gera a imagem do prato usando DALL-E 3 da OpenAI
+ * Gera a imagem do prato usando DALL-E 3 da OpenAI (se requisitado manualmente)
  */
 async function gerarImagemOpenAi(apiKey, promptVisual) {
   const promptFinal = `${promptVisual}, authentic raw photograph, 8k resolution, culinary magazine editorial food shot, natural ambient lighting, no CGI, no 3D render, no plastic texture, no text`;
@@ -142,21 +150,29 @@ async function gerarImagemOpenAi(apiKey, promptVisual) {
 }
 
 /**
- * Gera o texto da receita e o prompt da imagem usando Google Gemini
+ * Gera o texto humanizado da receita usando Google Gemini
+ * Aplica regra rigorosa de NÃO repetição de pratos dos últimos 30 dias
  */
-async function gerarComGemini(apiKey, modeloTexto = 'gemini-2.0-flash', tema = '', personaCustom = '') {
+async function gerarComGemini(apiKey, modeloTexto = 'gemini-2.0-flash', tema = '', personaCustom = '', pratosRecentes = []) {
   const promptSistema = (personaCustom && personaCustom.trim()) ? personaCustom.trim() : PERSONA_PADRAO_MARY;
+
+  const listaRecentes = Array.isArray(pratosRecentes) && pratosRecentes.length > 0
+    ? `\nREGRA OBRIGATÓRIA DE CARDÁPIO INÉDITO (ÚLTIMOS 30 DIAS):
+Para manter o catálogo variado e com receitas únicas para o mês inteiro, é PROIBIDO repetir qualquer um dos seguintes pratos preparados nos últimos 30 dias:
+- ${pratosRecentes.slice(0, 50).join('\n- ')}
+Crie um prato brasileiro totalmente INÉDITO, diferente dos listados acima e irresistível!`
+    : '';
 
   const promptUsuario = `${promptSistema}
 
 Crie uma receita irresistível de comida caseira brasileira.
-${tema && tema.trim() ? `Tema ou Prato solicitado: "${tema.trim()}".` : 'Escolha um prato clássico, muito apetitoso, popular e aconchegante para almoço ou jantar de família.'}
+${tema && tema.trim() ? `Tema ou Prato solicitado: "${tema.trim()}".` : 'Escolha um prato clássico, muito apetitoso, popular e aconchegante para almoço, jantar ou sobremesa de família.'}
+${listaRecentes}
 
 Você deve responder ESTRITAMENTE em formato JSON com o seguinte schema:
 {
   "titulo": "Nome do prato em caixa alta",
-  "mensagemWhatsApp": "Texto completo formatado da receita na voz da Mary para postar no WhatsApp com emojis e negrito",
-  "promptVisualIngles": "Detailed English food photography prompt describing the cooked dish: ${INSTRUCAO_PROMPT_FOTO}"
+  "mensagemWhatsApp": "Texto completo formatado da receita na voz da Mary para postar no WhatsApp com emojis e negrito"
 }`;
 
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${modeloTexto}:generateContent?key=${apiKey}`;
@@ -191,7 +207,7 @@ Você deve responder ESTRITAMENTE em formato JSON com o seguinte schema:
   return {
     titulo: parsed.titulo || 'RECEITA DA MARY',
     mensagemWhatsApp: parsed.mensagemWhatsApp,
-    promptVisualIngles: parsed.promptVisualIngles
+    promptVisualIngles: ''
   };
 }
 

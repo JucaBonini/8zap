@@ -2522,9 +2522,17 @@
           </div>
         </div>
 
-        <!-- Card 2: Gerador de Receitas (Avulso & Lote) -->
+        <!-- Card 2: Gerador de Receitas da Mary (Sem Repetição por 30 Dias) -->
         <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
-          <h3 style="margin-bottom: 0.75rem;">✨ Gerador de Receitas & Fotos Gastronômicas</h3>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+            <h3 style="margin: 0;">✨ Gerador de Receitas da Mary</h3>
+            <span class="badge" style="background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.35); font-size: 0.75rem; padding: 0.25rem 0.6rem;">
+              🛡️ Cardápio Inédito (30 dias sem repetir)
+            </span>
+          </div>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.4;">
+            Gera receitas deliciosas em texto humanizado para o WhatsApp em <strong>apenas ~2 segundos</strong>. A Mary consulta automaticamente o histórico do mês para nunca repetir pratos. Você pode postar o texto puro ou anexar sua própria foto manual quando desejar!
+          </p>
 
           <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; flex-wrap: wrap;">
             <!-- Gerador Avulso -->
@@ -2536,7 +2544,7 @@
                 <span style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-top: 0.25rem;">Deixe em branco para a Mary sugerir um prato surpresa irresistível do dia.</span>
               </div>
               <button class="btn" id="btnGerarReceitaUnica" onclick="gerarReceitaAvulsaBtn()" style="width: 100%;">
-                ✨ Gerar Receita com Foto
+                ✨ Gerar Receita da Mary (Texto Rápido)
               </button>
             </div>
 
@@ -2550,12 +2558,12 @@
                   <option value="5" selected>5 Receitas</option>
                   <option value="10">10 Receitas</option>
                   <option value="20">20 Receitas</option>
-                  <option value="30">30 Receitas (1 Mês de posts diários)</option>
+                  <option value="30">30 Receitas (1 Mês de pratos únicos)</option>
                 </select>
-                <span style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-top: 0.25rem;">As receitas geradas entram direto no catálogo prontas para disparar ou agendar.</span>
+                <span style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-top: 0.25rem;">Gera o cardápio inteiro sem repetir pratos. Fotos manuais opcionais.</span>
               </div>
               <button class="btn btn-secondary" id="btnGerarLoteReceitas" onclick="gerarLoteReceitasBtn()" style="width: 100%;">
-                🚀 Iniciar Geração em Lote
+                🚀 Iniciar Lote de Receitas
               </button>
             </div>
           </div>
@@ -2565,8 +2573,8 @@
             <div style="display: flex; align-items: center; gap: 0.75rem;">
               <div class="spinner" style="border-top-color: #fb923c;"></div>
               <div>
-                <strong id="textoStatusGeracaoReceita" style="color: #fb923c; font-size: 0.9rem;">Gerando receita com a Mary...</strong>
-                <p id="subtextoStatusGeracaoReceita" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">Escrevendo modo de preparo e renderizando fotografia culinária em alta resolução...</p>
+                <strong id="textoStatusGeracaoReceita" style="color: #fb923c; font-size: 0.9rem;">Cozinhando a receita com a Mary...</strong>
+                <p id="subtextoStatusGeracaoReceita" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">Consultando histórico dos últimos 30 dias e escrevendo modo de preparo humanizado...</p>
               </div>
             </div>
           </div>
@@ -6692,22 +6700,41 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
           ? `<span class="badge badge-connected" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;"><span class="badge-dot"></span>Postada</span>`
           : `<span class="badge badge-aguardando_qr" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;"><span class="badge-dot"></span>Pronta na Esteira</span>`;
 
-        let badgeProvedor = '🤖 DALL-E 3';
-        if (rec.provedor === 'gemini') badgeProvedor = '✨ Gemini';
-        else if (rec.provedor === 'dall-e-2') badgeProvedor = '🤖 DALL-E 2';
-        else if (rec.provedor === 'curadoria') badgeProvedor = '🍲 Foto Fiel Curada';
-        else if (rec.provedor === 'usuario') badgeProvedor = '👤 Foto Própria';
-        else if (rec.provedor === 'openai') badgeProvedor = '🤖 OpenAI / DALL-E 3';
+        let badgeProvedor = '📝 Texto Puro (ChatGPT)';
+        if (rec.provedor === 'gemini') badgeProvedor = '✨ Gemini (Texto)';
+        else if (rec.provedor === 'usuario') badgeProvedor = '📸 Foto Manual (3G)';
+        else if (rec.provedor === 'curadoria') badgeProvedor = '🍲 Foto Curada (3G)';
+        else if (rec.provedor === 'dall-e-3' || rec.provedor === 'openai') badgeProvedor = '📸 Foto Otimizada (3G)';
+        else if (rec.provedor === 'texto_puro') badgeProvedor = '📝 Somente Receita';
 
         const dataFormatada = rec.criadoEm ? new Date(rec.criadoEm).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '';
 
-        return `
-          <div class="receita-card" id="cardReceita_${rec.id}">
+        const blocoMidia = rec.imagemUrl
+          ? `
             <div class="receita-img-wrapper">
-              <img src="${rec.imagemUrl}" alt="${rec.titulo}" class="receita-img" loading="lazy" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'300\' height=\'300\'><rect width=\'100%\' height=\'100%\' fill=\'%23111827\'/><text x=\'50%\' y=\'50%\' fill=\'%23888\' font-size=\'14\' text-anchor=\'middle\'>Foto em Processamento</text></svg>'">
+              <img src="${rec.imagemUrl}" alt="${rec.titulo}" class="receita-img" loading="lazy" onerror="this.parentElement.style.display='none'">
               <span class="receita-badge-provedor">${badgeProvedor}</span>
               <span class="receita-badge-3g">⚡ ${tamanhoKb} KB (3G)</span>
             </div>
+          `
+          : `
+            <div style="background: linear-gradient(135deg, rgba(251,146,60,0.12) 0%, rgba(30,25,35,0.7) 100%); padding: 0.85rem 1rem; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span style="font-size: 1.4rem;">🍲</span>
+                <div>
+                  <span class="badge" style="background: rgba(251, 146, 60, 0.2); color: #fb923c; border: 1px solid rgba(251, 146, 60, 0.4); font-size: 0.72rem; padding: 0.15rem 0.5rem;">📝 Somente Receita (Texto)</span>
+                  <span style="font-size: 0.7rem; color: var(--text-muted); display: block; margin-top: 1px;">Posta sem foto direto no WhatsApp</span>
+                </div>
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="abrirModalEditarReceita('${rec.id}')" title="Subir foto manual para esta receita" style="font-size: 0.75rem; padding: 0.3rem 0.6rem; border-color: rgba(251, 146, 60, 0.35);">
+                📸 Anexar Foto
+              </button>
+            </div>
+          `;
+
+        return `
+          <div class="receita-card" id="cardReceita_${rec.id}">
+            ${blocoMidia}
             <div class="receita-content">
               <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.4rem;">
                 <h4 class="receita-titulo">${rec.titulo}</h4>
@@ -6716,19 +6743,19 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
               <div class="receita-texto-preview">${rec.texto}</div>
               <div class="receita-meta-bar">
                 <span>📅 ${dataFormatada}</span>
-                <span>📐 ${rec.resolucao || '800x800'}</span>
+                <span>${rec.imagemUrl ? `⚡ ${tamanhoKb} KB (3G 800x800)` : '💬 Post de Texto'}</span>
               </div>
               <div class="receita-actions">
-                <button class="btn btn-sm" onclick="dispararReceitaCardBtn('${rec.id}')" title="Disparar para os canais agora" style="flex: 1; padding: 0.35rem 0.5rem; font-size: 0.78rem;">
+                <button class="btn btn-sm" onclick="dispararReceitaCardBtn('${rec.id}')" title="Disparar para os canais agora (se tiver foto vai com foto, se não tiver vai somente o texto da receita)" style="flex: 1; padding: 0.35rem 0.5rem; font-size: 0.78rem;">
                   🚀 Disparar
                 </button>
                 <button class="btn btn-secondary btn-sm" onclick="adicionarReceitaFilaBtn('${rec.id}')" title="Mandar para a Esteira (Fila da Grade)" style="padding: 0.35rem 0.55rem; font-size: 0.78rem;">
                   📦 Esteira
                 </button>
-                <button class="btn btn-secondary btn-sm" onclick="regerarFotoReceitaBtn('${rec.id}')" title="Regerar foto com IA mantendo o texto" style="padding: 0.35rem 0.55rem; font-size: 0.78rem;">
-                  🔄 Foto
+                <button class="btn btn-secondary btn-sm" onclick="abrirModalEditarReceita('${rec.id}')" title="Anexar ou trocar foto manual da receita" style="padding: 0.35rem 0.55rem; font-size: 0.78rem;">
+                  ${rec.imagemUrl ? '📸 Trocar Foto' : '📸 Foto'}
                 </button>
-                <button class="btn btn-secondary btn-sm" onclick="abrirModalEditarReceita('${rec.id}')" title="Editar texto" style="padding: 0.35rem 0.55rem; font-size: 0.78rem;">
+                <button class="btn btn-secondary btn-sm" onclick="abrirModalEditarReceita('${rec.id}')" title="Editar texto e ingredientes" style="padding: 0.35rem 0.55rem; font-size: 0.78rem;">
                   ✏️
                 </button>
                 <button class="btn btn-danger btn-sm" onclick="excluirReceitaBtn('${rec.id}', '${rec.titulo.replace(/'/g, "\\'")}')" title="Excluir" style="padding: 0.35rem 0.55rem; font-size: 0.78rem;">
@@ -6974,17 +7001,32 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
       }
     }
 
+    let editNovaFotoBase64 = null;
+    let editFotoRemovida = false;
+
     function abrirModalEditarReceita(id) {
       const rec = receitasCache.find(r => r.id === id);
       if (!rec) return;
 
       editNovaFotoBase64 = null;
+      editFotoRemovida = false;
       document.getElementById('editReceitaId').value = rec.id;
       document.getElementById('editReceitaTitulo').value = rec.titulo || '';
       document.getElementById('editReceitaTexto').value = rec.texto || '';
 
       const preview = document.getElementById('editReceitaPreviewFoto');
-      if (preview) preview.src = rec.imagemUrl;
+      const boxSemFoto = document.getElementById('editReceitaBoxSemFoto');
+      const btnRemover = document.getElementById('btnRemoverFotoModal');
+
+      if (rec.imagemUrl) {
+        if (preview) { preview.src = rec.imagemUrl; preview.style.display = 'block'; }
+        if (boxSemFoto) boxSemFoto.style.display = 'none';
+        if (btnRemover) btnRemover.style.display = 'inline-block';
+      } else {
+        if (preview) { preview.src = ''; preview.style.display = 'none'; }
+        if (boxSemFoto) boxSemFoto.style.display = 'flex';
+        if (btnRemover) btnRemover.style.display = 'none';
+      }
 
       const badge = document.getElementById('editBadgeFotoAlterada');
       if (badge) badge.style.display = 'none';
@@ -7002,7 +7044,21 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
       if (modal) modal.classList.remove('hidden');
     }
 
-    let editNovaFotoBase64 = null;
+    function removerFotoModal() {
+      editFotoRemovida = true;
+      editNovaFotoBase64 = null;
+      const preview = document.getElementById('editReceitaPreviewFoto');
+      if (preview) { preview.src = ''; preview.style.display = 'none'; }
+      const boxSemFoto = document.getElementById('editReceitaBoxSemFoto');
+      if (boxSemFoto) boxSemFoto.style.display = 'flex';
+      const badge = document.getElementById('editBadgeFotoAlterada');
+      if (badge) badge.style.display = 'none';
+      const btnRemover = document.getElementById('btnRemoverFotoModal');
+      if (btnRemover) btnRemover.style.display = 'none';
+      const urlInput = document.getElementById('editReceitaUrlFoto');
+      if (urlInput) urlInput.value = '';
+      mostrarToast('Foto desvinculada! Ao salvar, esta receita será postada apenas como texto.');
+    }
 
     function aoSelecionarArquivoNovaFoto(event) {
       const file = event.target.files?.[0];
@@ -7013,13 +7069,18 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
         return;
       }
 
+      editFotoRemovida = false;
       const reader = new FileReader();
       reader.onload = function(e) {
         editNovaFotoBase64 = e.target.result;
         const preview = document.getElementById('editReceitaPreviewFoto');
-        if (preview) preview.src = editNovaFotoBase64;
+        if (preview) { preview.src = editNovaFotoBase64; preview.style.display = 'block'; }
+        const boxSemFoto = document.getElementById('editReceitaBoxSemFoto');
+        if (boxSemFoto) boxSemFoto.style.display = 'none';
         const badge = document.getElementById('editBadgeFotoAlterada');
         if (badge) badge.style.display = 'block';
+        const btnRemover = document.getElementById('btnRemoverFotoModal');
+        if (btnRemover) btnRemover.style.display = 'inline-block';
         mostrarToast('✨ Foto selecionada com sucesso! Clique em "Salvar Alterações".');
       };
       reader.readAsDataURL(file);
@@ -7040,10 +7101,15 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
         mostrarToast('Cole o link completo da imagem.', true);
         return;
       }
+      editFotoRemovida = false;
       const preview = document.getElementById('editReceitaPreviewFoto');
-      if (preview) preview.src = url;
+      if (preview) { preview.src = url; preview.style.display = 'block'; }
+      const boxSemFoto = document.getElementById('editReceitaBoxSemFoto');
+      if (boxSemFoto) boxSemFoto.style.display = 'none';
       const badge = document.getElementById('editBadgeFotoAlterada');
       if (badge) badge.style.display = 'block';
+      const btnRemover = document.getElementById('btnRemoverFotoModal');
+      if (btnRemover) btnRemover.style.display = 'inline-block';
       editNovaFotoBase64 = null;
       mostrarToast('Link aplicado no preview! Clique em "Salvar Alterações".');
     }
@@ -7080,6 +7146,7 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
           body: JSON.stringify({
             titulo,
             texto,
+            removerFoto: editFotoRemovida,
             novaImagemBase64: editNovaFotoBase64,
             novaImagemUrl: urlFoto
           })
@@ -7087,7 +7154,7 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
 
         const data = await resp.json();
         if (data.sucesso) {
-          mostrarToast('✅ Receita e foto atualizadas com sucesso!');
+          mostrarToast('✅ Receita atualizada com sucesso!');
           fecharModalEditarReceita();
           await carregarReceitas();
         } else {
@@ -7138,12 +7205,16 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
       <!-- Seção da Foto Gastronômica -->
       <div style="display: flex; gap: 1rem; align-items: flex-start; margin-bottom: 1.25rem; background: rgba(0,0,0,0.3); padding: 0.9rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color); flex-wrap: wrap;">
         <div style="position: relative; width: 120px; height: 120px; flex-shrink: 0; border-radius: var(--radius-sm); overflow: hidden; border: 1px solid var(--border-color); background: #111;">
-          <img id="editReceitaPreviewFoto" src="" alt="Foto da Receita" style="width: 100%; height: 100%; object-fit: cover;">
+          <img id="editReceitaPreviewFoto" src="" alt="Foto da Receita" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+          <div id="editReceitaBoxSemFoto" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: 0.5rem; text-align: center; color: var(--text-muted); font-size: 0.72rem;">
+            <span style="font-size: 1.8rem; margin-bottom: 2px;">📝</span>
+            <span style="line-height: 1.2;">Sem Foto<br><strong style="color: #fb923c;">Texto Puro</strong></span>
+          </div>
           <span id="editBadgeFotoAlterada" style="display: none; position: absolute; bottom: 0; left: 0; right: 0; background: #22c55e; color: #fff; font-size: 0.68rem; text-align: center; padding: 2px 4px; font-weight: 600;">Nova Foto</span>
         </div>
         <div style="flex: 1; min-width: 250px;">
           <label style="font-size: 0.82rem; font-weight: 600; color: #fff; margin-bottom: 0.4rem; display: block;">
-            📸 Trocar Fotografia do Prato:
+            📸 Fotografia Manual do Prato (Opcional):
           </label>
           <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.5rem;">
             <input type="file" id="editReceitaArquivoFoto" accept="image/*" style="display: none;" onchange="aoSelecionarArquivoNovaFoto(event)">
@@ -7153,6 +7224,9 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
             <button type="button" class="btn btn-secondary btn-sm" onclick="toggleInputUrlNovaFoto()" style="font-size: 0.78rem;">
               🔗 Colar Link de Imagem Web
             </button>
+            <button type="button" class="btn btn-secondary btn-sm" id="btnRemoverFotoModal" onclick="removerFotoModal()" style="display: none; font-size: 0.78rem; border-color: rgba(239, 68, 68, 0.4); color: #f87171;">
+              🗑 Remover Foto (Postar Só Texto)
+            </button>
           </div>
           <div id="boxInputUrlNovaFoto" style="display: none; margin-top: 0.5rem;">
             <div style="display: flex; gap: 0.4rem;">
@@ -7161,7 +7235,7 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
             </div>
           </div>
           <span style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-top: 0.35rem;">
-            ⚡ A nova foto será comprimida e otimizada automaticamente para 800x800 JPEG progressivo (~90-130 KB).
+            ⚡ Fotos manuais são automaticamente redimensionadas e otimizadas para <strong>800x800 JPEG progressivo (~90-130 KB)</strong> para entrega rápida no 3G. Se não colocar foto, o sistema postará somente a receita com perfeição!
           </span>
         </div>
       </div>

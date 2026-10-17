@@ -57,7 +57,7 @@ router.get('/auth/verify', (req, res) => {
  * Recebe arquivos de imagem ou vídeo via Base64, salva em public/uploads/ e retorna links
  * Body aceito: { base64: string, nome?: string }
  */
-router.post('/upload', (req, res) => {
+router.post('/upload', async (req, res) => {
   try {
     const { base64, nome } = req.body || {};
 
@@ -104,6 +104,18 @@ router.post('/upload', (req, res) => {
         sucesso: false,
         erro: 'O arquivo excede o limite máximo permitido de 25MB.'
       });
+    }
+
+    // Se for imagem (JPG, PNG, WEBP), processa e padroniza para 800x800 JPEG Progressivo 3G (~90-130 KB)
+    const isVideo = extensao.includes('mp4') || extensao.includes('webm');
+    if (!isVideo) {
+      try {
+        const receitasIaService = require('./receitasIaService');
+        buffer = await receitasIaService.otimizarImagemPara3G(buffer, 800, 80);
+        extensao = '.jpg';
+      } catch (errOpt) {
+        console.warn('[Upload] Aviso ao otimizar imagem para 3G:', errOpt.message);
+      }
     }
 
     const idRandom = crypto.randomBytes(4).toString('hex');
