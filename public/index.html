@@ -1771,6 +1771,300 @@
       align-items: center;
       gap: 0.5rem;
     }
+
+    /* ========================================================= */
+    /* 🚀 NOVO SISTEMA DE NAVEGAÇÃO 3 PILARES & EXPERIÊNCIA LEIGO */
+    /* ========================================================= */
+    .main-nav-bar {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+      background: rgba(13, 17, 28, 0.7);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .main-nav-bar {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .main-nav-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: var(--radius-sm);
+      padding: 0.85rem 1rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      text-align: left;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .main-nav-btn:hover {
+      background: rgba(255, 255, 255, 0.04);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.08);
+      transform: translateY(-1px);
+    }
+
+    .main-nav-btn.active {
+      background: linear-gradient(135deg, rgba(37, 211, 102, 0.14), rgba(56, 189, 248, 0.12));
+      border: 1px solid rgba(37, 211, 102, 0.45);
+      color: #fff;
+      box-shadow: 0 4px 18px rgba(37, 211, 102, 0.15);
+    }
+
+    .main-nav-btn .nav-icon {
+      font-size: 1.6rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      flex-shrink: 0;
+      transition: all 0.2s ease;
+    }
+
+    .main-nav-btn.active .nav-icon {
+      background: rgba(37, 211, 102, 0.2);
+      box-shadow: 0 0 15px rgba(37, 211, 102, 0.3);
+    }
+
+    .main-nav-btn .nav-text {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+      min-width: 0;
+    }
+
+    .main-nav-btn .nav-text strong {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .main-nav-btn .nav-text span {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .main-section-view {
+      display: none;
+    }
+
+    .main-section-view.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    /* Sub-bar de Conteúdos */
+    .content-hub-header {
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(168, 85, 247, 0.06));
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: var(--radius-md);
+      padding: 1.1rem 1.4rem;
+      margin-bottom: 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .sub-pills-bar {
+      display: flex;
+      gap: 0.5rem;
+      background: rgba(13, 17, 28, 0.85);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 0.4rem;
+      margin-bottom: 1.5rem;
+      overflow-x: auto;
+    }
+
+    .sub-pill-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: var(--radius-sm);
+      padding: 0.6rem 1.1rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.86rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+
+    .sub-pill-btn:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .sub-pill-btn.active {
+      color: #fff;
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(37, 211, 102, 0.2));
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      box-shadow: 0 2px 10px rgba(56, 189, 248, 0.15);
+    }
+
+    .sub-content-panel {
+      display: none;
+    }
+
+    .sub-content-panel.active {
+      display: block;
+      animation: fadeIn 0.25s ease;
+    }
+
+    .main-section-view .tab-content,
+    .sub-content-panel .tab-content,
+    .custom-modal-body .tab-content {
+      display: block !important;
+    }
+
+    /* Status Banner no Cockpit */
+    .cockpit-status-strip {
+      background: rgba(18, 24, 38, 0.85);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.85rem;
+    }
+
+    .cockpit-status-strip.connected {
+      border-color: rgba(37, 211, 102, 0.35);
+      background: linear-gradient(135deg, rgba(37, 211, 102, 0.08), rgba(18, 24, 38, 0.85));
+    }
+
+    .cockpit-status-strip.disconnected {
+      border-color: rgba(248, 113, 113, 0.35);
+      background: linear-gradient(135deg, rgba(248, 113, 113, 0.08), rgba(18, 24, 38, 0.85));
+    }
+
+    /* Modal Genérico Reutilizável */
+    .custom-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 8, 15, 0.82);
+      backdrop-filter: blur(14px);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem;
+      animation: modalFadeIn 0.25s ease;
+    }
+
+    .custom-modal-box {
+      background: rgba(18, 24, 38, 0.98);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 620px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(37, 211, 102, 0.12);
+      overflow: hidden;
+    }
+
+    .custom-modal-header {
+      padding: 1.2rem 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(11, 15, 25, 0.6);
+    }
+
+    .custom-modal-header h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-close-modal {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+    }
+
+    .btn-close-modal:hover {
+      background: rgba(248, 113, 113, 0.2);
+      color: #fff;
+      border-color: rgba(248, 113, 113, 0.4);
+    }
+
+    .custom-modal-body {
+      padding: 1.5rem;
+      overflow-y: auto;
+    }
+
+    /* Passos do Guia Rápido / Tutorial */
+    .guide-step-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1.2rem;
+      margin-bottom: 1rem;
+      transition: all 0.2s ease;
+    }
+
+    .guide-step-card:hover {
+      border-color: rgba(37, 211, 102, 0.3);
+      background: rgba(37, 211, 102, 0.02);
+    }
+
+    .guide-step-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .guide-step-number {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #0b0f19;
+      font-weight: 700;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
   </style>
 </head>
 <body>
@@ -1817,6 +2111,9 @@
     </div>
 
     <div class="auth-status-bar">
+      <button class="btn btn-secondary btn-sm" onclick="abrirGuiaIniciante()" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.75rem; font-size: 0.8rem; background: rgba(56, 189, 248, 0.12); border-color: rgba(56, 189, 248, 0.3); color: var(--accent-blue);" title="Guia passo a passo para iniciantes">
+        ❓ Guia Rápido
+      </button>
       <div class="auth-badge">
         <span>🔒</span> Autenticado
       </div>
@@ -1864,33 +2161,61 @@
           </p>
         </div>
         <div class="session-controls">
+          <button class="btn btn-primary btn-sm" onclick="abrirModalEnvioAvulso()" title="Enviar mensagem ou foto imediata" style="box-shadow: 0 0 15px var(--primary-glow);">
+            ⚡ Disparo Avulso
+          </button>
           <button class="btn btn-sm" id="btnConectar" onclick="conectarProjetoAtual()">▶ Conectar / QR</button>
           <button class="btn btn-secondary btn-sm" onclick="desconectarProjetoAtual()">⏸ Pausar</button>
           <button class="btn btn-danger btn-sm" onclick="excluirProjetoAtual()">🗑 Excluir</button>
         </div>
       </div>
 
-      <!-- Abas de Navegação -->
-      <div class="tabs">
-        <button class="tab-btn active" onclick="trocarAba('aba-qr', event)"><span class="tab-icon">📲</span> QR Code & Status</button>
-        <button class="tab-btn" onclick="trocarAba('aba-grade', event)"><span class="tab-icon">🗓️</span> Grade Diária</button>
-        <button class="tab-btn" onclick="trocarAba('aba-receitas', event)"><span class="tab-icon">🍳</span> Receitas IA (Mary)</button>
-        <button class="tab-btn" onclick="trocarAba('aba-rss', event)"><span class="tab-icon">📰</span> RSS Automático</button>
-        <button class="tab-btn" onclick="trocarAba('aba-campanhas', event)"><span class="tab-icon">🛍️</span> Ofertas & Imagens</button>
-        <button class="tab-btn" onclick="trocarAba('aba-fila', event)"><span class="tab-icon">📝</span> Fila Manual</button>
-        <button class="tab-btn" onclick="trocarAba('aba-envio', event)"><span class="tab-icon">💬</span> Enviar Mensagem</button>
-        <button class="tab-btn" onclick="trocarAba('aba-logs', event)"><span class="tab-icon">📜</span> Logs</button>
+      <!-- Navegação Principal Simplificada (3 Pilares) -->
+      <div class="main-nav-bar">
+        <button class="main-nav-btn active" id="btnNav-cockpit" onclick="navegarAbaPrincipal('cockpit', event)">
+          <span class="nav-icon">🚀</span>
+          <div class="nav-text">
+            <strong>1. Piloto Automático</strong>
+            <span>Grade do Dia &amp; Destinos</span>
+          </div>
+        </button>
+        <button class="main-nav-btn" id="btnNav-conteudo" onclick="navegarAbaPrincipal('conteudo', event)">
+          <span class="nav-icon">📦</span>
+          <div class="nav-text">
+            <strong>2. Central de Conteúdos</strong>
+            <span>Receitas, RSS, Ofertas &amp; Posts</span>
+          </div>
+        </button>
+        <button class="main-nav-btn" id="btnNav-config" onclick="navegarAbaPrincipal('config', event)">
+          <span class="nav-icon">⚙️</span>
+          <div class="nav-text">
+            <strong>3. Ajustes &amp; Conexões</strong>
+            <span>WhatsApp, Chaves IA &amp; Logs</span>
+          </div>
+        </button>
       </div>
 
-      <!-- Aba 1: QR Code & Conexão -->
-      <div id="aba-qr" class="tab-content active">
-        <div class="qr-container is-waiting" id="containerQr">
-          <div class="qr-loading">
-            <div class="spinner"></div>
-            <p id="qrTextoStatus">Verificando status da sessão...</p>
+      <!-- SEÇÃO 1: PILOTO AUTOMÁTICO (COCKPIT) -->
+      <div id="secao-cockpit" class="main-section-view active">
+        <!-- Status Rápido do WhatsApp no Cockpit -->
+        <div id="cockpitStatusStrip" class="cockpit-status-strip connected">
+          <div style="display: flex; align-items: center; gap: 0.85rem;">
+            <div style="width: 40px; height: 40px; border-radius: 10px; background: rgba(37, 211, 102, 0.15); display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+              📱
+            </div>
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span class="badge-dot" id="cockpitDotStatus" style="background: #4ade80;"></span>
+                <strong id="cockpitTextoConexao" style="font-size: 0.92rem; color: #fff;">WhatsApp Conectado</strong>
+              </div>
+              <span id="cockpitSubtextoConexao" style="font-size: 0.78rem; color: var(--text-muted);">Sessão sincronizada e pronta para disparos</span>
+            </div>
+          </div>
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <button class="btn btn-secondary btn-sm" onclick="verificarStatusEQr()" title="Testar integridade da conexão">🔄 Testar Conexão</button>
+            <button class="btn btn-secondary btn-sm" onclick="navegarAbaPrincipal('config')" title="Ver QR Code e Ajustes">⚙️ Ajustes</button>
           </div>
         </div>
-      </div>
 
       <!-- Aba: Grade Diária Mestra & Esteira -->
       <div id="aba-grade" class="tab-content">
@@ -2003,10 +2328,43 @@
             <!-- Renderizado dinamicamente -->
           </div>
         </div>
-      </div>
+      </div> <!-- Fim de #secao-cockpit -->
 
-      <!-- Aba: Receitas IA (Mary) -->
-      <div id="aba-receitas" class="tab-content">
+      <!-- SEÇÃO 2: CENTRAL DE CONTEÚDOS -->
+      <div id="secao-conteudo" class="main-section-view">
+        <div class="content-hub-header">
+          <div>
+            <h3 style="display: flex; align-items: center; gap: 0.5rem; color: #fff;">
+              📦 Central de Conteúdos
+            </h3>
+            <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 2px;">
+              Abasteça os 4 estoques de conteúdo que seu robô utiliza para disparar nos horários programados da Grade.
+            </p>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="navegarAbaPrincipal('cockpit')">
+            🗓️ Ver Horários no Piloto Automático →
+          </button>
+        </div>
+
+        <!-- Sub-Pills de Navegação entre Fontes -->
+        <div class="sub-pills-bar">
+          <button class="sub-pill-btn active" id="btnSub-sub-receitas" onclick="trocarSubConteudo('sub-receitas', event)">
+            🍳 Receitas IA (Mary)
+          </button>
+          <button class="sub-pill-btn" id="btnSub-sub-rss" onclick="trocarSubConteudo('sub-rss', event)">
+            📰 Notícias RSS
+          </button>
+          <button class="sub-pill-btn" id="btnSub-sub-campanhas" onclick="trocarSubConteudo('sub-campanhas', event)">
+            🛍️ Ofertas &amp; Shopee
+          </button>
+          <button class="sub-pill-btn" id="btnSub-sub-fila" onclick="trocarSubConteudo('sub-fila', event)">
+            📝 Meus Posts (Fila Manual)
+          </button>
+        </div>
+
+        <!-- Sub-Aba 1: Receitas IA (Mary) -->
+        <div id="sub-receitas" class="sub-content-panel active">
+          <div id="aba-receitas" class="tab-content">
         <!-- Banner de Destaque da Mary -->
         <div style="background: linear-gradient(135deg, rgba(251, 146, 60, 0.12), rgba(234, 88, 12, 0.05)); border: 1px solid rgba(251, 146, 60, 0.3); border-radius: var(--radius-md); padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
           <div style="display: flex; align-items: center; gap: 1rem;">
@@ -2212,9 +2570,11 @@
           </div>
         </div>
       </div>
+      </div> <!-- Fim de #sub-receitas -->
 
-      <!-- Aba 2: RSS Automático -->
-      <div id="aba-rss" class="tab-content">
+      <!-- Sub-Aba 2: RSS Automático -->
+      <div id="sub-rss" class="sub-content-panel">
+        <div id="aba-rss" class="tab-content">
         <!-- Card 1: Configuração do Feed -->
         <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
@@ -2335,9 +2695,11 @@
           </div>
         </div>
       </div>
+      </div> <!-- Fim de #sub-rss -->
 
-      <!-- Aba 3: Ofertas Shopee & Imagens Pré-programadas (Horários Vagos) -->
-      <div id="aba-campanhas" class="tab-content">
+      <!-- Sub-Aba 3: Ofertas Shopee & Imagens -->
+      <div id="sub-campanhas" class="sub-content-panel">
+        <div id="aba-campanhas" class="tab-content">
         <!-- Card 1: Configurações e Horários Vagos -->
         <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
@@ -2505,89 +2867,11 @@
           </div>
         </div>
       </div>
+      </div> <!-- Fim de #sub-campanhas -->
 
-      <!-- Aba 4: Envio Avulso Imediato -->
-      <div id="aba-envio" class="tab-content">
-        <form id="formEnvioAvulso" onsubmit="enviarMensagemAvulsa(event)">
-          <div class="form-row">
-            <div class="form-group">
-              <label for="envioTo">Destinatário (Telefone ou ID do Canal):</label>
-              <input type="text" id="envioTo" class="form-control" placeholder="5511999999999 ou 1203630...@newsletter" required>
-            </div>
-            <div class="form-group">
-              <label for="envioTipo">Tipo de Mensagem:</label>
-              <select id="envioTipo" class="form-control" onchange="aoMudarTipoEnvio()">
-                <option value="texto">Texto</option>
-                <option value="imagem">Imagem (URL)</option>
-                <option value="video">Vídeo (URL)</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="form-group" id="grupoEnvioUrl" style="display: none;">
-            <label for="envioUrl">Link da Mídia (Gerado automaticamente ao subir foto ou URL externa):</label>
-            <div style="display: flex; gap: 0.5rem;">
-              <input type="text" id="envioUrl" class="form-control" placeholder="https://exemplo.com/foto.jpg ou /uploads/..." oninput="aoDigitarUrl('envio')">
-              <button type="button" class="btn btn-secondary btn-sm" onclick="copiarLink('envio')" title="Copiar link gerado" style="white-space: nowrap;">📋 Copiar</button>
-            </div>
-            <p style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.3rem;">
-              💡 O link é gerado e preenchido automaticamente ao soltar um arquivo abaixo, ou cole um link web externo.
-            </p>
-          </div>
-
-          <!-- Dropzone de Upload Envio Avulso -->
-          <div class="form-group" id="grupoEnvioUpload" style="display: none;">
-            <label>Subir Imagem do Computador (Arrasta e Solta):</label>
-            <div class="dropzone" id="dropzoneEnvio" onclick="document.getElementById('inputArquivoEnvio').click()">
-              <input type="file" id="inputArquivoEnvio" accept="image/*,video/*" style="display: none;" onchange="aoSelecionarArquivo(event, 'envio')">
-              <div class="dropzone-content" id="dropzoneContentEnvio">
-                <div class="dropzone-icon">🖼️</div>
-                <div class="dropzone-text">
-                  <strong>Arraste e solte uma imagem aqui</strong> ou <span class="dropzone-browse">escolha no computador</span>
-                </div>
-                <div class="dropzone-hint">Gera o link da imagem e anexa automaticamente para envio (JPG, PNG, WEBP, GIF, MP4)</div>
-              </div>
-              <div class="dropzone-loading" id="dropzoneLoadingEnvio" style="display: none;">
-                <div class="spinner"></div>
-                <span>Processando upload e gerando link da imagem...</span>
-              </div>
-            </div>
-
-            <!-- Card de Prévia da Imagem / Vídeo -->
-            <div class="media-preview-card" id="previewMidiaEnvio" style="display: none;">
-              <div class="preview-thumb-container">
-                <img id="imgPreviewEnvio" src="" alt="Prévia" style="display: none;">
-                <video id="vidPreviewEnvio" src="" controls style="display: none;"></video>
-              </div>
-              <div class="preview-info">
-                <div class="preview-status"><span class="badge-dot" style="background: var(--primary);"></span> Imagem pronta & Link gerado</div>
-                <div class="preview-filename" id="previewNomeEnvio">imagem.jpg</div>
-                <div class="preview-meta" id="previewMetaEnvio">-- KB</div>
-                <div class="preview-url-copy">
-                  <span class="preview-url-text" id="previewUrlTextEnvio">/uploads/...</span>
-                  <button type="button" class="btn btn-secondary btn-sm" onclick="copiarLink('envio')">📋 Copiar Link</button>
-                </div>
-              </div>
-              <button type="button" class="preview-btn-remove" onclick="removerMidia('envio')" title="Remover mídia">✕</button>
-            </div>
-          </div>
-
-          <div class="form-group" id="grupoEnvioTexto">
-            <label for="envioTexto">Texto da Mensagem:</label>
-            <textarea id="envioTexto" class="form-control" placeholder="Digite sua mensagem aqui..."></textarea>
-          </div>
-
-          <div class="form-group" id="grupoEnvioLegenda" style="display: none;">
-            <label for="envioLegenda">Legenda da Mídia (Opcional):</label>
-            <textarea id="envioLegenda" class="form-control" placeholder="Legenda para a foto/vídeo..."></textarea>
-          </div>
-
-          <button type="submit" class="btn" id="btnEnviarMensagem">🚀 Enviar Mensagem Agora</button>
-        </form>
-      </div>
-
-      <!-- Aba 4: Fila de Agendamentos Manuais -->
-      <div id="aba-fila" class="tab-content">
+      <!-- Sub-Aba 4: Meus Posts (Fila Manual & Esteira) -->
+      <div id="sub-fila" class="sub-content-panel">
+        <div id="aba-fila" class="tab-content">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
           <h3 id="tituloFormFila">Agendar Nova Postagem Manual</h3>
           <button class="btn btn-secondary btn-sm" onclick="carregarFilaProjeto()">🔄 Atualizar Fila</button>
@@ -2748,15 +3032,42 @@
           </table>
         </div>
       </div>
+      </div> <!-- Fim de #sub-fila -->
+      </div> <!-- Fim de #secao-conteudo -->
 
-      <!-- Aba 5: Logs do Projeto -->
-      <div id="aba-logs" class="tab-content">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-          <h3>Logs em Tempo Real (<span id="logsContador">0</span> linhas)</h3>
-          <button class="btn btn-secondary btn-sm" onclick="carregarLogsProjeto()">🔄 Atualizar Logs</button>
+      <!-- SEÇÃO 3: AJUSTES & CONEXÕES -->
+      <div id="secao-config" class="main-section-view">
+        <!-- Card 1: Conexão WhatsApp & QR Code -->
+        <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
+          <h3 style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+            📲 Conexão WhatsApp Web (Baileys)
+          </h3>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+            Escaneie o QR Code abaixo com o aplicativo WhatsApp no seu celular (Aparelhos Conectados &gt; Conectar Aparelho).
+          </p>
+          <div id="aba-qr" class="tab-content active">
+            <div class="qr-container is-waiting" id="containerQr">
+              <div class="qr-loading">
+                <div class="spinner"></div>
+                <p id="qrTextoStatus">Verificando status da sessão...</p>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="logs-terminal" id="terminalLogs">Carregando logs...</div>
-      </div>
+
+        <!-- Card 2: Logs do Projeto -->
+        <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+          <div id="aba-logs" class="tab-content active">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+              <h3 style="display: flex; align-items: center; gap: 0.5rem;">
+                📜 Logs em Tempo Real (<span id="logsContador">0</span> linhas)
+              </h3>
+              <button class="btn btn-secondary btn-sm" onclick="carregarLogsProjeto()">🔄 Atualizar Logs</button>
+            </div>
+            <div class="logs-terminal" id="terminalLogs">Carregando logs...</div>
+          </div>
+        </div>
+      </div> <!-- Fim de #secao-config -->
 
     </section>
 
@@ -2774,6 +3085,157 @@
 
   <!-- Container de Toasts -->
   <div class="toast-container" id="toastContainer"></div>
+
+  <!-- MODAL DE DISPARO AVULSO / IMEDIATO -->
+  <div class="custom-modal-overlay" id="modalEnvioAvulso" style="display: none;" onclick="fecharModalEnvioAvulsoAoClicarFora(event)">
+    <div class="custom-modal-box">
+      <div class="custom-modal-header">
+        <h3>💬 Enviar Mensagem Avulsa Agora</h3>
+        <button class="btn-close-modal" onclick="fecharModalEnvioAvulso()">✕</button>
+      </div>
+      <div class="custom-modal-body">
+        <div id="aba-envio" class="tab-content active">
+          <form id="formEnvioAvulso" onsubmit="enviarMensagemAvulsa(event)">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="envioTo">Destinatário (Telefone ou ID do Canal):</label>
+                <input type="text" id="envioTo" class="form-control" placeholder="5511999999999 ou 1203630...@newsletter" required>
+              </div>
+              <div class="form-group">
+                <label for="envioTipo">Tipo de Mensagem:</label>
+                <select id="envioTipo" class="form-control" onchange="aoMudarTipoEnvio()">
+                  <option value="texto">Texto</option>
+                  <option value="imagem">Imagem (URL)</option>
+                  <option value="video">Vídeo (URL)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group" id="grupoEnvioUrl" style="display: none;">
+              <label for="envioUrl">Link da Mídia (Gerado automaticamente ao subir foto ou URL externa):</label>
+              <div style="display: flex; gap: 0.5rem;">
+                <input type="text" id="envioUrl" class="form-control" placeholder="https://exemplo.com/foto.jpg ou /uploads/..." oninput="aoDigitarUrl('envio')">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="copiarLink('envio')" title="Copiar link gerado" style="white-space: nowrap;">📋 Copiar</button>
+              </div>
+              <p style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.3rem;">
+                💡 O link é gerado e preenchido automaticamente ao soltar um arquivo abaixo, ou cole um link web externo.
+              </p>
+            </div>
+
+            <!-- Dropzone de Upload Envio Avulso -->
+            <div class="form-group" id="grupoEnvioUpload" style="display: none;">
+              <label>Subir Imagem do Computador (Arrasta e Solta):</label>
+              <div class="dropzone" id="dropzoneEnvio" onclick="document.getElementById('inputArquivoEnvio').click()">
+                <input type="file" id="inputArquivoEnvio" accept="image/*,video/*" style="display: none;" onchange="aoSelecionarArquivo(event, 'envio')">
+                <div class="dropzone-content" id="dropzoneContentEnvio">
+                  <div class="dropzone-icon">🖼️</div>
+                  <div class="dropzone-text">
+                    <strong>Arraste e solte uma imagem aqui</strong> ou <span class="dropzone-browse">escolha no computador</span>
+                  </div>
+                  <div class="dropzone-hint">Gera o link da imagem e anexa automaticamente para envio (JPG, PNG, WEBP, GIF, MP4)</div>
+                </div>
+                <div class="dropzone-loading" id="dropzoneLoadingEnvio" style="display: none;">
+                  <div class="spinner"></div>
+                  <span>Processando upload e gerando link da imagem...</span>
+                </div>
+              </div>
+
+              <!-- Card de Prévia da Imagem / Vídeo -->
+              <div class="media-preview-card" id="previewMidiaEnvio" style="display: none;">
+                <div class="preview-thumb-container">
+                  <img id="imgPreviewEnvio" src="" alt="Prévia" style="display: none;">
+                  <video id="vidPreviewEnvio" src="" controls style="display: none;"></video>
+                </div>
+                <div class="preview-info">
+                  <div class="preview-status"><span class="badge-dot" style="background: var(--primary);"></span> Imagem pronta & Link gerado</div>
+                  <div class="preview-filename" id="previewNomeEnvio">imagem.jpg</div>
+                  <div class="preview-meta" id="previewMetaEnvio">-- KB</div>
+                  <div class="preview-url-copy">
+                    <span class="preview-url-text" id="previewUrlTextEnvio">/uploads/...</span>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="copiarLink('envio')">📋 Copiar Link</button>
+                  </div>
+                </div>
+                <button type="button" class="preview-btn-remove" onclick="removerMidia('envio')" title="Remover mídia">✕</button>
+              </div>
+            </div>
+
+            <div class="form-group" id="grupoEnvioTexto">
+              <label for="envioTexto">Texto da Mensagem:</label>
+              <textarea id="envioTexto" class="form-control" placeholder="Digite sua mensagem aqui..."></textarea>
+            </div>
+
+            <div class="form-group" id="grupoEnvioLegenda" style="display: none;">
+              <label for="envioLegenda">Legenda da Mídia (Opcional):</label>
+              <textarea id="envioLegenda" class="form-control" placeholder="Legenda para a foto/vídeo..."></textarea>
+            </div>
+
+            <button type="submit" class="btn" id="btnEnviarMensagem">🚀 Enviar Mensagem Agora</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DO GUIA DO INICIANTE (ONBOARDING) -->
+  <div class="custom-modal-overlay" id="modalGuiaIniciante" style="display: none;" onclick="fecharGuiaAoClicarFora(event)">
+    <div class="custom-modal-box" style="max-width: 680px;">
+      <div class="custom-modal-header">
+        <h3>🚀 Guia Passo a Passo: Colocando o 8zap no Ar</h3>
+        <button class="btn-close-modal" onclick="fecharGuiaIniciante()">✕</button>
+      </div>
+      <div class="custom-modal-body">
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+          Siga estes 4 passos simples para ativar suas publicações automáticas no WhatsApp:
+        </p>
+
+        <div class="guide-step-card">
+          <div class="guide-step-header">
+            <span class="guide-step-number">1</span>
+            <strong style="color: #fff; font-size: 0.95rem;">Conectar seu WhatsApp</strong>
+          </div>
+          <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.5;">
+            Abra a aba <strong>⚙️ 3. Ajustes &amp; Conexões</strong>, e aponte a câmera do WhatsApp do celular para o QR Code (no WhatsApp: Aparelhos Conectados &gt; Conectar Aparelho).
+          </p>
+        </div>
+
+        <div class="guide-step-card">
+          <div class="guide-step-header">
+            <span class="guide-step-number">2</span>
+            <strong style="color: #fff; font-size: 0.95rem;">Escolher seus Canais de Destino</strong>
+          </div>
+          <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.5;">
+            Na aba <strong>🚀 1. Piloto Automático</strong>, marque os canais (@newsletter) ou grupos onde o robô deve postar. Você só precisa escolher uma vez!
+          </p>
+        </div>
+
+        <div class="guide-step-card">
+          <div class="guide-step-header">
+            <span class="guide-step-number">3</span>
+            <strong style="color: #fff; font-size: 0.95rem;">Abastecer a Central de Conteúdos</strong>
+          </div>
+          <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.5;">
+            Na aba <strong>📦 2. Central de Conteúdos</strong>, gere receitas apetitosas com fotos da Mary (IA), cadastre o link do seu site de notícias (RSS), ou adicione ofertas da Shopee e posts manuais.
+          </p>
+        </div>
+
+        <div class="guide-step-card">
+          <div class="guide-step-header">
+            <span class="guide-step-number">4</span>
+            <strong style="color: #fff; font-size: 0.95rem;">Ligar a Chave do Piloto Automático!</strong>
+          </div>
+          <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.5;">
+            Volte para a aba <strong>🚀 1. Piloto Automático</strong> e ative a chave <em>"Grade Ativa"</em>. Seu robô cuidará das postagens sozinho no horário exato!
+          </p>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; margin-top: 1.25rem;">
+          <button class="btn btn-primary" onclick="fecharGuiaIniciante(); navegarAbaPrincipal('cockpit');">
+            Entendido! Ir para o Piloto Automático 🚀
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script>
     // Estado da Aplicação
@@ -3011,7 +3473,7 @@
       };
 
       atualizarCabecalhoProjeto(sessao);
-      trocarAba('aba-qr');
+      navegarAbaPrincipal('cockpit');
       verificarStatusEQr();
       carregarConfiguracaoRss();
       carregarGradeProjeto();
@@ -3147,62 +3609,154 @@
       }
     }
 
-    // Gestão de Abas
-    function trocarAba(idAba, evt) {
-      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+    // =========================================================
+    // 🚀 GESTÃO DE NAVEGAÇÃO 3 PILARES & COMPATIBILIDADE TOTAL
+    // =========================================================
+    let abaPrincipalAtiva = 'cockpit';
+    let subConteudoAtivo = 'sub-receitas';
+
+    function navegarAbaPrincipal(nomeAba, evt) {
+      abaPrincipalAtiva = nomeAba;
+      document.querySelectorAll('.main-nav-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.main-section-view').forEach(sec => sec.classList.remove('active'));
 
       if (evt && evt.target) {
-        const btnClicado = evt.target.closest('.tab-btn') || evt.target;
+        const btnClicado = evt.target.closest('.main-nav-btn') || evt.target;
         btnClicado.classList.add('active');
       } else {
-        const btn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick')?.includes(idAba));
-        if (btn) {
-          btn.classList.add('active');
-          btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-        }
+        const btn = document.getElementById(`btnNav-${nomeAba}`);
+        if (btn) btn.classList.add('active');
       }
 
-      const targetTab = document.getElementById(idAba);
-      if (targetTab) targetTab.classList.add('active');
+      const secaoAlvo = document.getElementById(`secao-${nomeAba}`);
+      if (secaoAlvo) secaoAlvo.classList.add('active');
 
-      if (idAba === 'aba-qr') {
-        iniciarPollingQr();
-      } else {
+      if (nomeAba === 'cockpit') {
         pararPollingQr();
-      }
-
-      if (idAba === 'aba-grade') {
         carregarGradeProjeto();
         carregarDestinosGrade();
+      } else if (nomeAba === 'conteudo') {
+        pararPollingQr();
+        trocarSubConteudo(subConteudoAtivo);
+      } else if (nomeAba === 'config') {
+        iniciarPollingQr();
+        carregarLogsProjeto();
+      }
+    }
+
+    function trocarSubConteudo(subId, evt) {
+      subConteudoAtivo = subId;
+      document.querySelectorAll('.sub-pill-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.sub-content-panel').forEach(panel => panel.classList.remove('active'));
+
+      if (evt && evt.target) {
+        const btnClicado = evt.target.closest('.sub-pill-btn') || evt.target;
+        btnClicado.classList.add('active');
+      } else {
+        const btn = document.getElementById(`btnSub-${subId}`);
+        if (btn) btn.classList.add('active');
       }
 
-      if (idAba === 'aba-receitas') {
+      const panelAlvo = document.getElementById(subId);
+      if (panelAlvo) panelAlvo.classList.add('active');
+
+      if (subId === 'sub-receitas') {
         carregarConfigReceitas();
         carregarReceitas();
         carregarDestinosReceitas();
-      }
-
-      if (idAba === 'aba-rss') {
+      } else if (subId === 'sub-rss') {
         carregarConfiguracaoRss();
         carregarDestinosRss();
         carregarArtigosERssStats();
         carregarHistoricoRss();
-      }
-
-      if (idAba === 'aba-campanhas') {
+      } else if (subId === 'sub-campanhas') {
         carregarConfiguracaoCampanhas();
         carregarDestinosCampanhas();
         carregarItensCampanhas();
-      }
-
-      if (idAba === 'aba-fila') {
+      } else if (subId === 'sub-fila') {
         carregarFilaProjeto();
         carregarCanaisFila();
       }
+    }
 
-      if (idAba === 'aba-logs') {
-        carregarLogsProjeto();
+    // Modal de Disparo Rápido Avulso
+    function abrirModalEnvioAvulso() {
+      const modal = document.getElementById('modalEnvioAvulso');
+      if (modal) modal.style.display = 'flex';
+      aoMudarTipoEnvio();
+    }
+
+    function fecharModalEnvioAvulso() {
+      const modal = document.getElementById('modalEnvioAvulso');
+      if (modal) modal.style.display = 'none';
+    }
+
+    function fecharModalEnvioAvulsoAoClicarFora(e) {
+      if (e.target.id === 'modalEnvioAvulso') {
+        fecharModalEnvioAvulso();
+      }
+    }
+
+    // Modal do Guia Rápido (Onboarding)
+    function abrirGuiaIniciante() {
+      const modal = document.getElementById('modalGuiaIniciante');
+      if (modal) modal.style.display = 'flex';
+    }
+
+    function fecharGuiaIniciante() {
+      const modal = document.getElementById('modalGuiaIniciante');
+      if (modal) modal.style.display = 'none';
+    }
+
+    function fecharGuiaAoClicarFora(e) {
+      if (e.target.id === 'modalGuiaIniciante') {
+        fecharGuiaIniciante();
+      }
+    }
+
+    // Atualiza banner dinâmico do Cockpit
+    function atualizarCockpitStatus(conectado, tel = '') {
+      const strip = document.getElementById('cockpitStatusStrip');
+      const dot = document.getElementById('cockpitDotStatus');
+      const texto = document.getElementById('cockpitTextoConexao');
+      const subtexto = document.getElementById('cockpitSubtextoConexao');
+      if (!strip || !dot || !texto || !subtexto) return;
+
+      if (conectado) {
+        strip.className = 'cockpit-status-strip connected';
+        dot.style.background = '#4ade80';
+        texto.innerText = `WhatsApp Conectado (${tel})`;
+        subtexto.innerText = `Sessão ativa e sincronizada no projeto "${projetoSelecionado || ''}". Postagens automáticas prontas.`;
+      } else {
+        strip.className = 'cockpit-status-strip disconnected';
+        dot.style.background = '#f87171';
+        texto.innerText = 'WhatsApp Desconectado';
+        subtexto.innerHTML = 'O WhatsApp precisa estar pareado para que o robô possa disparar. <a href="javascript:void(0)" onclick="navegarAbaPrincipal(\'config\')" style="color:var(--accent-blue);font-weight:600;text-decoration:underline;">Clique aqui para escanear o QR Code</a>';
+      }
+    }
+
+    // Wrapper de compatibilidade total com chamadas legadas
+    function trocarAba(idAba, evt) {
+      if (idAba === 'aba-grade' || idAba === 'cockpit') {
+        navegarAbaPrincipal('cockpit');
+      } else if (idAba === 'aba-receitas') {
+        navegarAbaPrincipal('conteudo');
+        trocarSubConteudo('sub-receitas');
+      } else if (idAba === 'aba-rss') {
+        navegarAbaPrincipal('conteudo');
+        trocarSubConteudo('sub-rss');
+      } else if (idAba === 'aba-campanhas') {
+        navegarAbaPrincipal('conteudo');
+        trocarSubConteudo('sub-campanhas');
+      } else if (idAba === 'aba-fila') {
+        navegarAbaPrincipal('conteudo');
+        trocarSubConteudo('sub-fila');
+      } else if (idAba === 'aba-qr') {
+        navegarAbaPrincipal('config');
+      } else if (idAba === 'aba-logs') {
+        navegarAbaPrincipal('config');
+      } else if (idAba === 'aba-envio') {
+        abrirModalEnvioAvulso();
       }
     }
 
@@ -3234,6 +3788,7 @@
         if (data.status === 'connected') {
           container.className = 'qr-container is-connected';
           const telFormatado = formatarNumeroTelefone(data.usuarioConectado);
+          atualizarCockpitStatus(true, telFormatado);
           container.innerHTML = `
             <div class="session-connected-card">
               <!-- Hero Banner -->
@@ -3347,6 +3902,7 @@
           `;
           carregarListaSessoes();
         } else if (data.qr) {
+          atualizarCockpitStatus(false);
           container.className = 'qr-container is-waiting';
           container.innerHTML = `
             <div class="qr-box-modern">
@@ -3375,6 +3931,7 @@
             </div>
           `;
         } else {
+          atualizarCockpitStatus(false);
           container.className = 'qr-container is-waiting';
           container.innerHTML = `
             <div class="qr-loading">
