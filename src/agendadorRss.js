@@ -83,17 +83,22 @@ function formatarMensagemArtigo(artigo, config = {}, projectId = 'Receitas') {
   const linkOriginal = artigo.link || '';
   const link = utmManager.anexarUtm(linkOriginal, 'rss', projectId);
 
+  const reacaoGatilhos = require('./reacaoGatilhos');
+  let textoFinal = '';
+
   if (config.templateMensagem && typeof config.templateMensagem === 'string' && config.templateMensagem.trim().length > 0) {
-    return config.templateMensagem
+    textoFinal = config.templateMensagem
       .replace(/\{abertura\}/gi, abertura)
       .replace(/\{titulo\}/gi, titulo)
       .replace(/\{resumo\}/gi, resumo)
       .replace(/\{link\}/gi, link);
+  } else {
+    // Formato padrão estruturado com abertura sorteada
+    const blocoResumo = resumo ? `\n\n${resumo}` : '';
+    textoFinal = `${abertura}\n\n🍲 *${titulo}*${blocoResumo}\n\n👉 *Toque no link abaixo para ver os ingredientes e o modo de preparo completo:*\n🔗 ${link}`;
   }
 
-  // Formato padrão estruturado com abertura sorteada
-  const blocoResumo = resumo ? `\n\n${resumo}` : '';
-  return `${abertura}\n\n🍲 *${titulo}*${blocoResumo}\n\n👉 *Toque no link abaixo para ver os ingredientes e o modo de preparo completo:*\n🔗 ${link}`;
+  return reacaoGatilhos.aplicarGatilhoReacao(textoFinal, { categoria: 'artigos', projectId });
 }
 
 /**

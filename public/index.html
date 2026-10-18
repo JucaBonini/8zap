@@ -2426,6 +2426,12 @@
           <button class="sub-pill-btn" id="btnSub-sub-utms" onclick="trocarSubConteudo('sub-utms', event)" style="border-color: rgba(168, 85, 247, 0.4); color: #c084fc;">
             🎯 Controle de UTMs &amp; Métricas
           </button>
+          <button class="sub-pill-btn" id="btnSub-sub-gatilhos" onclick="trocarSubConteudo('sub-gatilhos', event)" style="border-color: rgba(239, 68, 68, 0.4); color: #f87171;">
+            🔥 Gatilhos de Reação
+          </button>
+          <button class="sub-pill-btn" id="btnSub-sub-antiban" onclick="trocarSubConteudo('sub-antiban', event)" style="border-color: rgba(34, 197, 94, 0.4); color: #4ade80;">
+            🛡️ Blindagem &amp; Anti-Ban
+          </button>
         </div>
 
         <!-- Sub-Aba 1: Receitas IA (Mary) -->
@@ -3086,12 +3092,13 @@
                 <option value="texto">Texto</option>
                 <option value="imagem">Imagem</option>
                 <option value="video">Vídeo</option>
+                <option value="audio">🎤 Áudio (Gravado na Hora - PTT)</option>
               </select>
             </div>
             <div class="form-group" id="grupoAgendaUrl" style="display: none;">
-              <label for="agendaUrl">Link da Mídia (Gerado automaticamente ao subir foto ou URL externa):</label>
+              <label for="agendaUrl">Link da Mídia (Gerado automaticamente ao subir arquivo ou URL externa):</label>
               <div style="display: flex; gap: 0.5rem;">
-                <input type="text" id="agendaUrl" class="form-control" placeholder="https://exemplo.com/midia.jpg ou /uploads/..." oninput="aoDigitarUrl('agenda')">
+                <input type="text" id="agendaUrl" class="form-control" placeholder="https://exemplo.com/audio.mp3 ou /uploads/..." oninput="aoDigitarUrl('agenda')">
                 <button type="button" class="btn btn-secondary btn-sm" onclick="copiarLink('agenda')" title="Copiar link gerado" style="white-space: nowrap;">📋 Copiar</button>
               </div>
               <p style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.3rem;">
@@ -3102,38 +3109,40 @@
 
           <!-- Dropzone de Upload Fila Manual -->
           <div class="form-group" id="grupoAgendaUpload" style="display: none;">
-            <label>Subir Imagem do Computador (Arrasta e Solta):</label>
+            <label>Subir Mídia do Computador (Arrasta e Solta):</label>
             <div class="dropzone" id="dropzoneAgenda" onclick="document.getElementById('inputArquivoAgenda').click()">
-              <input type="file" id="inputArquivoAgenda" accept="image/*,video/*" style="display: none;" onchange="aoSelecionarArquivo(event, 'agenda')">
+              <input type="file" id="inputArquivoAgenda" accept="image/*,video/*,audio/*" style="display: none;" onchange="aoSelecionarArquivo(event, 'agenda')">
               <div class="dropzone-content" id="dropzoneContentAgenda">
-                <div class="dropzone-icon">🖼️</div>
+                <div class="dropzone-icon">📁</div>
                 <div class="dropzone-text">
-                  <strong>Arraste e solte sua imagem aqui</strong> ou <span class="dropzone-browse">escolha no computador</span>
+                  <strong>Arraste e solte uma imagem, vídeo ou áudio aqui</strong> ou <span class="dropzone-browse">escolha no computador</span>
                 </div>
-                <div class="dropzone-hint">Gera o link da imagem e anexa automaticamente ao agendamento (JPG, PNG, WEBP, GIF, MP4)</div>
+                <div class="dropzone-hint">Suporta JPG, PNG, WEBP, GIF, MP4, MP3, OGG, M4A, WAV (até 25MB)</div>
               </div>
               <div class="dropzone-loading" id="dropzoneLoadingAgenda" style="display: none;">
                 <div class="spinner"></div>
-                <span>Processando upload e gerando link da imagem...</span>
+                <span>Processando upload e gerando link da mídia...</span>
               </div>
             </div>
 
-            <!-- Card de Prévia da Imagem / Vídeo -->
+            <!-- Card de Prévia da Imagem / Vídeo / Áudio -->
             <div class="media-preview-card" id="previewMidiaAgenda" style="display: none;">
               <div class="preview-thumb-container">
                 <img id="imgPreviewAgenda" src="" alt="Prévia" style="display: none;">
                 <video id="vidPreviewAgenda" src="" controls style="display: none;"></video>
+                <div id="iconAudioBoxAgenda" style="display: none; font-size: 2.2rem; text-align: center; padding: 10px;">🎤</div>
               </div>
-              <div class="preview-info">
-                <div class="preview-status"><span class="badge-dot" style="background: var(--primary);"></span> Imagem pronta & Link gerado</div>
-                <div class="preview-filename" id="previewNomeAgenda">imagem.jpg</div>
+              <div class="preview-info" style="flex: 1;">
+                <div class="preview-status"><span class="badge-dot" style="background: var(--primary);"></span> Mídia pronta &amp; Link gerado</div>
+                <div class="preview-filename" id="previewNomeAgenda">arquivo.mp3</div>
                 <div class="preview-meta" id="previewMetaAgenda">-- KB</div>
+                <audio id="audPreviewAgenda" controls style="display: none; width: 100%; margin: 6px 0 4px 0; height: 32px;"></audio>
                 <div class="preview-url-copy">
                   <span class="preview-url-text" id="previewUrlTextAgenda">/uploads/...</span>
                   <button type="button" class="btn btn-secondary btn-sm" onclick="copiarLink('agenda')">📋 Copiar Link</button>
                 </div>
               </div>
-              <button type="button" class="preview-btn-remove" onclick="removerMidia('agenda')" title="Remover imagem">✕</button>
+              <button type="button" class="preview-btn-remove" onclick="removerMidia('agenda')" title="Remover mídia">✕</button>
             </div>
           </div>
 
@@ -3608,6 +3617,349 @@
           </div>
         </div>
       </div> <!-- Fim de #sub-utms -->
+
+      <!-- Sub-Aba 7: Gatilhos de Reação (Algoritmo do WhatsApp Channels) -->
+      <div id="sub-gatilhos" class="sub-content-panel">
+        <!-- Banner Principal -->
+        <div style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.12), rgba(220, 38, 38, 0.05)); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: var(--radius-md); padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div style="display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #ef4444, #b91c1c); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; box-shadow: 0 0 20px rgba(239, 68, 68, 0.35);">
+              🔥
+            </div>
+            <div>
+              <h2 style="font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 0.2rem;">Gatilhos de Reação &amp; Algoritmo do WhatsApp</h2>
+              <p style="font-size: 0.82rem; color: var(--text-muted); max-width: 680px;">
+                Canais com alta taxa de reações (🔥, ❤️, 😋, 👏) ganham destaque prioritário no topo da aba <strong>"Atualizações"</strong> do WhatsApp. Chamadas magnéticas no rodapé multiplicam o engajamento orgânico das suas postagens!
+              </p>
+            </div>
+          </div>
+          <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <label style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0; cursor: pointer; background: rgba(0,0,0,0.3); padding: 0.5rem 0.85rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+              <input type="checkbox" id="gatilhoAtivoGlobal" style="width: 18px; height: 18px; accent-color: #ef4444;" onchange="salvarConfigGatilhosForm()">
+              <strong style="color: #fff; font-size: 0.85rem;">Gatilhos Ativos nos Envios</strong>
+            </label>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
+          <!-- Card de Configuração e Onde Aplicar -->
+          <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 1.25rem;">
+            <div>
+              <h3 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: #fff; display: flex; align-items: center; gap: 0.5rem;">
+                🎯 Onde Aplicar os Gatilhos
+              </h3>
+              <p style="font-size: 0.78rem; color: var(--text-muted); margin: 0;">
+                Escolha em quais tipos de postagem o robô deve anexar automaticamente o pedido de reação com emojis.
+              </p>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 0.75rem; background: rgba(0,0,0,0.15); padding: 0.85rem; border-radius: var(--radius-sm); border: 1px solid rgba(255,255,255,0.05);">
+              <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; margin: 0;">
+                <input type="checkbox" id="gatilhoAplicaReceitas" style="width: 16px; height: 16px; accent-color: #ef4444;" onchange="salvarConfigGatilhosForm()">
+                <span style="font-size: 0.85rem; color: #fff;">🍳 Receitas da Mary (Receitas IA)</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; margin: 0;">
+                <input type="checkbox" id="gatilhoAplicaRss" style="width: 16px; height: 16px; accent-color: #ef4444;" onchange="salvarConfigGatilhosForm()">
+                <span style="font-size: 0.85rem; color: #fff;">📰 Notícias &amp; Artigos RSS do Site</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; margin: 0;">
+                <input type="checkbox" id="gatilhoAplicaCampanhas" style="width: 16px; height: 16px; accent-color: #ef4444;" onchange="salvarConfigGatilhosForm()">
+                <span style="font-size: 0.85rem; color: #fff;">🛍️ Ofertas &amp; Achadinhos Shopee</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; margin: 0;">
+                <input type="checkbox" id="gatilhoAplicaManual" style="width: 16px; height: 16px; accent-color: #ef4444;" onchange="salvarConfigGatilhosForm()">
+                <span style="font-size: 0.85rem; color: #fff;">📝 Meus Posts (Fila Manual / Esteira)</span>
+              </label>
+            </div>
+
+            <!-- Modo de Funcionamento -->
+            <div>
+              <h3 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: #fff; display: flex; align-items: center; gap: 0.5rem;">
+                ⚙️ Modo de Funcionamento
+              </h3>
+              <div style="display: flex; flex-direction: column; gap: 0.6rem;">
+                <label style="display: flex; align-items: flex-start; gap: 0.6rem; cursor: pointer; background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color); margin: 0;">
+                  <input type="radio" name="modoGatilho" value="rotativo" id="modoGatilhoRotativo" checked onchange="aoMudarModoGatilho()" style="margin-top: 3px; accent-color: #ef4444;">
+                  <div>
+                    <strong style="color: #fff; font-size: 0.85rem; display: block;">🎲 Rotativo Automático Inteligente (Recomendado)</strong>
+                    <span style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-top: 2px;">
+                      Alterna dinamicamente entre perguntas envolventes e pedidos de emojis a cada postagem para manter a audiência curiosa e ativa.
+                    </span>
+                  </div>
+                </label>
+
+                <label style="display: flex; align-items: flex-start; gap: 0.6rem; cursor: pointer; background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color); margin: 0;">
+                  <input type="radio" name="modoGatilho" value="personalizado" id="modoGatilhoPersonalizado" onchange="aoMudarModoGatilho()" style="margin-top: 3px; accent-color: #ef4444;">
+                  <div>
+                    <strong style="color: #fff; font-size: 0.85rem; display: block;">✏️ Texto Fixo Personalizado</strong>
+                    <span style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-top: 2px;">
+                      Usa uma frase fixa definida por você em todas as mensagens disparadas.
+                    </span>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <!-- Caixa de Texto Personalizado -->
+            <div id="boxGatilhoPersonalizado" style="display: none;">
+              <label style="font-size: 0.8rem; font-weight: 600; color: #fff; margin-bottom: 0.35rem; display: block;">
+                Frase Personalizada de Reação:
+              </label>
+              <textarea id="inputGatilhoPersonalizado" class="form-control" style="min-height: 80px; font-size: 0.82rem;" placeholder="Ex: 💬 Se você quer que eu mande a versão de sobremesa amanhã, reaja com 🔥 ou ❤️!" oninput="atualizarPreviewGatilho()"></textarea>
+              <div style="display: flex; gap: 0.35rem; margin-top: 0.5rem; flex-wrap: wrap;">
+                <span style="font-size: 0.72rem; color: var(--text-muted); margin-right: 0.3rem; align-self: center;">Emojis rápidos:</span>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="inserirEmojiGatilho('🔥')" style="padding: 0.15rem 0.4rem; font-size: 0.8rem;">🔥</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="inserirEmojiGatilho('❤️')" style="padding: 0.15rem 0.4rem; font-size: 0.8rem;">❤️</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="inserirEmojiGatilho('😋')" style="padding: 0.15rem 0.4rem; font-size: 0.8rem;">😋</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="inserirEmojiGatilho('👏')" style="padding: 0.15rem 0.4rem; font-size: 0.8rem;">👏</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="inserirEmojiGatilho('👍')" style="padding: 0.15rem 0.4rem; font-size: 0.8rem;">👍</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="inserirEmojiGatilho('😍')" style="padding: 0.15rem 0.4rem; font-size: 0.8rem;">😍</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="inserirEmojiGatilho('💬')" style="padding: 0.15rem 0.4rem; font-size: 0.8rem;">💬</button>
+              </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="salvarConfigGatilhosForm()" style="background: linear-gradient(135deg, #ef4444, #b91c1c); border: none;">
+              💾 Salvar Configurações de Gatilhos
+            </button>
+          </div>
+
+          <!-- Card do Simulador / Preview Visual no WhatsApp -->
+          <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+              <div>
+                <h3 style="margin: 0; font-size: 1rem; color: #fff; display: flex; align-items: center; gap: 0.5rem;">
+                  📱 Prévia ao Vivo no Canal do WhatsApp
+                </h3>
+                <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">
+                  Veja exatamente como seus seguidores verão a mensagem e o gatilho.
+                </p>
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="atualizarPreviewGatilho(true)" style="font-size: 0.75rem;">
+                🎲 Sortear Outro Exemplo
+              </button>
+            </div>
+
+            <!-- Balão de Mensagem Estilo WhatsApp -->
+            <div style="background: #0b141a; border-radius: var(--radius-sm); padding: 1.25rem; border: 1px solid rgba(255,255,255,0.08); flex: 1; display: flex; flex-direction: column; justify-content: center;">
+              <div style="background: #1f2c34; border-radius: 8px; padding: 0.85rem 1rem; max-width: 95%; margin: 0 auto; box-shadow: 0 2px 8px rgba(0,0,0,0.4); position: relative;">
+                <!-- Cabeçalho do Post Simulado -->
+                <div style="font-size: 0.85rem; color: #e9edef; line-height: 1.45; white-space: pre-wrap;" id="previewTextoExemplo">🍲 *BOLO DE CENOURA COM CHOCOLATE*
+
+Uma receita prática, fofinha e deliciosa para o café da tarde!
+
+👉 *Veja o passo a passo completo no link:*
+🔗 https://descomplicandoreceitas.com.br/bolo-cenoura/</div>
+
+                <!-- Gatilho de Reação em Destaque -->
+                <div id="previewGatilhoExemplo" style="margin-top: 0.85rem; padding-top: 0.75rem; border-top: 1px dashed rgba(255,255,255,0.15); font-size: 0.85rem; color: #fca5a5; font-weight: 500;">
+                  💬 *Se você quer que eu mande a versão de sobremesa amanhã, reaja com 🔥 ou ❤️!*
+                </div>
+
+                <!-- Simulação dos Botões de Reação do WhatsApp -->
+                <div style="margin-top: 0.65rem; display: flex; gap: 0.4rem; align-items: center;">
+                  <span style="background: #111b21; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 2px 7px; font-size: 0.72rem; color: #8696a0; display: inline-flex; align-items: center; gap: 3px;">
+                    🔥 <strong style="color: #fff;">184</strong>
+                  </span>
+                  <span style="background: #111b21; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 2px 7px; font-size: 0.72rem; color: #8696a0; display: inline-flex; align-items: center; gap: 3px;">
+                    ❤️ <strong style="color: #fff;">342</strong>
+                  </span>
+                  <span style="background: #111b21; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 2px 7px; font-size: 0.72rem; color: #8696a0; display: inline-flex; align-items: center; gap: 3px;">
+                    😋 <strong style="color: #fff;">97</strong>
+                  </span>
+                  <span style="font-size: 0.68rem; color: #8696a0; margin-left: auto;">11:45</span>
+                </div>
+              </div>
+
+              <!-- Dica de Algoritmo -->
+              <div style="margin-top: 1rem; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 6px; padding: 0.6rem 0.85rem; font-size: 0.75rem; color: #fca5a5; display: flex; align-items: center; gap: 0.5rem;">
+                <span>💡</span>
+                <span>Cada reação recebida sinaliza ao WhatsApp que seu canal é relevante, impulsionando a entrega para novos usuários na busca de canais.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card: Catálogo de Frases Prontas -->
+        <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+          <div style="margin-bottom: 1rem;">
+            <h3 style="margin: 0; font-size: 1rem; color: #fff; display: flex; align-items: center; gap: 0.5rem;">
+              📚 Biblioteca de Gatilhos Testados &amp; Prontos
+            </h3>
+            <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">
+              Clique em <strong>Usar Este</strong> para fixar qualquer modelo como sua frase padrão ou copie para usar em envios avulsos.
+            </p>
+          </div>
+
+          <div id="containerCatalogoGatilhos" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 0.85rem;">
+            <!-- Preenchido via JavaScript -->
+          </div>
+        </div>
+      </div> <!-- Fim de #sub-gatilhos -->
+
+      <!-- Sub-Aba 8: Blindagem & Anti-Ban -->
+      <div id="sub-antiban" class="sub-content-panel">
+        <!-- Banner Principal -->
+        <div style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.12), rgba(16, 185, 129, 0.05)); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: var(--radius-md); padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div style="display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #22c55e, #16a34a); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; box-shadow: 0 0 20px rgba(34, 197, 94, 0.35);">
+              🛡️
+            </div>
+            <div>
+              <h2 style="font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 0.2rem;">Blindagem Anti-Ban &amp; Saúde do Chip</h2>
+              <p style="font-size: 0.82rem; color: var(--text-muted); max-width: 680px;">
+                Proteja seu número contra denúncias e bloqueios algorítmicos. Simula digitação humana nativa, aplica variação orgânica (Jitter) nos envios e processa descadastros automáticos (Opt-out) com Blacklist permanente.
+              </p>
+            </div>
+          </div>
+          <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <label style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0; cursor: pointer; background: rgba(0,0,0,0.3); padding: 0.5rem 0.85rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+              <input type="checkbox" id="antibanAtivoGlobal" style="width: 18px; height: 18px; accent-color: #22c55e;" onchange="salvarConfigAntiBanForm()">
+              <strong style="color: #fff; font-size: 0.85rem;">Blindagem Ativa</strong>
+            </label>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
+          <!-- Card 1: Comportamento Humano (Presence & Jitter) -->
+          <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 1rem;">
+            <div>
+              <h3 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: #fff; display: flex; align-items: center; gap: 0.5rem;">
+                ✍️ Simulação de Digitação Humana
+              </h3>
+              <p style="font-size: 0.78rem; color: var(--text-muted); margin: 0;">
+                Envia sinais reais de presença antes de disparar. No WhatsApp do destinatário aparece <em>"digitando..."</em> ou <em>"gravando áudio..."</em>. (Ignorado automaticamente em Canais).
+              </p>
+            </div>
+
+            <div style="background: rgba(0,0,0,0.15); padding: 0.85rem; border-radius: var(--radius-sm); border: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; gap: 0.75rem;">
+              <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; margin: 0;">
+                <input type="checkbox" id="antibanDigitacaoAtiva" style="width: 16px; height: 16px; accent-color: #22c55e;" onchange="salvarConfigAntiBanForm()">
+                <strong style="font-size: 0.85rem; color: #fff;">Simular "Digitando..." e "Gravando Áudio"</strong>
+              </label>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 0.25rem;">
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label style="font-size: 0.72rem; color: var(--text-muted);">Tempo Mínimo (ms):</label>
+                  <input type="number" id="antibanTempoMin" class="form-control" value="2500" min="1000" step="500" style="font-size: 0.8rem; padding: 0.35rem 0.6rem;">
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label style="font-size: 0.72rem; color: var(--text-muted);">Tempo Máximo (ms):</label>
+                  <input type="number" id="antibanTempoMax" class="form-control" value="5000" min="2000" step="500" style="font-size: 0.8rem; padding: 0.35rem 0.6rem;">
+                </div>
+              </div>
+
+              <span style="font-size: 0.72rem; color: var(--text-muted);">
+                ⚡ Mensagens mais longas recebem automaticamente mais tempo de simulação para reproduzir a velocidade real de leitura e digitação de uma pessoa.
+              </span>
+            </div>
+
+            <!-- Jitter de Intervalos -->
+            <div style="background: rgba(0,0,0,0.15); padding: 0.85rem; border-radius: var(--radius-sm); border: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; gap: 0.75rem;">
+              <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; margin: 0;">
+                <input type="checkbox" id="antibanJitterAtivo" style="width: 16px; height: 16px; accent-color: #22c55e;" onchange="salvarConfigAntiBanForm()">
+                <strong style="font-size: 0.85rem; color: #fff;">Intervalo Irregular (Jitter Anti-Robô)</strong>
+              </label>
+
+              <div class="form-group" style="margin-bottom: 0;">
+                <label style="font-size: 0.72rem; color: var(--text-muted);">Variação Orgânica nos Envios (± %):</label>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                  <input type="range" id="antibanJitterPercentual" min="10" max="50" step="5" value="30" style="flex: 1; accent-color: #22c55e;" oninput="document.getElementById('valJitterDisplay').innerText = this.value + '%'">
+                  <span id="valJitterDisplay" style="font-size: 0.85rem; font-weight: 700; color: #4ade80; min-width: 45px;">30%</span>
+                </div>
+              </div>
+              <span style="font-size: 0.72rem; color: var(--text-muted);">
+                Quebra o padrão perfeitamente matemático do cronômetro. Disparos com intervalo de 20s acontecerão em 16s, 23s, 19s, 25s...
+              </span>
+            </div>
+          </div>
+
+          <!-- Card 2: Descadastro Inteligente (Opt-out) -->
+          <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 1rem;">
+            <div>
+              <h3 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: #fff; display: flex; align-items: center; gap: 0.5rem;">
+                🛑 Descadastro Automático (Opt-out)
+              </h3>
+              <p style="font-size: 0.78rem; color: var(--text-muted); margin: 0;">
+                Evita o botão "Denunciar Spam". Se o usuário responder palavras de saída no privado, ele é bloqueado de futuros disparos instantaneamente.
+              </p>
+            </div>
+
+            <div style="background: rgba(0,0,0,0.15); padding: 0.85rem; border-radius: var(--radius-sm); border: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; gap: 0.75rem;">
+              <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; margin: 0;">
+                <input type="checkbox" id="antibanOptOutAtivo" style="width: 16px; height: 16px; accent-color: #22c55e;" onchange="salvarConfigAntiBanForm()">
+                <strong style="font-size: 0.85rem; color: #fff;">Ativar Interceptador de Opt-out no WhatsApp</strong>
+              </label>
+
+              <div class="form-group" style="margin-bottom: 0;">
+                <label style="font-size: 0.72rem; color: var(--text-muted);">Palavras-chave Monitoradas (separadas por vírgula):</label>
+                <input type="text" id="antibanPalavrasChave" class="form-control" value="sair, parar, cancelar, nao quero, não quero, remover, descadastrar, stop" style="font-size: 0.8rem; padding: 0.35rem 0.6rem;">
+              </div>
+
+              <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; margin: 0.25rem 0 0 0;">
+                <input type="checkbox" id="antibanResponderConfirmacao" style="width: 15px; height: 15px; accent-color: #22c55e;">
+                <span style="font-size: 0.8rem; color: #fff;">Enviar mensagem educada de despedida</span>
+              </label>
+
+              <div class="form-group" style="margin-bottom: 0;">
+                <label style="font-size: 0.72rem; color: var(--text-muted);">Mensagem de Confirmação do Descadastro:</label>
+                <textarea id="antibanRespostaOptOut" class="form-control" rows="2" style="font-size: 0.78rem; line-height: 1.4; resize: vertical;"></textarea>
+              </div>
+            </div>
+
+            <button class="btn" onclick="salvarConfigAntiBanForm()" style="width: 100%; background: #22c55e; border: none; font-weight: 600;">
+              💾 Salvar Configurações de Blindagem
+            </button>
+          </div>
+        </div>
+
+        <!-- Card 3: Lista Negra de Contatos (Blacklist) -->
+        <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+            <div>
+              <h3 style="margin: 0; font-size: 1rem; color: #fff; display: flex; align-items: center; gap: 0.5rem;">
+                🚫 Blacklist de Contatos Protegidos
+                <span id="badgeTotalBlacklist" class="badge" style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); font-size: 0.75rem;">0 contatos</span>
+              </h3>
+              <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">
+                Números cadastrados aqui nunca receberão mensagens automáticas da Fila ou de Campanhas.
+              </p>
+            </div>
+
+            <!-- Adicionar Número Manualmente -->
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <input type="text" id="inputAddBlacklistNumero" class="form-control" placeholder="5511999999999 ou JID" style="width: 220px; font-size: 0.8rem; padding: 0.35rem 0.6rem;">
+              <button class="btn btn-secondary btn-sm" onclick="adicionarBlacklistManualBtn()" style="font-size: 0.78rem;">
+                ➕ Bloquear Número
+              </button>
+              <button class="btn btn-secondary btn-sm" onclick="carregarAntiBanProjeto()" style="font-size: 0.78rem;">
+                🔄 Atualizar
+              </button>
+            </div>
+          </div>
+
+          <!-- Tabela de Blacklist -->
+          <div style="overflow-x: auto;">
+            <table class="table" style="width: 100%; font-size: 0.8rem;">
+              <thead>
+                <tr>
+                  <th>Telefone / JID</th>
+                  <th>Motivo</th>
+                  <th>Origem</th>
+                  <th>Data de Inclusão</th>
+                  <th style="text-align: right;">Ação</th>
+                </tr>
+              </thead>
+              <tbody id="tabelaCorpoBlacklist">
+                <tr>
+                  <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">
+                    Nenhum contato descadastrado ainda. A Blacklist está limpa!
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div> <!-- Fim de #sub-antiban -->
       </div> <!-- Fim de #secao-conteudo -->
 
       <!-- SEÇÃO 3: AJUSTES & CONEXÕES -->
@@ -3826,14 +4178,15 @@
                   <option value="texto">Texto</option>
                   <option value="imagem">Imagem (URL)</option>
                   <option value="video">Vídeo (URL)</option>
+                  <option value="audio">🎤 Áudio (Gravado na Hora - PTT)</option>
                 </select>
               </div>
             </div>
 
             <div class="form-group" id="grupoEnvioUrl" style="display: none;">
-              <label for="envioUrl">Link da Mídia (Gerado automaticamente ao subir foto ou URL externa):</label>
+              <label for="envioUrl">Link da Mídia (Gerado automaticamente ao subir arquivo ou URL externa):</label>
               <div style="display: flex; gap: 0.5rem;">
-                <input type="text" id="envioUrl" class="form-control" placeholder="https://exemplo.com/foto.jpg ou /uploads/..." oninput="aoDigitarUrl('envio')">
+                <input type="text" id="envioUrl" class="form-control" placeholder="https://exemplo.com/audio.mp3 ou /uploads/..." oninput="aoDigitarUrl('envio')">
                 <button type="button" class="btn btn-secondary btn-sm" onclick="copiarLink('envio')" title="Copiar link gerado" style="white-space: nowrap;">📋 Copiar</button>
               </div>
               <p style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.3rem;">
@@ -3843,32 +4196,34 @@
 
             <!-- Dropzone de Upload Envio Avulso -->
             <div class="form-group" id="grupoEnvioUpload" style="display: none;">
-              <label>Subir Imagem do Computador (Arrasta e Solta):</label>
+              <label>Subir Mídia do Computador (Arrasta e Solta):</label>
               <div class="dropzone" id="dropzoneEnvio" onclick="document.getElementById('inputArquivoEnvio').click()">
-                <input type="file" id="inputArquivoEnvio" accept="image/*,video/*" style="display: none;" onchange="aoSelecionarArquivo(event, 'envio')">
+                <input type="file" id="inputArquivoEnvio" accept="image/*,video/*,audio/*" style="display: none;" onchange="aoSelecionarArquivo(event, 'envio')">
                 <div class="dropzone-content" id="dropzoneContentEnvio">
-                  <div class="dropzone-icon">🖼️</div>
+                  <div class="dropzone-icon">📁</div>
                   <div class="dropzone-text">
-                    <strong>Arraste e solte uma imagem aqui</strong> ou <span class="dropzone-browse">escolha no computador</span>
+                    <strong>Arraste e solte uma imagem, vídeo ou áudio aqui</strong> ou <span class="dropzone-browse">escolha no computador</span>
                   </div>
-                  <div class="dropzone-hint">Gera o link da imagem e anexa automaticamente para envio (JPG, PNG, WEBP, GIF, MP4)</div>
+                  <div class="dropzone-hint">Suporta JPG, PNG, WEBP, GIF, MP4, MP3, OGG, M4A, WAV (até 25MB)</div>
                 </div>
                 <div class="dropzone-loading" id="dropzoneLoadingEnvio" style="display: none;">
                   <div class="spinner"></div>
-                  <span>Processando upload e gerando link da imagem...</span>
+                  <span>Processando upload e gerando link da mídia...</span>
                 </div>
               </div>
 
-              <!-- Card de Prévia da Imagem / Vídeo -->
+              <!-- Card de Prévia da Imagem / Vídeo / Áudio -->
               <div class="media-preview-card" id="previewMidiaEnvio" style="display: none;">
                 <div class="preview-thumb-container">
                   <img id="imgPreviewEnvio" src="" alt="Prévia" style="display: none;">
                   <video id="vidPreviewEnvio" src="" controls style="display: none;"></video>
+                  <div id="iconAudioBoxEnvio" style="display: none; font-size: 2.2rem; text-align: center; padding: 10px;">🎤</div>
                 </div>
-                <div class="preview-info">
-                  <div class="preview-status"><span class="badge-dot" style="background: var(--primary);"></span> Imagem pronta & Link gerado</div>
-                  <div class="preview-filename" id="previewNomeEnvio">imagem.jpg</div>
+                <div class="preview-info" style="flex: 1;">
+                  <div class="preview-status"><span class="badge-dot" style="background: var(--primary);"></span> Mídia pronta &amp; Link gerado</div>
+                  <div class="preview-filename" id="previewNomeEnvio">arquivo.mp3</div>
                   <div class="preview-meta" id="previewMetaEnvio">-- KB</div>
+                  <audio id="audPreviewEnvio" controls style="display: none; width: 100%; margin: 6px 0 4px 0; height: 32px;"></audio>
                   <div class="preview-url-copy">
                     <span class="preview-url-text" id="previewUrlTextEnvio">/uploads/...</span>
                     <button type="button" class="btn btn-secondary btn-sm" onclick="copiarLink('envio')">📋 Copiar Link</button>
@@ -4404,6 +4759,10 @@
       } else if (subId === 'sub-utms') {
         carregarConfigUtm();
         carregarEstatisticasPonte();
+      } else if (subId === 'sub-gatilhos') {
+        carregarConfigGatilhos();
+      } else if (subId === 'sub-antiban') {
+        carregarAntiBanProjeto();
       }
     }
 
@@ -5041,9 +5400,10 @@
 
       const ehImagem = file.type.startsWith('image/');
       const ehVideo = file.type.startsWith('video/');
+      const ehAudio = file.type.startsWith('audio/') || file.name.match(/\.(mp3|ogg|m4a|wav|aac|opus)$/i);
 
-      if (!ehImagem && !ehVideo) {
-        mostrarToast('Selecione um arquivo de imagem (PNG, JPG, WEBP, GIF) ou vídeo.', true);
+      if (!ehImagem && !ehVideo && !ehAudio) {
+        mostrarToast('Selecione um arquivo de imagem, vídeo ou áudio (MP3, OGG, WAV, M4A).', true);
         return;
       }
 
@@ -5087,17 +5447,28 @@
           inputUrl.value = data.url;
         }
 
+        const tipoDetectado = data.tipo || (ehAudio ? 'audio' : (ehVideo ? 'video' : 'imagem'));
+
+        // Sincroniza seletor de tipo de envio automaticamente
+        const seletorTipo = document.getElementById(contexto === 'agenda' ? 'agendaTipo' : 'envioTipo');
+        if (seletorTipo) {
+          seletorTipo.value = tipoDetectado;
+          if (contexto === 'agenda') aoMudarTipoAgenda();
+          else aoMudarTipoEnvio();
+        }
+
         exibirPreviewMidia(contexto, {
           url: data.url,
           urlCompleta: data.urlCompleta,
           nome: file.name,
           tamanho: file.size,
-          tipo: ehVideo ? 'video' : 'imagem'
+          tipo: tipoDetectado
         });
 
-        mostrarToast(`✅ Imagem enviada! Link gerado: ${data.url}`);
+        const labelMidia = tipoDetectado === 'audio' ? 'Áudio PTT' : (tipoDetectado === 'video' ? 'Vídeo' : 'Imagem');
+        mostrarToast(`✅ ${labelMidia} enviado! Link gerado: ${data.url}`);
       } catch (err) {
-        mostrarToast(`Erro ao subir imagem: ${err.message}`, true);
+        mostrarToast(`Erro ao subir arquivo: ${err.message}`, true);
       } finally {
         if (contentEl) contentEl.style.display = 'block';
         if (loadingEl) loadingEl.style.display = 'none';
@@ -5111,6 +5482,8 @@
       const card = document.getElementById(`previewMidia${idSufixo}`);
       const img = document.getElementById(`imgPreview${idSufixo}`);
       const vid = document.getElementById(`vidPreview${idSufixo}`);
+      const aud = document.getElementById(`audPreview${idSufixo}`);
+      const iconAudio = document.getElementById(`iconAudioBox${idSufixo}`);
       const nomeEl = document.getElementById(`previewNome${idSufixo}`);
       const metaEl = document.getElementById(`previewMeta${idSufixo}`);
       const urlTextEl = document.getElementById(`previewUrlText${idSufixo}`);
@@ -5118,16 +5491,29 @@
       if (!card) return;
 
       const url = dados.url || dados.urlCompleta || '';
-      const ehVideo = dados.tipo === 'video' || url.match(/\.(mp4|webm|mov)(\?.*)?$/i);
+      const ehAudio = dados.tipo === 'audio' || url.match(/\.(mp3|ogg|m4a|wav|aac|opus)(\?.*)?$/i);
+      const ehVideo = !ehAudio && (dados.tipo === 'video' || url.match(/\.(mp4|webm|mov)(\?.*)?$/i));
 
-      if (ehVideo) {
+      if (ehAudio) {
         if (img) img.style.display = 'none';
+        if (vid) { vid.src = ''; vid.style.display = 'none'; }
+        if (iconAudio) iconAudio.style.display = 'block';
+        if (aud) {
+          aud.src = url;
+          aud.style.display = 'block';
+        }
+      } else if (ehVideo) {
+        if (img) img.style.display = 'none';
+        if (iconAudio) iconAudio.style.display = 'none';
+        if (aud) { aud.src = ''; aud.style.display = 'none'; }
         if (vid) {
           vid.src = url;
           vid.style.display = 'block';
         }
       } else {
-        if (vid) vid.style.display = 'none';
+        if (vid) { vid.src = ''; vid.style.display = 'none'; }
+        if (iconAudio) iconAudio.style.display = 'none';
+        if (aud) { aud.src = ''; aud.style.display = 'none'; }
         if (img) {
           img.src = url;
           img.style.display = 'block';
@@ -5141,7 +5527,7 @@
           const mb = (dados.tamanho / (1024 * 1024)).toFixed(2);
           metaEl.innerText = dados.tamanho > 1024 * 1024 ? `${mb} MB` : `${kb} KB`;
         } else {
-          metaEl.innerText = 'Mídia vinculada';
+          metaEl.innerText = ehAudio ? 'Áudio PTT vinculado' : 'Mídia vinculada';
         }
       }
       if (urlTextEl) urlTextEl.innerText = url;
@@ -5154,12 +5540,16 @@
       const card = document.getElementById(`previewMidia${idSufixo}`);
       const img = document.getElementById(`imgPreview${idSufixo}`);
       const vid = document.getElementById(`vidPreview${idSufixo}`);
+      const aud = document.getElementById(`audPreview${idSufixo}`);
+      const iconAudio = document.getElementById(`iconAudioBox${idSufixo}`);
       const inputUrl = document.getElementById(contexto === 'agenda' ? 'agendaUrl' : 'envioUrl');
       const fileInput = document.getElementById(`inputArquivo${idSufixo}`);
 
       if (card) card.style.display = 'none';
       if (img) { img.src = ''; img.style.display = 'none'; }
       if (vid) { vid.src = ''; vid.style.display = 'none'; }
+      if (aud) { aud.src = ''; aud.style.display = 'none'; }
+      if (iconAudio) iconAudio.style.display = 'none';
       if (inputUrl) inputUrl.value = '';
       if (fileInput) fileInput.value = '';
     }
@@ -5173,10 +5563,21 @@
         return;
       }
 
+      const ehAudio = val.match(/\.(mp3|ogg|m4a|wav|aac|opus)(\?.*)?$/i);
+      const ehVideo = !ehAudio && val.match(/\.(mp4|webm|mov)(\?.*)?$/i);
+      const tipoDetectado = ehAudio ? 'audio' : (ehVideo ? 'video' : 'imagem');
+
+      const seletorTipo = document.getElementById(contexto === 'agenda' ? 'agendaTipo' : 'envioTipo');
+      if (seletorTipo && ehAudio) {
+        seletorTipo.value = 'audio';
+        if (contexto === 'agenda') aoMudarTipoAgenda();
+        else aoMudarTipoEnvio();
+      }
+
       exibirPreviewMidia(contexto, {
         url: val,
         nome: val.split('/').pop() || 'Mídia externa',
-        tipo: val.match(/\.(mp4|webm|mov)(\?.*)?$/i) ? 'video' : 'imagem'
+        tipo: tipoDetectado
       });
     }
 
@@ -5211,6 +5612,11 @@
         grupoUrl.style.display = 'none';
         if (grupoUpload) grupoUpload.style.display = 'none';
         grupoTexto.style.display = 'block';
+        grupoLegenda.style.display = 'none';
+      } else if (tipo === 'audio') {
+        grupoUrl.style.display = 'block';
+        if (grupoUpload) grupoUpload.style.display = 'block';
+        grupoTexto.style.display = 'none';
         grupoLegenda.style.display = 'none';
       } else {
         grupoUrl.style.display = 'block';
@@ -5394,6 +5800,11 @@
         if (grupoUpload) grupoUpload.style.display = 'none';
         grupoTexto.style.display = 'block';
         grupoLegenda.style.display = 'none';
+      } else if (tipo === 'audio') {
+        grupoUrl.style.display = 'block';
+        if (grupoUpload) grupoUpload.style.display = 'block';
+        grupoTexto.style.display = 'none';
+        grupoLegenda.style.display = 'none';
       } else {
         grupoUrl.style.display = 'block';
         if (grupoUpload) grupoUpload.style.display = 'block';
@@ -5430,7 +5841,7 @@
         exibirPreviewMidia('agenda', {
           url: item.url,
           nome: item.url.split('/').pop() || 'Arquivo de mídia',
-          tipo: item.tipo === 'video' ? 'video' : 'imagem'
+          tipo: item.tipo === 'audio' ? 'audio' : (item.tipo === 'video' ? 'video' : 'imagem')
         });
       } else {
         removerMidia('agenda');
@@ -5668,6 +6079,8 @@
 
           const conteudo = item.tipo === 'texto' 
             ? (item.texto.length > 40 ? item.texto.substring(0, 40) + '...' : item.texto)
+            : item.tipo === 'audio'
+            ? `<span style="color: #4ade80; font-weight: 600;">🎤 Áudio PTT</span> <a href="${item.url}" target="_blank" style="color:var(--accent-blue); text-decoration:none; margin-left: 4px;">▶️ Ouvir</a>`
             : `<a href="${item.url}" target="_blank" style="color:var(--accent-blue); text-decoration:none;">🔗 Ver Mídia</a> ${item.legenda ? ' - ' + item.legenda.substring(0, 20) : ''}`;
 
           const dataFormatada = (item.esteira || !item.agendado_para)
@@ -8136,9 +8549,14 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
                       ` : '<span style="color: var(--text-muted); font-size: 0.72rem;">--</span>'}
                     </td>
                     <td>
-                      <button class="btn btn-danger btn-sm" onclick="removerItemFilaFacebookBtn('${item.id}')" title="Excluir do histórico" style="padding: 0.2rem 0.45rem; font-size: 0.72rem;">
-                        🗑
-                      </button>
+                      <div style="display: flex; gap: 0.35rem; align-items: center;">
+                        <button class="btn btn-secondary btn-sm" onclick="recolocarFilaFacebookBtn('${item.id}')" title="Colocar de volta na esteira de espera para disparar novamente" style="padding: 0.2rem 0.45rem; font-size: 0.72rem; color: #60a5fa;">
+                          🔁 Fila
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="removerItemFilaFacebookBtn('${item.id}')" title="Excluir do histórico" style="padding: 0.2rem 0.45rem; font-size: 0.72rem;">
+                          🗑
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 `;
@@ -8148,6 +8566,25 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
         }
       } catch (err) {
         console.error('Erro ao carregar fila do Facebook:', err);
+      }
+    }
+
+    async function recolocarFilaFacebookBtn(id) {
+      if (!projetoSelecionado) return;
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/facebook/fila/${id}/recolocar`, {
+          method: 'POST',
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+        if (data.sucesso) {
+          mostrarToast('🔁 Post recolocado na Esteira do Facebook com sucesso!');
+          await carregarFilaFacebook();
+        } else {
+          mostrarToast(`Erro: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro: ${err.message}`, true);
       }
     }
 
@@ -8503,6 +8940,368 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
           btn.disabled = false;
           btn.innerHTML = txtOriginal;
         }
+      }
+    }
+
+    // ==========================================
+    // MÓDULO DE GATILHOS DE REAÇÃO (WHATSAPP)
+    // ==========================================
+
+    let configGatilhosCache = null;
+    let catalogoGatilhosCache = null;
+
+    async function carregarConfigGatilhos() {
+      if (!projetoSelecionado) return;
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/gatilhos-reacao`, {
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+        if (data.sucesso) {
+          configGatilhosCache = data.config;
+          catalogoGatilhosCache = data.catalogo;
+          renderizarConfigGatilhos(data.config, data.catalogo);
+        }
+      } catch (err) {
+        console.error('Erro ao carregar gatilhos de reação:', err);
+      }
+    }
+
+    function renderizarConfigGatilhos(config, catalogo) {
+      if (!config) return;
+
+      const chkGlobal = document.getElementById('gatilhoAtivoGlobal');
+      if (chkGlobal) chkGlobal.checked = Boolean(config.ativo);
+
+      const chkReceitas = document.getElementById('gatilhoAplicaReceitas');
+      if (chkReceitas) chkReceitas.checked = Boolean(config.aplicarEmReceitas);
+
+      const chkRss = document.getElementById('gatilhoAplicaRss');
+      if (chkRss) chkRss.checked = Boolean(config.aplicarEmRss);
+
+      const chkCampanhas = document.getElementById('gatilhoAplicaCampanhas');
+      if (chkCampanhas) chkCampanhas.checked = Boolean(config.aplicarEmCampanhas);
+
+      const chkManual = document.getElementById('gatilhoAplicaManual');
+      if (chkManual) chkManual.checked = Boolean(config.aplicarEmFilaManual);
+
+      const rdoRotativo = document.getElementById('modoGatilhoRotativo');
+      const rdoPersonalizado = document.getElementById('modoGatilhoPersonalizado');
+      if (config.modo === 'personalizado') {
+        if (rdoPersonalizado) rdoPersonalizado.checked = true;
+      } else {
+        if (rdoRotativo) rdoRotativo.checked = true;
+      }
+
+      const inputTexto = document.getElementById('inputGatilhoPersonalizado');
+      if (inputTexto) inputTexto.value = config.textoPersonalizado || '';
+
+      aoMudarModoGatilho();
+      atualizarPreviewGatilho();
+      renderizarCatalogoGatilhos(catalogo);
+    }
+
+    function aoMudarModoGatilho() {
+      const modo = document.querySelector('input[name="modoGatilho"]:checked')?.value || 'rotativo';
+      const box = document.getElementById('boxGatilhoPersonalizado');
+      if (box) {
+        box.style.display = modo === 'personalizado' ? 'block' : 'none';
+      }
+      atualizarPreviewGatilho();
+    }
+
+    function inserirEmojiGatilho(emoji) {
+      const input = document.getElementById('inputGatilhoPersonalizado');
+      if (!input) return;
+      input.value = (input.value || '') + emoji;
+      input.focus();
+      atualizarPreviewGatilho();
+    }
+
+    function usarGatilhoCatalogo(texto) {
+      const rdoPersonalizado = document.getElementById('modoGatilhoPersonalizado');
+      if (rdoPersonalizado) rdoPersonalizado.checked = true;
+      const input = document.getElementById('inputGatilhoPersonalizado');
+      if (input) input.value = texto;
+      aoMudarModoGatilho();
+      salvarConfigGatilhosForm();
+      mostrarToast('✅ Gatilho selecionado e salvo como padrão!');
+    }
+
+    async function atualizarPreviewGatilho(forcarSorteio = false) {
+      const modo = document.querySelector('input[name="modoGatilho"]:checked')?.value || 'rotativo';
+      const elemGatilho = document.getElementById('previewGatilhoExemplo');
+      if (!elemGatilho) return;
+
+      if (modo === 'personalizado') {
+        const textoCustom = (document.getElementById('inputGatilhoPersonalizado')?.value || '').trim();
+        elemGatilho.innerText = textoCustom || '💬 Se você quer que eu mande a versão de sobremesa amanhã, reaja com 🔥 ou ❤️!';
+      } else {
+        if (catalogoGatilhosCache && catalogoGatilhosCache.culinaria) {
+          const lista = catalogoGatilhosCache.culinaria;
+          const idx = Math.floor(Math.random() * lista.length);
+          elemGatilho.innerText = lista[idx];
+        } else {
+          elemGatilho.innerText = '💬 *Se você quer que eu mande a versão de sobremesa amanhã, reaja com 🔥 ou ❤️!*';
+        }
+      }
+    }
+
+    function renderizarCatalogoGatilhos(catalogo) {
+      const container = document.getElementById('containerCatalogoGatilhos');
+      if (!container || !catalogo) return;
+
+      const todas = [
+        ...(catalogo.culinaria || []).map(f => ({ categoria: '🍳 Culinária & Mary', texto: f })),
+        ...(catalogo.artigos || []).map(f => ({ categoria: '📰 Notícias & Artigos', texto: f })),
+        ...(catalogo.campanhas || []).map(f => ({ categoria: '🛍️ Ofertas & Shopee', texto: f }))
+      ];
+
+      container.innerHTML = todas.map(item => `
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 0.85rem; display: flex; flex-direction: column; justify-content: space-between; gap: 0.5rem;">
+          <div>
+            <span style="font-size: 0.68rem; color: #ef4444; font-weight: 700; text-transform: uppercase;">${item.categoria}</span>
+            <p style="margin: 0.35rem 0 0 0; font-size: 0.8rem; color: #e9edef; line-height: 1.4;">${item.texto}</p>
+          </div>
+          <div style="display: flex; justify-content: flex-end; gap: 0.4rem; padding-top: 0.4rem; border-top: 1px solid rgba(255,255,255,0.05);">
+            <button class="btn btn-secondary btn-sm" onclick="navigator.clipboard.writeText('${item.texto.replace(/'/g, "\\'")}'); mostrarToast('📋 Copiado para a área de transferência!');" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;">
+              📋 Copiar
+            </button>
+            <button class="btn btn-primary btn-sm" onclick="usarGatilhoCatalogo('${item.texto.replace(/'/g, "\\'")}')" style="font-size: 0.72rem; padding: 0.2rem 0.5rem; background: #ef4444; border: none;">
+              ✨ Usar Este
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function salvarConfigGatilhosForm() {
+      if (!projetoSelecionado) return;
+
+      const payload = {
+        ativo: document.getElementById('gatilhoAtivoGlobal')?.checked ?? true,
+        aplicarEmReceitas: document.getElementById('gatilhoAplicaReceitas')?.checked ?? true,
+        aplicarEmRss: document.getElementById('gatilhoAplicaRss')?.checked ?? true,
+        aplicarEmCampanhas: document.getElementById('gatilhoAplicaCampanhas')?.checked ?? true,
+        aplicarEmFilaManual: document.getElementById('gatilhoAplicaManual')?.checked ?? true,
+        modo: document.querySelector('input[name="modoGatilho"]:checked')?.value || 'rotativo',
+        textoPersonalizado: document.getElementById('inputGatilhoPersonalizado')?.value || ''
+      };
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/gatilhos-reacao`, {
+          method: 'POST',
+          headers: { ...obterHeaders(), 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await resp.json();
+        if (data.sucesso) {
+          configGatilhosCache = data.config;
+          mostrarToast('🔥 Configurações de Gatilhos de Reação salvas com sucesso!');
+        } else {
+          mostrarToast(`Erro: ${data.erro}`, true);
+      } catch (err) {
+        mostrarToast(`Erro: ${err.message}`, true);
+      }
+    }
+
+    // ==========================================
+    // BLINDAGEM ANTI-BAN & SAÚDE DO CHIP
+    // ==========================================
+    let configAntiBanCache = null;
+    let blacklistCache = [];
+
+    async function carregarAntiBanProjeto() {
+      if (!projetoSelecionado) return;
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/antiban`, {
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+
+        if (data.sucesso) {
+          configAntiBanCache = data.config || {};
+          blacklistCache = data.blacklist || [];
+
+          if (document.getElementById('antibanAtivoGlobal')) {
+            document.getElementById('antibanAtivoGlobal').checked = !!configAntiBanCache.ativo;
+          }
+          if (document.getElementById('antibanDigitacaoAtiva')) {
+            document.getElementById('antibanDigitacaoAtiva').checked = !!configAntiBanCache.digitacaoAtiva;
+          }
+          if (document.getElementById('antibanTempoMin')) {
+            document.getElementById('antibanTempoMin').value = configAntiBanCache.tempoMinDigitacaoMs || 2500;
+          }
+          if (document.getElementById('antibanTempoMax')) {
+            document.getElementById('antibanTempoMax').value = configAntiBanCache.tempoMaxDigitacaoMs || 5000;
+          }
+          if (document.getElementById('antibanJitterAtivo')) {
+            document.getElementById('antibanJitterAtivo').checked = !!configAntiBanCache.jitterAtivo;
+          }
+          if (document.getElementById('antibanJitterPercentual')) {
+            document.getElementById('antibanJitterPercentual').value = configAntiBanCache.jitterPercentual || 30;
+            if (document.getElementById('valJitterDisplay')) {
+              document.getElementById('valJitterDisplay').innerText = (configAntiBanCache.jitterPercentual || 30) + '%';
+            }
+          }
+          if (document.getElementById('antibanOptOutAtivo')) {
+            document.getElementById('antibanOptOutAtivo').checked = !!configAntiBanCache.optOutAtivo;
+          }
+          if (document.getElementById('antibanPalavrasChave')) {
+            const palavras = configAntiBanCache.palavrasChaveOptOut;
+            document.getElementById('antibanPalavrasChave').value = Array.isArray(palavras) ? palavras.join(', ') : '';
+          }
+          if (document.getElementById('antibanResponderConfirmacao')) {
+            document.getElementById('antibanResponderConfirmacao').checked = configAntiBanCache.responderConfirmacaoOptOut !== false;
+          }
+          if (document.getElementById('antibanRespostaOptOut')) {
+            document.getElementById('antibanRespostaOptOut').value = configAntiBanCache.respostaOptOut || '';
+          }
+
+          renderizarTabelaBlacklist(blacklistCache);
+        }
+      } catch (err) {
+        console.error('Erro ao carregar Anti-Ban:', err);
+      }
+    }
+
+    function renderizarTabelaBlacklist(lista) {
+      const corpo = document.getElementById('tabelaCorpoBlacklist');
+      const badge = document.getElementById('badgeTotalBlacklist');
+      if (!corpo) return;
+
+      if (badge) {
+        badge.innerText = `${lista.length} contatos`;
+        badge.style.background = lista.length > 0 ? 'rgba(239, 68, 68, 0.2)' : 'rgba(34, 197, 94, 0.2)';
+        badge.style.color = lista.length > 0 ? '#f87171' : '#4ade80';
+        badge.style.borderColor = lista.length > 0 ? 'rgba(239, 68, 68, 0.4)' : 'rgba(34, 197, 94, 0.4)';
+      }
+
+      if (!Array.isArray(lista) || lista.length === 0) {
+        corpo.innerHTML = `
+          <tr>
+            <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">
+              Nenhum contato descadastrado ainda. A Blacklist está limpa!
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      corpo.innerHTML = lista.map(item => {
+        const dataFmt = item.dataAdicao ? new Date(item.dataAdicao).toLocaleString('pt-BR') : '-';
+        const origemBadge = item.origem === 'mensagem_recebida'
+          ? `<span class="badge" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); font-size: 0.72rem;">💬 Mensagem Recebida</span>`
+          : `<span class="badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); font-size: 0.72rem;">👤 Manual</span>`;
+
+        return `
+          <tr>
+            <td>
+              <strong style="color: #fff; font-family: monospace;">${item.telefone || item.jid}</strong>
+              <div style="font-size: 0.7rem; color: var(--text-muted);">${item.jid}</div>
+            </td>
+            <td><span style="color: #fb923c;">${item.motivo || 'Opt-out'}</span></td>
+            <td>${origemBadge}</td>
+            <td style="color: var(--text-muted); font-size: 0.75rem;">${dataFmt}</td>
+            <td style="text-align: right; white-space: nowrap;">
+              <button class="btn btn-secondary btn-sm" onclick="removerNumeroBlacklist('${item.jid}')" style="font-size: 0.75rem; padding: 0.25rem 0.6rem; border-color: rgba(34, 197, 94, 0.4); color: #4ade80;" title="Permitir que este número volte a receber mensagens">
+                ✅ Desbloquear
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function salvarConfigAntiBanForm() {
+      if (!projetoSelecionado) return;
+
+      const palavrasRaw = document.getElementById('antibanPalavrasChave')?.value || '';
+      const palavrasArray = palavrasRaw
+        .split(',')
+        .map(p => p.trim())
+        .filter(p => p.length > 0);
+
+      const payload = {
+        ativo: !!document.getElementById('antibanAtivoGlobal')?.checked,
+        digitacaoAtiva: !!document.getElementById('antibanDigitacaoAtiva')?.checked,
+        tempoMinDigitacaoMs: parseInt(document.getElementById('antibanTempoMin')?.value, 10) || 2500,
+        tempoMaxDigitacaoMs: parseInt(document.getElementById('antibanTempoMax')?.value, 10) || 5000,
+        jitterAtivo: !!document.getElementById('antibanJitterAtivo')?.checked,
+        jitterPercentual: parseInt(document.getElementById('antibanJitterPercentual')?.value, 10) || 30,
+        optOutAtivo: !!document.getElementById('antibanOptOutAtivo')?.checked,
+        palavrasChaveOptOut: palavrasArray.length > 0 ? palavrasArray : ['sair', 'parar', 'cancelar', 'nao quero', 'não quero', 'remover', 'descadastrar', 'stop'],
+        responderConfirmacaoOptOut: !!document.getElementById('antibanResponderConfirmacao')?.checked,
+        respostaOptOut: (document.getElementById('antibanRespostaOptOut')?.value || '').trim()
+      };
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/antiban/config`, {
+          method: 'POST',
+          headers: { ...obterHeaders(), 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await resp.json();
+        if (data.sucesso) {
+          configAntiBanCache = data.config;
+          mostrarToast('🛡️ Configurações de Blindagem Anti-Ban salvas com sucesso!');
+        } else {
+          mostrarToast(`Erro: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro: ${err.message}`, true);
+      }
+    }
+
+    async function adicionarBlacklistManualBtn() {
+      if (!projetoSelecionado) return;
+      const input = document.getElementById('inputAddBlacklistNumero');
+      const valor = (input?.value || '').trim();
+      if (!valor) {
+        mostrarToast('Informe o número ou JID para bloquear.', true);
+        return;
+      }
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/antiban/blacklist`, {
+          method: 'POST',
+          headers: { ...obterHeaders(), 'Content-Type': 'application/json' },
+          body: JSON.stringify({ jid: valor, motivo: 'Adicionado manualmente pelo painel' })
+        });
+        const data = await resp.json();
+        if (data.sucesso) {
+          if (input) input.value = '';
+          blacklistCache = data.blacklist || [];
+          renderizarTabelaBlacklist(blacklistCache);
+          mostrarToast('🚫 Número adicionado à Blacklist com sucesso!');
+        } else {
+          mostrarToast(`Erro: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro: ${err.message}`, true);
+      }
+    }
+
+    async function removerNumeroBlacklist(jid) {
+      if (!projetoSelecionado || !jid) return;
+      if (!confirm(`Deseja desbloquear e remover "${jid}" da Blacklist?`)) return;
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/antiban/blacklist/${encodeURIComponent(jid)}`, {
+          method: 'DELETE',
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+        if (data.sucesso) {
+          blacklistCache = data.blacklist || [];
+          renderizarTabelaBlacklist(blacklistCache);
+          mostrarToast('✅ Número desbloqueado e removido da Blacklist!');
+        } else {
+          mostrarToast(`Erro: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro: ${err.message}`, true);
       }
     }
   </script>

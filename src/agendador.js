@@ -151,15 +151,15 @@ async function adicionarItemFila(projectId, dadosItem) {
   }
 
   const tipoNormalizado = (tipo || 'texto').toLowerCase();
-  if (!['texto', 'imagem', 'video'].includes(tipoNormalizado)) {
-    throw new Error('O "tipo" deve ser "texto", "imagem" ou "video".');
+  if (!['texto', 'imagem', 'video', 'audio'].includes(tipoNormalizado)) {
+    throw new Error('O "tipo" deve ser "texto", "imagem", "video" ou "audio".');
   }
 
   if (tipoNormalizado === 'texto' && (!texto || !texto.trim())) {
     throw new Error('O campo "texto" é obrigatório para mensagens de texto.');
   }
 
-  if ((tipoNormalizado === 'imagem' || tipoNormalizado === 'video') && !url) {
+  if ((tipoNormalizado === 'imagem' || tipoNormalizado === 'video' || tipoNormalizado === 'audio') && !url) {
     throw new Error(`O campo "url" é obrigatório para mensagens do tipo ${tipoNormalizado}.`);
   }
 
@@ -241,8 +241,8 @@ async function editarItemFila(projectId, idItem, novosDados) {
     if (to !== undefined && to.trim()) item.to = to.trim();
     if (tipo !== undefined) {
       const tipoNormalizado = (tipo || 'texto').toLowerCase();
-      if (!['texto', 'imagem', 'video'].includes(tipoNormalizado)) {
-        throw new Error('O "tipo" deve ser "texto", "imagem" ou "video".');
+      if (!['texto', 'imagem', 'video', 'audio'].includes(tipoNormalizado)) {
+        throw new Error('O "tipo" deve ser "texto", "imagem", "video" ou "audio".');
       }
       item.tipo = tipoNormalizado;
     }
@@ -295,12 +295,15 @@ async function reenviarItemFila(projectId, idItem) {
   );
 
   try {
+    const textoEnvio = item.texto ? reacaoGatilhos.aplicarGatilhoReacao(item.texto, { categoria: 'manual', projectId }) : '';
+    const legendaEnvio = item.legenda ? reacaoGatilhos.aplicarGatilhoReacao(item.legenda, { categoria: 'manual', projectId }) : '';
+
     await sessionManager.enviarMensagem(projectId, {
       to: item.to,
       type: item.tipo,
-      texto: item.texto,
+      texto: textoEnvio,
       url: item.url,
-      legenda: item.legenda
+      legenda: legendaEnvio
     });
 
     await atualizarStatusItem(projectId, item.id, {
@@ -402,13 +405,26 @@ async function executarCicloAgendador() {
                 'info'
               );
 
-              await sessionManager.enviarMensagem(projectId, {
+              const reacaoGatilhos = require('./reacaoGatilhos');
+              const textoEnvio = item.texto ? reacaoGatilhos.aplicarGatilhoReacao(item.texto, { categoria: 'manual', projectId }) : '';
+              const legendaEnvio = item.legenda ? reacaoGatilhos.aplicarGatilhoReacao(item.legenda, { categoria: 'manual', projectId }) : '';
+
+              const resEnvio = await sessionManager.enviarMensagem(projectId, {
                 to: item.to,
                 type: item.tipo,
-                texto: item.texto,
+                texto: textoEnvio,
                 url: item.url,
-                legenda: item.legenda
+                legenda: legendaEnvio
               });
+
+              if (resEnvio && resEnvio.bloqueadoBlacklist) {
+                await atualizarStatusItem(projectId, item.id, {
+                  enviado: false,
+                  enviado_em: null,
+                  erro: 'Cancelado: Destinatário na Blacklist (Opt-out)'
+                });
+                continue;
+              }
 
               // Atualização com lock atômico sem risco de sobrescrever adições concorrentes
               await atualizarStatusItem(projectId, item.id, {
@@ -546,14 +562,18 @@ async function dispararProximoItemEsteira(projectId, destinosSobrescritos = null
     let sucessoPeloMenosUm = false;
     let ultimoErro = null;
 
+    const reacaoGatilhos = require('./reacaoGatilhos');
+    const textoEnvio = item.texto ? reacaoGatilhos.aplicarGatilhoReacao(item.texto, { categoria: 'manual', projectId }) : '';
+    const legendaEnvio = item.legenda ? reacaoGatilhos.aplicarGatilhoReacao(item.legenda, { categoria: 'manual', projectId }) : '';
+
     for (const destino of alvos) {
       try {
         await sessionManager.enviarMensagem(projectId, {
           to: destino,
           type: item.tipo,
-          texto: item.texto,
+          texto: textoEnvio,
           url: item.url,
-          legenda: item.legenda
+          legenda: legendaEnvio
         });
         sucessoPeloMenosUm = true;
       } catch (errEnvio) {
@@ -616,7 +636,8 @@ async function dispararProximoItemEsteira(projectId, destinosSobrescritos = null
  */
 function iniciarAgendador() {
   const intervaloSegundos = parseInt(process.env.INTERVALO_AGENDADOR_SEGUNDOS, 10) || 20;
-  const intervaloMs = Math.max(intervaloSegundos, 5) * 1000;
+  // Limita o intervalo entre 5s e 20s para garantir que os slots da Grade e Facebook nunca percam o minuto exato
+  const intervaloMs = Math.min(Math.max(intervaloSegundos, 5), 20) * 1000;
   const fuso = process.env.TIMEZONE || 'America/Sao_Paulo';
 
   console.log(`[Agendador] Iniciando serviço de postagens agendadas (Checagem a cada ${intervaloMs / 1000}s | Fuso: ${fuso})...`);

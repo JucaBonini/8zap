@@ -190,7 +190,9 @@ async function processarDisparoCampanha(projectId, config, horarioAtual, tipoSlo
     }
 
     // Formata o texto final com emojis e links
-    const textoMensagem = campanhasManager.formatarMensagemCampanha(item, config);
+    const textoMensagemBase = campanhasManager.formatarMensagemCampanha(item, config);
+    const reacaoGatilhos = require('./reacaoGatilhos');
+    const textoMensagem = reacaoGatilhos.aplicarGatilhoReacao(textoMensagemBase, { categoria: 'campanhas', projectId });
     const imagemUrl = item.imagem && item.imagem.trim().length > 0 ? item.imagem.trim() : null;
 
     logProjeto(
@@ -204,6 +206,17 @@ async function processarDisparoCampanha(projectId, config, horarioAtual, tipoSlo
 
     for (const destino of destinosAlvos) {
       try {
+        const antiBanManager = require('./antiBanManager');
+        if (antiBanManager.estaNaBlacklist(projectId, destino.jid)) {
+          logProjeto(
+            projectId,
+            'CAMPANHA_IGNORADO_BLACKLIST',
+            `Destino "${destino.nome}" (${destino.jid}) ignorado por estar na Blacklist (Opt-out).`,
+            'info'
+          );
+          continue;
+        }
+
         logProjeto(
           projectId,
           'CAMPANHA_ENVIANDO',
@@ -212,18 +225,27 @@ async function processarDisparoCampanha(projectId, config, horarioAtual, tipoSlo
         );
 
         if (imagemUrl) {
+          const isVideo = typeof imagemUrl === 'string' && (
+            imagemUrl.toLowerCase().endsWith('.mp4') ||
+            imagemUrl.toLowerCase().endsWith('.webm') ||
+            imagemUrl.toLowerCase().endsWith('.mov') ||
+            imagemUrl.toLowerCase().endsWith('.m4v') ||
+            imagemUrl.toLowerCase().includes('.mp4?')
+          );
+          const tipoMidia = isVideo ? 'video' : 'imagem';
+
           try {
             await sessionManager.enviarMensagem(projectId, {
               to: destino.jid,
-              type: 'imagem',
+              type: tipoMidia,
               url: imagemUrl,
               legenda: textoMensagem
             });
-          } catch (imgErr) {
+          } catch (midiaErr) {
             logProjeto(
               projectId,
               'CAMPANHA_FALLBACK_TEXTO',
-              `Falha ao enviar com imagem para "${destino.nome}" (${imgErr.message}). Enviando como texto...`,
+              `Falha ao enviar com ${tipoMidia} para "${destino.nome}" (${midiaErr.message}). Enviando como texto...`,
               'warn'
             );
             await sessionManager.enviarMensagem(projectId, {

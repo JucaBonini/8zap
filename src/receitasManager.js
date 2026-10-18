@@ -451,6 +451,9 @@ async function dispararReceitaAgora(projectId, receitaId, destinosSobrescritos =
   const temFoto = Boolean(receita.imagemUrl || receita.imagemCaminhoFisico);
   const midiaFinal = temFoto ? (receita.imagemCaminhoFisico || receita.imagemUrl) : null;
 
+  const reacaoGatilhos = require('./reacaoGatilhos');
+  const textoWhatsApp = reacaoGatilhos.aplicarGatilhoReacao(receita.texto, { categoria: 'culinaria', projectId });
+
   const resultados = [];
   for (const destino of destinos) {
     try {
@@ -458,8 +461,8 @@ async function dispararReceitaAgora(projectId, receitaId, destinosSobrescritos =
         to: destino,
         type: temFoto ? 'imagem' : 'texto',
         url: midiaFinal,
-        legenda: temFoto ? receita.texto : undefined,
-        texto: receita.texto
+        legenda: temFoto ? textoWhatsApp : undefined,
+        texto: textoWhatsApp
       });
       resultados.push({ destino, sucesso: true, id: res.mensagemId });
     } catch (err) {

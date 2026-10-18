@@ -224,6 +224,34 @@ function removerItemFilaFacebook(projectId, itemId) {
 }
 
 /**
+ * Recoloca um post do histórico de volta na fila pendente da esteira
+ * @param {string} projectId
+ * @param {string} itemId
+ * @returns {object}
+ */
+function recolocarItemFilaFacebook(projectId, itemId) {
+  const fila = obterFilaFacebook(projectId);
+  const item = fila.find((i) => i.id === itemId);
+  if (!item) {
+    throw new Error(`Post com ID "${itemId}" não encontrado.`);
+  }
+
+  item.enviado = false;
+  item.enviado_em = null;
+  item.erro = null;
+  salvarFilaFacebook(projectId, fila);
+
+  logProjeto(
+    projectId,
+    'FB_ITEM_REENFILEIRADO',
+    `Post "${item.titulo || item.id}" recolocado na fila da Esteira do Facebook.`,
+    'info'
+  );
+
+  return item;
+}
+
+/**
  * Remove todos os itens que já foram enviados da fila do Facebook
  * @param {string} projectId
  * @returns {number} quantidade removida
@@ -417,7 +445,7 @@ function salvarControleDiario(projectId, controle) {
 
 /**
  * Ciclo do agendador para verificar e disparar slots programados da Esteira do Facebook
- * Chamado a cada minuto pelo loop central do agendador
+ * Chamado periodicamente pelo loop central do agendador
  */
 async function verificarEDispararFacebook() {
   if (!fs.existsSync(diretorioData)) return;
@@ -440,27 +468,57 @@ async function verificarEDispararFacebook() {
       }
 
       const horarios = Array.isArray(config.horarios) ? config.horarios : [];
-      if (!horarios.includes(horaAtual)) {
+      if (horarios.length === 0) {
         continue;
       }
 
       const controle = obterControleDiario(projectId);
-      if (controle.disparados.includes(horaAtual)) {
-        continue; // Já disparou neste horário hoje
+      const [hAtual, mAtual] = horaAtual.split(':').map(Number);
+      const minAtual = hAtual * 60 + mAtual;
+
+      // Localiza slot que ainda não foi disparado hoje e que está dentro da janela (minuto exato ou até 15 min de tolerância)
+      const slotParaDisparar = horarios.find((slot) => {
+        if (controle.disparados.includes(slot)) return false;
+        const [hSlot, mSlot] = slot.split(':').map(Number);
+        const minSlot = hSlot * 60 + mSlot;
+        return minAtual >= minSlot && minAtual <= minSlot + 15;
+      });
+
+      if (!slotParaDisparar) {
+        continue;
+      }
+
+      // Verifica se há posts pendentes na fila
+      const fila = obterFilaFacebook(projectId);
+      const temPendente = fila.some((i) => !i.enviado);
+
+      if (!temPendente) {
+        // Se a esteira estiver vazia, avisa no log no minuto exato sem queimar o horário do dia
+        if (slotParaDisparar === horaAtual) {
+          logProjeto(
+            projectId,
+            'FB_ESTEIRA_VAZIA',
+            `Horário da Esteira do Facebook atingido (${slotParaDisparar}), mas não há posts pendentes na fila. Aguardando novos posts.`,
+            'warn'
+          );
+        }
+        continue;
       }
 
       logProjeto(
         projectId,
         'FB_HORARIO_ATINGIDO',
-        `Horário da Esteira do Facebook atingido (${horaAtual}). Buscando próximo post...`,
+        `Horário da Esteira do Facebook atingido (${slotParaDisparar}). Disparando próximo post pendente...`,
         'info'
       );
 
-      // Marca o horário como acionado
-      controle.disparados.push(horaAtual);
-      salvarControleDiario(projectId, controle);
+      const resultado = await dispararProximoItemEsteiraFacebook(projectId);
 
-      await dispararProximoItemEsteiraFacebook(projectId);
+      // Registra o horário como disparado com sucesso no dia de hoje
+      if (resultado && resultado.sucesso) {
+        controle.disparados.push(slotParaDisparar);
+        salvarControleDiario(projectId, controle);
+      }
     } catch (err) {
       console.error(`[FacebookManager] Erro no ciclo de disparo do projeto ${projectId}:`, err.message);
     }
@@ -576,6 +634,7 @@ module.exports = {
   obterFilaFacebook,
   adicionarItemFilaFacebook,
   removerItemFilaFacebook,
+  recolocarItemFilaFacebook,
   limparEnviadosFacebook,
   adicionarReceitaAFilaFacebook,
   dispararProximoItemEsteiraFacebook,

@@ -83,6 +83,10 @@ router.post('/upload', async (req, res) => {
       else if (mime.includes('jpeg') || mime.includes('jpg')) extensao = '.jpg';
       else if (mime.includes('mp4')) extensao = '.mp4';
       else if (mime.includes('webm')) extensao = '.webm';
+      else if (mime.includes('mpeg') || mime.includes('mp3')) extensao = '.mp3';
+      else if (mime.includes('ogg') || mime.includes('opus')) extensao = '.ogg';
+      else if (mime.includes('m4a') || mime.includes('aac')) extensao = '.m4a';
+      else if (mime.includes('wav')) extensao = '.wav';
     } else {
       buffer = Buffer.from(base64, 'base64');
       if (nome && path.extname(nome)) {
@@ -106,9 +110,12 @@ router.post('/upload', async (req, res) => {
       });
     }
 
+    // Detecta tipo de mídia
+    const isVideo = extensao.includes('mp4') || extensao.includes('webm') || extensao.includes('mov');
+    const isAudio = ['.mp3', '.ogg', '.m4a', '.wav', '.aac', '.opus'].some(ext => extensao.includes(ext));
+
     // Se for imagem (JPG, PNG, WEBP), processa e padroniza para 800x800 JPEG Progressivo 3G (~90-130 KB)
-    const isVideo = extensao.includes('mp4') || extensao.includes('webm');
-    if (!isVideo) {
+    if (!isVideo && !isAudio) {
       try {
         const receitasIaService = require('./receitasIaService');
         buffer = await receitasIaService.otimizarImagemPara3G(buffer, 800, 80);
@@ -138,6 +145,7 @@ router.post('/upload', async (req, res) => {
       url: urlRelativa,
       urlCompleta: urlCompleta,
       nomeArquivo,
+      tipo: isAudio ? 'audio' : (isVideo ? 'video' : 'imagem'),
       tamanhoBytes: buffer.length
     });
   } catch (err) {
@@ -1163,10 +1171,24 @@ router.get('/sessions/:projectId/facebook/config', (req, res) => {
 /**
  * POST /sessions/:projectId/facebook/config
  */
-router.post('/sessions/:projectId/facebook/config', (req, res) => {
+router.post('/sessions/:projectId/facebook/config', async (req, res) => {
   const { projectId } = req.params;
   try {
-    const config = facebookManager.salvarConfigFacebook(projectId, req.body || {});
+    const dados = { ...(req.body || {}) };
+
+    // Se forneceu pageId e pageAccessToken, tenta resolver o token de página real e dados da fanpage
+    if (dados.pageId && dados.pageAccessToken) {
+      try {
+        const info = await facebookService.verificarConexaoPagina(dados.pageId, dados.pageAccessToken);
+        if (info.pageAccessTokenResolvido) {
+          dados.pageAccessToken = info.pageAccessTokenResolvido;
+        }
+        if (info.nome) dados.nomePagina = info.nome;
+        if (info.foto) dados.fotoPagina = info.foto;
+      } catch (_) {}
+    }
+
+    const config = facebookManager.salvarConfigFacebook(projectId, dados);
     res.json({ sucesso: true, mensagem: 'Configurações do Facebook salvas com sucesso!', config });
   } catch (err) {
     res.status(400).json({ sucesso: false, erro: err.message });
@@ -1186,13 +1208,13 @@ router.post('/sessions/:projectId/facebook/testar-conexao', async (req, res) => 
 
     const infoPagina = await facebookService.verificarConexaoPagina(idParaTestar, tokenParaTestar);
 
-    // Se informou nome ou foto, salva na config para agilizar a UI
-    if (infoPagina.nome) {
-      facebookManager.salvarConfigFacebook(projectId, {
-        nomePagina: infoPagina.nome,
-        fotoPagina: infoPagina.foto || ''
-      });
-    }
+    // Salva automaticamente o Page Access Token resolvido e dados da página
+    facebookManager.salvarConfigFacebook(projectId, {
+      pageId: infoPagina.id || idParaTestar,
+      pageAccessToken: infoPagina.pageAccessTokenResolvido || tokenParaTestar,
+      nomePagina: infoPagina.nome || config.nomePagina,
+      fotoPagina: infoPagina.foto || config.fotoPagina
+    });
 
     res.json({ sucesso: true, mensagem: `Conectado com sucesso à página "${infoPagina.nome}"!`, dados: infoPagina });
   } catch (err) {
@@ -1253,6 +1275,20 @@ router.delete('/sessions/:projectId/facebook/fila-enviados', (req, res) => {
 });
 
 /**
+ * POST /sessions/:projectId/facebook/fila/:id/recolocar
+ * Recoloca um post publicado de volta na esteira de espera
+ */
+router.post('/sessions/:projectId/facebook/fila/:id/recolocar', (req, res) => {
+  const { projectId, id } = req.params;
+  try {
+    const item = facebookManager.recolocarItemFilaFacebook(projectId, id);
+    res.json({ sucesso: true, mensagem: 'Post recolocado na esteira com sucesso!', item });
+  } catch (err) {
+    res.status(400).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
  * POST /sessions/:projectId/facebook/disparar-agora
  * Dispara manualmente o próximo post da esteira para teste imediato
  */
@@ -1282,26 +1318,55 @@ router.post('/sessions/:projectId/facebook/receitas/:id/fila', async (req, res) 
 
 /**
  * POST /sessions/:projectId/facebook/testar-espelhamento
- * Dispara um post de teste espelhado na Página do Facebook usando a última receita pronta da Mary
+ * Dispara um post de teste espelhado na Página do Facebook usando uma receita da Mary ou do acervo do blog
  */
 router.post('/sessions/:projectId/facebook/testar-espelhamento', async (req, res) => {
   const { projectId } = req.params;
   try {
     const receitasManager = require('./receitasManager');
     const lista = receitasManager.obterReceitas(projectId);
-    const receita = lista.find((r) => r.status === 'pronto') || lista[0];
+    let receita = lista.find((r) => r.status === 'pronto') || lista[0];
+
+    // Fallback inteligente: se não tiver receita gerada pela Mary ainda, busca no pool de artigos do blog
+    if (!receita) {
+      const fs = require('fs');
+      const path = require('path');
+      const idSanitizado = projectId.replace(/[^a-zA-Z0-9_-]/g, '_');
+      const arqArtigos = path.join(__dirname, '..', 'data', `artigos-${idSanitizado}.json`);
+
+      if (fs.existsSync(arqArtigos)) {
+        try {
+          const artigos = JSON.parse(fs.readFileSync(arqArtigos, 'utf8'));
+          const comFoto = artigos.filter((a) => a.imagem && typeof a.imagem === 'string' && a.imagem.startsWith('http'));
+          const artigo = comFoto.length > 0 ? comFoto[0] : artigos[0];
+
+          if (artigo) {
+            receita = {
+              id: artigo.id || 'artigo_teste',
+              titulo: artigo.titulo || 'Receita Descomplicando Receitas',
+              texto: `👩‍🍳 ${artigo.titulo}\n\n${artigo.resumo || 'Uma receita maravilhosa, prática e irresistível para toda a família!'}\n\n👉 Salve essa delícia e veja os detalhes completos no primeiro comentário!`,
+              imagemUrl: artigo.imagem || '',
+              linkOriginal: artigo.link || 'https://descomplicandoreceitas.com.br'
+            };
+          }
+        } catch (_) {}
+      }
+    }
 
     if (!receita) {
-      return res.status(400).json({
-        sucesso: false,
-        erro: 'Nenhuma receita encontrada para teste. Gere uma receita na aba "Receitas IA (Mary)" primeiro.'
-      });
+      receita = {
+        id: 'teste_padrao',
+        titulo: 'Bolo de Cenoura com Cobertura de Chocolate Vulcão',
+        texto: '👩‍🍳 Bolo de Cenoura Fofinho com Chocolate 🥕🍫\n\nUma receita prática, deliciosa e que todo mundo ama! Ideal para o café da tarde.\n\n👉 Veja a receita completa e o modo de preparo passo a passo no primeiro comentário!',
+        imagemUrl: '',
+        linkOriginal: 'https://descomplicandoreceitas.com.br'
+      };
     }
 
     const resultado = await facebookManager.publicarEspelhamentoAutomatico(projectId, {
-      origem: 'receitas',
+      origem: 'teste_espelhamento',
       origemId: receita.id,
-      titulo: receita.titulo || 'Receita da Mary (Teste)',
+      titulo: receita.titulo || 'Receita de Teste',
       tipo: (receita.imagemUrl || receita.imagemCaminhoFisico) ? 'imagem' : 'texto',
       texto: receita.texto,
       imagemUrl: receita.imagemUrl || '',
@@ -1389,6 +1454,128 @@ router.get('/sessions/:projectId/utm/estatisticas', (req, res) => {
   }
 });
 
+// ==========================================
+// ROTAS DE GATILHOS DE REAÇÃO (WHATSAPP CHANNELS)
+// ==========================================
+const reacaoGatilhos = require('./reacaoGatilhos');
+
+/**
+ * GET /sessions/:projectId/gatilhos-reacao
+ */
+router.get('/sessions/:projectId/gatilhos-reacao', (req, res) => {
+  const { projectId } = req.params;
+  try {
+    const config = reacaoGatilhos.obterConfigGatilhos(projectId);
+    res.json({
+      sucesso: true,
+      config,
+      catalogo: reacaoGatilhos.CATALOGO_GATILHOS
+    });
+  } catch (err) {
+    res.status(500).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * POST /sessions/:projectId/gatilhos-reacao
+ */
+router.post('/sessions/:projectId/gatilhos-reacao', (req, res) => {
+  const { projectId } = req.params;
+  try {
+    const config = reacaoGatilhos.salvarConfigGatilhos(projectId, req.body || {});
+    res.json({ sucesso: true, mensagem: 'Configurações de Gatilhos de Reação salvas com sucesso!', config });
+  } catch (err) {
+    res.status(400).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * POST /sessions/:projectId/gatilhos-reacao/testar-preview
+ */
+router.post('/sessions/:projectId/gatilhos-reacao/testar-preview', (req, res) => {
+  const { projectId } = req.params;
+  const { texto, categoria } = req.body || {};
+  try {
+    const textoBase = texto || '🍲 *BOLO DE CENOURA COM CHOCOLATE*\n\nUma receita prática, fofinha e deliciosa para acompanhar aquele cafezinho da tarde!';
+    const preview = reacaoGatilhos.aplicarGatilhoReacao(textoBase, {
+      categoria: categoria || 'culinaria',
+      projectId,
+      forcar: true
+    });
+    res.json({ sucesso: true, preview });
+  } catch (err) {
+    res.status(400).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * GET /sessions/:projectId/antiban
+ * Retorna as configurações de Anti-Ban e a lista negra (Blacklist)
+ */
+router.get('/sessions/:projectId/antiban', (req, res) => {
+  const { projectId } = req.params;
+  try {
+    const antiBanManager = require('./antiBanManager');
+    const config = antiBanManager.obterConfigAntiBan(projectId);
+    const blacklist = antiBanManager.obterBlacklist(projectId);
+    res.json({ sucesso: true, config, blacklist });
+  } catch (err) {
+    res.status(500).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * POST /sessions/:projectId/antiban/config
+ * Salva novas configurações de Anti-Ban
+ */
+router.post('/sessions/:projectId/antiban/config', (req, res) => {
+  const { projectId } = req.params;
+  try {
+    const antiBanManager = require('./antiBanManager');
+    const atualizado = antiBanManager.salvarConfigAntiBan(projectId, req.body || {});
+    res.json({ sucesso: true, config: atualizado });
+  } catch (err) {
+    res.status(400).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * POST /sessions/:projectId/antiban/blacklist
+ * Adiciona manualmente um contato à Blacklist
+ */
+router.post('/sessions/:projectId/antiban/blacklist', (req, res) => {
+  const { projectId } = req.params;
+  const { jid, motivo } = req.body || {};
+  try {
+    const antiBanManager = require('./antiBanManager');
+    if (!jid) {
+      return res.status(400).json({ sucesso: false, erro: 'JID ou telefone é obrigatório.' });
+    }
+    const adicionou = antiBanManager.adicionarNaBlacklist(projectId, jid, motivo || 'Adicionado manualmente pelo painel', 'painel');
+    const blacklist = antiBanManager.obterBlacklist(projectId);
+    res.json({ sucesso: true, adicionou, blacklist });
+  } catch (err) {
+    res.status(400).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * DELETE /sessions/:projectId/antiban/blacklist/:jid
+ * Remove um contato da Blacklist
+ */
+router.delete('/sessions/:projectId/antiban/blacklist/:jid', (req, res) => {
+  const { projectId, jid } = req.params;
+  try {
+    const antiBanManager = require('./antiBanManager');
+    const removeu = antiBanManager.removerDaBlacklist(projectId, jid);
+    const blacklist = antiBanManager.obterBlacklist(projectId);
+    res.json({ sucesso: true, removeu, blacklist });
+  } catch (err) {
+    res.status(400).json({ sucesso: false, erro: err.message });
+  }
+});
+
 module.exports = router;
+
 
 

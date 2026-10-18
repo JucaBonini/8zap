@@ -96,8 +96,15 @@ async function processarFilaSessao(projectId) {
       logProjeto(projectId, 'ERRO_FILA_ENVIO', `Erro ao processar item da fila: ${err.message}`, 'error');
     }
 
-    // Aplica o intervalo mínimo entre envios para evitar banimento / flood
-    const delay = obterDelayEnvio();
+    // Aplica o intervalo mínimo entre envios com Jitter Anti-Ban para evitar padrão mecânico
+    const delayBase = obterDelayEnvio();
+    let delay = delayBase;
+    try {
+      const antiBanManager = require('./antiBanManager');
+      delay = antiBanManager.aplicarJitterIntervalo(delayBase, projectId);
+    } catch (_) {
+      delay = delayBase;
+    }
     await new Promise((resolve) => setTimeout(resolve, delay));
   }
 
@@ -223,6 +230,16 @@ async function iniciarSessao(projectId, forcarReinicio = false) {
 
     // Salva credenciais atualizadas
     sock.ev.on('creds.update', saveCreds);
+
+    // Anti-Ban: Listener de mensagens recebidas para Opt-out automático (descadastro)
+    sock.ev.on('messages.upsert', async (upsert) => {
+      try {
+        const antiBanManager = require('./antiBanManager');
+        await antiBanManager.processarMensagensRecebidas(idSanitizado, sock, upsert);
+      } catch (errUpsert) {
+        logProjeto(idSanitizado, 'ERRO_UPSERT_ANTIBAN', `Erro ao processar mensagem recebida: ${errUpsert.message}`, 'error');
+      }
+    });
 
     // Manipulação de eventos de conexão
     sock.ev.on('connection.update', async (update) => {
@@ -484,6 +501,22 @@ async function enviarMensagem(projectId, dadosMensagem) {
   const { to, type = 'texto', texto, url, legenda } = dadosMensagem;
   const jid = formatarJid(to);
 
+  // Verificação Anti-Ban de Blacklist (Opt-out)
+  const antiBanManager = require('./antiBanManager');
+  if (antiBanManager.estaNaBlacklist(idSanitizado, jid)) {
+    logProjeto(
+      idSanitizado,
+      'ANTIBAN_ENVIO_BLOQUEADO',
+      `Envio cancelado: o destinatário ${jid} está na Blacklist de descadastro (Opt-out).`,
+      'warn'
+    );
+    return {
+      sucesso: false,
+      bloqueadoBlacklist: true,
+      mensagem: `Destinatário ${jid} está na Blacklist de descadastro (Opt-out). Envio bloqueado para segurança do chip.`
+    };
+  }
+
   return enfileirarEnvio(idSanitizado, async () => {
     let payload = null;
     const tipoNormalizado = (type || 'texto').toLowerCase();
@@ -517,8 +550,18 @@ async function enviarMensagem(projectId, dadosMensagem) {
         video: { url: midiaFinal },
         caption: legenda || texto || ''
       };
+    } else if (tipoNormalizado === 'audio') {
+      if (!url) {
+        throw new Error('O campo "url" é obrigatório para mensagens do tipo audio');
+      }
+      const midiaFinal = resolverOrigemMidia(url);
+      payload = {
+        audio: { url: midiaFinal },
+        mimetype: 'audio/mp4',
+        ptt: true
+      };
     } else {
-      throw new Error(`Tipo de mensagem não suportado: "${type}". Use "texto", "imagem" ou "video".`);
+      throw new Error(`Tipo de mensagem não suportado: "${type}". Use "texto", "imagem", "video" ou "audio".`);
     }
 
     // Para grupos (@g.us), sincroniza a metadata e SenderKeys para garantir entrega aos participantes
@@ -529,6 +572,11 @@ async function enviarMensagem(projectId, dadosMensagem) {
         logProjeto(idSanitizado, 'AVISO_GRUPO_META', `Não foi possível atualizar metadata do grupo antes do envio: ${metaErr.message}`, 'info');
       }
     }
+
+    // Simulação de presença humanizada Anti-Ban ("digitando..." ou "gravando áudio...")
+    // Aplica para conversas individuais e grupos; nunca em canais (@newsletter)
+    const textoDisparo = (legenda || texto || '').trim();
+    await antiBanManager.simularPresencaHumanizada(idSanitizado, sessao.sock, jid, tipoNormalizado, textoDisparo);
 
     logProjeto(
       idSanitizado,

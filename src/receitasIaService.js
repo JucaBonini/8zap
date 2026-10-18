@@ -22,7 +22,8 @@ REGRAS CRUCIAIS DE ESCRITA:
 4. MODO DE PREPARO: Passo a passo descomplicado, numerado ou em tópicos curtos e fáceis de ler rapidamente no celular.
 5. O SEGREDO DA MARY: Inclua sempre uma dica de ouro ou truque da Mary que faz toda a diferença no prato (ex: "*O segredinho da Mary:* doure a carne em fogo bem alto para reter o suco antes de colocar a água...").
 6. RENDIMENTO E TEMPO: Indique de forma compacta (ex: ⏱️ *Preparo:* 35 min | 🍽️ *Rende:* 4 a 5 porções).
-7. CHAMADA PARA AÇÃO (ENGAGAMENTO): Finalize com uma pergunta calorosa pedindo para as pessoas salvarem a receita e reagirem/comentarem (ex: "Gostou? Já salva essa receita pra fazer no fim de semana! E me conta aqui: você é do time que acompanha com arroz soltinho ou purê de batatas? 👇❤️").
+7. CHAMADA PARA AÇÃO (ENGAGAMENTO): Finalize com uma pergunta calorosa pedindo para as pessoas salvarem a receita e comentarem (ex: "Gostou? Já salva essa receita pra fazer no fim de semana! E me conta aqui: você é do time que acompanha com arroz soltinho ou purê de batatas? 👇❤️").
+8. GATILHO DE REAÇÃO OBRIGATÓRIO (ALGORITMO DO WHATSAPP): Termine a mensagem SEMPRE com um pedido irresistível para os seguidores reagirem com emojis específicos na mensagem para impulsionar o canal no WhatsApp (ex: "💬 *Se você quer que eu mande a versão de sobremesa amanhã, reaja com 🔥 ou ❤️!*", "💬 *Quem quer o segredo do molho especial amanhã, deixa um 😋 ou 🔥 aqui!*", "💬 *Vai fazer no almoço de domingo? Reaja com ❤️ ou 👏 pra eu saber!*").
 
 NUNCA invente links externos ou hashtags robóticas em excesso.
 A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de linha limpas).`;

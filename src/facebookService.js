@@ -43,7 +43,8 @@ async function verificarConexaoPagina(pageId, pageAccessToken) {
   const idLimpo = String(pageId).trim();
   const tokenLimpo = String(pageAccessToken).trim();
 
-  const url = `${META_GRAPH_URL}/${idLimpo}?fields=id,name,link,picture.type(large),fan_count,is_published&access_token=${encodeURIComponent(tokenLimpo)}`;
+  // Solicita também o access_token da página caso o token informado seja um User Token com permissões
+  const url = `${META_GRAPH_URL}/${idLimpo}?fields=id,name,link,picture.type(large),fan_count,is_published,access_token&access_token=${encodeURIComponent(tokenLimpo)}`;
 
   try {
     const res = await fetch(url, { method: 'GET' });
@@ -60,7 +61,8 @@ async function verificarConexaoPagina(pageId, pageAccessToken) {
       link: data.link || `https://facebook.com/${data.id}`,
       foto: data.picture?.data?.url || null,
       seguidores: data.fan_count || 0,
-      publicada: Boolean(data.is_published)
+      publicada: Boolean(data.is_published),
+      pageAccessTokenResolvido: data.access_token || tokenLimpo
     };
   } catch (err) {
     throw new Error(`Falha ao conectar à Página do Facebook: ${err.message}`);
@@ -126,22 +128,26 @@ async function publicarFotoNaPagina({
   } else if (imagemUrl && (imagemUrl.startsWith('http://') || imagemUrl.startsWith('https://'))) {
     form.append('url', imagemUrl);
   } else {
-    throw new Error('Nenhuma imagem válida (arquivo local ou URL pública) foi informada para o post.');
+    // Se não houver imagem válida, faz fallback imediato para post em texto puro
+    return await publicarTextoNaPagina({ pageId, pageAccessToken, texto: legenda, linkComentario });
   }
 
-  const resFoto = await fetch(`${META_GRAPH_URL}/${idLimpo}/photos`, {
-    method: 'POST',
-    body: form
-  });
+  try {
+    const resFoto = await fetch(`${META_GRAPH_URL}/${idLimpo}/photos`, {
+      method: 'POST',
+      body: form
+    });
 
-  const dataFoto = await resFoto.json().catch(() => ({}));
-  if (!resFoto.ok) {
-    throw new Error(formatarErroFacebook(dataFoto, resFoto.status));
-  }
+    const dataFoto = await resFoto.json().catch(() => ({}));
+    if (!resFoto.ok) {
+      // Se falhar o upload da foto (ex: imagem externa inacessível), faz fallback seguro para post de texto
+      console.warn(`[FacebookService] Falha ao enviar foto para o Facebook (${dataFoto?.error?.message || resFoto.status}). Tentando post nativo de texto...`);
+      return await publicarTextoNaPagina({ pageId, pageAccessToken, texto: legenda, linkComentario });
+    }
 
-  const photoId = dataFoto.id;
-  const postId = dataFoto.post_id || dataFoto.id;
-  let commentId = null;
+    const photoId = dataFoto.id;
+    const postId = dataFoto.post_id || dataFoto.id;
+    let commentId = null;
 
   // Se houver texto para o primeiro comentário (ex: link da receita)
   if (linkComentario && linkComentario.trim()) {
@@ -164,13 +170,17 @@ async function publicarFotoNaPagina({
     }
   }
 
-  return {
-    sucesso: true,
-    photoId,
-    postId,
-    commentId,
-    postUrl: `https://facebook.com/${postId}`
-  };
+    return {
+      sucesso: true,
+      photoId,
+      postId,
+      commentId,
+      postUrl: `https://facebook.com/${postId}`
+    };
+  } catch (errFoto) {
+    console.warn(`[FacebookService] Exceção ao postar foto (${errFoto.message}). Tentando fallback em texto...`);
+    return await publicarTextoNaPagina({ pageId, pageAccessToken, texto: legenda, linkComentario });
+  }
 }
 
 /**
