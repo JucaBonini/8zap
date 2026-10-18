@@ -9170,15 +9170,24 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
       if (!file) return;
 
       mostrarToast('Enviando mídia para o servidor...');
-      const formData = new FormData();
-      formData.append('arquivo', file);
 
       try {
-        const resp = await fetch(`/sessions/${projetoSelecionado}/upload`, {
-          method: 'POST',
-          headers: obterHeaders(),
-          body: formData
+        const base64 = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
         });
+
+        const resp = await fetch('/upload', {
+          method: 'POST',
+          headers: { ...obterHeaders(), 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            nome: file.name,
+            base64: base64
+          })
+        });
+
         const data = await resp.json();
         if (data.sucesso && data.url) {
           const inputUrl = document.getElementById('igManualMediaUrl');
