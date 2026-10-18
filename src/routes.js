@@ -1580,6 +1580,137 @@ router.delete('/sessions/:projectId/antiban/blacklist/:jid', (req, res) => {
   }
 });
 
+// ==========================================
+// INSTAGRAM GRAPH API ROTAS
+// ==========================================
+const instagramManager = require('./instagramManager');
+const instagramService = require('./instagramService');
+
+/**
+ * GET /sessions/:projectId/instagram/config
+ */
+router.get('/sessions/:projectId/instagram/config', (req, res) => {
+  const { projectId } = req.params;
+  try {
+    const config = instagramManager.obterConfigInstagram(projectId);
+    res.json({ sucesso: true, config });
+  } catch (err) {
+    res.status(500).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * POST /sessions/:projectId/instagram/config
+ */
+router.post('/sessions/:projectId/instagram/config', async (req, res) => {
+  const { projectId } = req.params;
+  try {
+    const dados = { ...(req.body || {}) };
+    if (dados.igUserId && dados.accessToken) {
+      try {
+        const info = await instagramService.verificarContaInstagram(dados.igUserId, dados.accessToken);
+        if (info.username) dados.username = info.username;
+        if (info.nome) dados.nome = info.nome;
+        if (info.foto) dados.foto = info.foto;
+      } catch (_) {}
+    }
+    const config = instagramManager.salvarConfigInstagram(projectId, dados);
+    res.json({ sucesso: true, mensagem: 'Configurações do Instagram salvas com sucesso!', config });
+  } catch (err) {
+    res.status(400).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * POST /sessions/:projectId/instagram/testar-conexao
+ */
+router.post('/sessions/:projectId/instagram/testar-conexao', async (req, res) => {
+  const { projectId } = req.params;
+  const { igUserId, accessToken } = req.body || {};
+  try {
+    const config = instagramManager.obterConfigInstagram(projectId);
+    const idParaTestar = igUserId || config.igUserId;
+    const tokenParaTestar = accessToken || config.accessToken;
+
+    const info = await instagramService.verificarContaInstagram(idParaTestar, tokenParaTestar);
+
+    instagramManager.salvarConfigInstagram(projectId, {
+      igUserId: info.igUserId || idParaTestar,
+      accessToken: tokenParaTestar,
+      username: info.username || config.username,
+      nome: info.nome || config.nome,
+      foto: info.foto || config.foto
+    });
+
+    res.json({ sucesso: true, mensagem: `Conectado com sucesso ao Instagram @${info.username}!`, dados: info });
+  } catch (err) {
+    res.status(400).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * POST /sessions/:projectId/instagram/detectar-contas
+ */
+router.post('/sessions/:projectId/instagram/detectar-contas', async (req, res) => {
+  const { projectId } = req.params;
+  const { accessToken, pageId } = req.body || {};
+  try {
+    const config = instagramManager.obterConfigInstagram(projectId);
+    const tokenParaUsar = accessToken || config.accessToken;
+    const pageIdParaUsar = pageId || config.pageId;
+
+    const contas = await instagramService.detectarContasInstagram({ accessToken: tokenParaUsar, pageId: pageIdParaUsar });
+    res.json({ sucesso: true, total: contas.length, contas });
+  } catch (err) {
+    res.status(400).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * GET /sessions/:projectId/instagram/historico
+ */
+router.get('/sessions/:projectId/instagram/historico', (req, res) => {
+  const { projectId } = req.params;
+  try {
+    const historico = instagramManager.obterHistoricoInstagram(projectId);
+    res.json({ sucesso: true, historico });
+  } catch (err) {
+    res.status(500).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * DELETE /sessions/:projectId/instagram/historico
+ */
+router.delete('/sessions/:projectId/instagram/historico', (req, res) => {
+  const { projectId } = req.params;
+  try {
+    const total = instagramManager.limparHistoricoInstagram(projectId);
+    res.json({ sucesso: true, totalRemovidos: total });
+  } catch (err) {
+    res.status(500).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * POST /sessions/:projectId/instagram/publicar-agora
+ */
+router.post('/sessions/:projectId/instagram/publicar-agora', async (req, res) => {
+  const { projectId } = req.params;
+  const { mediaUrl, legenda, titulo, tipo } = req.body || {};
+  try {
+    const resultado = await instagramManager.publicarPostManual(projectId, {
+      mediaUrl,
+      legenda,
+      titulo,
+      tipo
+    });
+    res.json({ sucesso: true, mensagem: 'Post publicado com sucesso no Instagram!', resultado });
+  } catch (err) {
+    res.status(400).json({ sucesso: false, erro: err.message });
+  }
+});
+
 module.exports = router;
 
 

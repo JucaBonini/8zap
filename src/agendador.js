@@ -456,6 +456,22 @@ async function executarCicloAgendador() {
                   console.error('[Facebook Espelhamento Manual Agendado Erro]:', err.message);
                 });
               } catch (_) {}
+
+              // Espelhamento automático simultâneo para o Instagram
+              try {
+                const instagramManager = require('./instagramManager');
+                instagramManager.publicarEspelhamentoInstagram(projectId, {
+                  origem: 'manual',
+                  origemId: item.id,
+                  titulo: (item.texto || item.legenda || 'Post Manual').slice(0, 45),
+                  tipo: item.tipo,
+                  texto: item.texto || item.legenda || '',
+                  imagemUrl: (item.url && item.url.startsWith('http')) ? item.url : '',
+                  caminhoArquivo: (item.url && !item.url.startsWith('http')) ? item.url : ''
+                }).catch((err) => {
+                  console.error('[Instagram Espelhamento Manual Agendado Erro]:', err.message);
+                });
+              } catch (_) {}
             } catch (envioErr) {
               await atualizarStatusItem(projectId, item.id, {
                 erro: envioErr.message,
@@ -614,6 +630,22 @@ async function dispararProximoItemEsteira(projectId, destinosSobrescritos = null
           linkComentario: ''
         }).catch((err) => {
           console.error('[Facebook Espelhamento Esteira Manual Erro]:', err.message);
+        });
+      } catch (_) {}
+
+      // Espelhamento automático simultâneo para o Instagram
+      try {
+        const instagramManager = require('./instagramManager');
+        instagramManager.publicarEspelhamentoInstagram(projectId, {
+          origem: 'manual',
+          origemId: item.id,
+          titulo: (item.texto || item.legenda || 'Post da Esteira').slice(0, 45),
+          tipo: item.tipo,
+          texto: item.texto || item.legenda || '',
+          imagemUrl: (item.url && item.url.startsWith('http')) ? item.url : '',
+          caminhoArquivo: (item.url && !item.url.startsWith('http')) ? item.url : ''
+        }).catch((err) => {
+          console.error('[Instagram Espelhamento Esteira Manual Erro]:', err.message);
         });
       } catch (_) {}
 

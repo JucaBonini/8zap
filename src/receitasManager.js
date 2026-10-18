@@ -500,6 +500,23 @@ async function dispararReceitaAgora(projectId, receitaId, destinosSobrescritos =
     });
   } catch (_) {}
 
+  // Espelhamento automático simultâneo para o Instagram
+  try {
+    const instagramManager = require('./instagramManager');
+    instagramManager.publicarEspelhamentoInstagram(projectId, {
+      origem: 'receita',
+      origemId: receita.id,
+      titulo: receita.titulo || 'Receita da Mary',
+      tipo: temFoto ? 'imagem' : 'texto',
+      texto: receita.texto,
+      imagemUrl: receita.imagemUrl || '',
+      caminhoArquivo: receita.imagemCaminhoFisico || '',
+      linkComentario: receita.linkOriginal || ''
+    }).catch((err) => {
+      console.error('[Instagram Espelhamento Receitas Erro]:', err.message);
+    });
+  } catch (_) {}
+
   return { sucesso: true, resultados };
 }
 

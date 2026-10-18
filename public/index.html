@@ -2423,6 +2423,9 @@
           <button class="sub-pill-btn" id="btnSub-sub-facebook" onclick="trocarSubConteudo('sub-facebook', event)" style="border-color: rgba(24, 119, 242, 0.4); color: #60a5fa;">
             📘 Página Facebook
           </button>
+          <button class="sub-pill-btn" id="btnSub-sub-instagram" onclick="trocarSubConteudo('sub-instagram', event)" style="border-color: rgba(225, 48, 108, 0.4); color: #f472b6;">
+            📸 Instagram Business
+          </button>
           <button class="sub-pill-btn" id="btnSub-sub-utms" onclick="trocarSubConteudo('sub-utms', event)" style="border-color: rgba(168, 85, 247, 0.4); color: #c084fc;">
             🎯 Controle de UTMs &amp; Métricas
           </button>
@@ -3388,6 +3391,207 @@
           </div>
         </div>
       </div> <!-- Fim de #sub-facebook -->
+
+      <!-- Sub-Aba: Instagram Business & Reels -->
+      <div id="sub-instagram" class="sub-content-panel">
+        <!-- Banner Principal do Instagram -->
+        <div style="background: linear-gradient(135deg, rgba(225, 48, 108, 0.15), rgba(131, 58, 180, 0.08)); border: 1px solid rgba(225, 48, 108, 0.35); border-radius: var(--radius-md); padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div style="display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 52px; height: 52px; border-radius: 14px; background: linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; box-shadow: 0 0 25px rgba(225, 48, 108, 0.4); flex-shrink: 0;">
+              📸
+            </div>
+            <div>
+              <h2 style="font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 0.2rem; display: flex; align-items: center; gap: 0.5rem;">
+                Instagram Business &amp; Reels
+                <span class="badge" id="igStatusBadge" style="font-size: 0.72rem; padding: 0.2rem 0.6rem; background: rgba(148, 163, 184, 0.2); color: #94a3b8;">Não Configurado</span>
+              </h2>
+              <p style="font-size: 0.82rem; color: var(--text-muted); max-width: 720px; line-height: 1.4;">
+                Publicações nativas de alta entrega no <strong>Feed (Fotos HD)</strong> e <strong>Reels (Vídeos MP4)</strong> via Meta Graph API oficial. Risco zero de banimento e sincronização com o WhatsApp!
+              </p>
+            </div>
+          </div>
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <div class="switch-container">
+              <span style="font-size: 0.85rem; color: var(--text-muted);">Publicação Ativa:</span>
+              <label class="switch">
+                <input type="checkbox" id="igAtivo" onchange="salvarConfigInstagramBtn(false)">
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Banner de Espelhamento Simultâneo Automático -->
+        <div style="background: linear-gradient(135deg, rgba(225, 48, 108, 0.12), rgba(37, 211, 102, 0.08)); border: 1px solid rgba(225, 48, 108, 0.35); border-radius: var(--radius-md); padding: 1.15rem 1.4rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div style="display: flex; align-items: center; gap: 0.85rem;">
+            <div style="width: 46px; height: 46px; border-radius: 50%; background: linear-gradient(135deg, #e1306c, #fd1d1d); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: #fff; box-shadow: 0 0 15px rgba(225, 48, 108, 0.45); flex-shrink: 0;">
+              ✨
+            </div>
+            <div>
+              <strong style="color: #fff; font-size: 1rem; display: block;">Espelhamento Simultâneo para o Feed e Reels</strong>
+              <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; max-width: 680px; line-height: 1.4;">
+                Quando uma <strong>Receita da Mary</strong> ou <strong>Artigo RSS</strong> for disparado para o WhatsApp, o robô publica simultaneamente no seu perfil do Instagram com a foto em alta qualidade e hashtags formatadas!
+              </p>
+            </div>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="focarTestePostInstagram()" style="font-size: 0.8rem; border-color: rgba(225, 48, 108, 0.5); color: #f472b6; white-space: nowrap;">
+            🚀 Testar Publicação Manual
+          </button>
+        </div>
+
+        <!-- Card 1: Conexão da Conta (Meta Graph API) -->
+        <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+            <h3 style="margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+              🔑 Credenciais do Instagram (Meta Graph API)
+            </h3>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">
+              Use o token de acesso da sua Página vinculada no <a href="https://developers.facebook.com/" target="_blank" style="color: #f472b6; text-decoration: underline;">Meta for Developers ↗</a>
+            </span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
+            <div>
+              <label for="igAccessTokenInput" style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.3rem; display: block;">Page Access Token / User Token (Meta):</label>
+              <div style="display: flex; gap: 0.5rem;">
+                <input type="password" id="igAccessTokenInput" class="form-control" placeholder="Cole aqui o token da Meta (EAAG...)" style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="toggleVisibilidadeTokenIg()" id="btnVerTokenIg" title="Ver/Ocultar Token">👁️</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="detectarContasInstagramBtn()" id="btnDetectarIg" style="background: linear-gradient(135deg, rgba(225, 48, 108, 0.25), rgba(131, 58, 180, 0.25)); border-color: rgba(225, 48, 108, 0.5); color: #f472b6; white-space: nowrap;">
+                  🔍 Auto-Detectar Conta
+                </button>
+              </div>
+            </div>
+            <div>
+              <label for="igUserIdInput" style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.3rem; display: block;">Instagram Account ID:</label>
+              <input type="text" id="igUserIdInput" class="form-control" placeholder="Ex: 17841400008460056" style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;">
+            </div>
+          </div>
+
+          <!-- Card de Prévia do Perfil Conectado -->
+          <div id="igCardPerfil" style="display: none; background: rgba(225, 48, 108, 0.08); border: 1px solid rgba(225, 48, 108, 0.3); border-radius: var(--radius-sm); padding: 0.85rem 1.15rem; margin-bottom: 1rem; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
+            <div style="display: flex; align-items: center; gap: 0.85rem;">
+              <img id="igFotoPerfil" src="" alt="Avatar Instagram" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid #e1306c;">
+              <div>
+                <strong id="igNomePerfil" style="color: #fff; font-size: 0.95rem; display: block;">@instagram</strong>
+                <span id="igSeguidoresPerfil" style="font-size: 0.75rem; color: var(--text-muted);">0 seguidores • 0 posts</span>
+              </div>
+            </div>
+            <a id="igLinkPerfil" href="#" target="_blank" class="btn btn-secondary btn-sm" style="font-size: 0.78rem; border-color: rgba(225, 48, 108, 0.4); color: #f472b6;">
+              📸 Abrir no Instagram ↗
+            </a>
+          </div>
+
+          <!-- Contêiner de Contas Descobertas (quando clica em Auto-Detectar) -->
+          <div id="igListaContasDetectadas" style="display: none; margin-bottom: 1rem; padding: 0.75rem; background: rgba(0,0,0,0.3); border-radius: var(--radius-sm); border: 1px dashed rgba(225, 48, 108, 0.4);">
+            <span style="font-size: 0.8rem; color: #f472b6; font-weight: 600; display: block; margin-bottom: 0.5rem;">✨ Contas encontradas no seu token: Clique para selecionar</span>
+            <div id="igContasDetectadasCorpo" style="display: flex; flex-direction: column; gap: 0.4rem;"></div>
+          </div>
+
+          <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+            <button class="btn" onclick="salvarConfigInstagramBtn(true)">💾 Salvar Configurações</button>
+            <button class="btn btn-secondary" onclick="testarConexaoInstagramBtn()" id="btnTestarConexaoIg">🔄 Testar Conexão com Instagram</button>
+          </div>
+        </div>
+
+        <!-- Card 2: Regras de Espelhamento e Hashtags -->
+        <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
+          <h3 style="margin-top: 0; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+            ⚙️ Regras de Postagem Automática
+          </h3>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
+            <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; background: rgba(255,255,255,0.03); padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+              <input type="checkbox" id="igPostarReceitas" style="width: 17px; height: 17px; accent-color: #e1306c;">
+              <span style="font-size: 0.85rem; color: #fff;">🍳 Espelhar <strong>Receitas da Mary</strong></span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; background: rgba(255,255,255,0.03); padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+              <input type="checkbox" id="igPostarRss" style="width: 17px; height: 17px; accent-color: #e1306c;">
+              <span style="font-size: 0.85rem; color: #fff;">📰 Espelhar <strong>Notícias do RSS</strong></span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; background: rgba(255,255,255,0.03); padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+              <input type="checkbox" id="igPostarCampanhas" style="width: 17px; height: 17px; accent-color: #e1306c;">
+              <span style="font-size: 0.85rem; color: #fff;">🛍️ Espelhar <strong>Campanhas/Shopee</strong></span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; background: rgba(255,255,255,0.03); padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+              <input type="checkbox" id="igAdicionarHashtags" style="width: 17px; height: 17px; accent-color: #e1306c;">
+              <span style="font-size: 0.85rem; color: #fff;">#️⃣ Anexar <strong>Hashtags no final</strong></span>
+            </label>
+          </div>
+
+          <div style="margin-bottom: 1rem;">
+            <label for="igHashtagsInput" style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.3rem; display: block;">Hashtags Padrão do Instagram:</label>
+            <textarea id="igHashtagsInput" class="form-control" rows="2" style="font-size: 0.85rem; resize: vertical;" placeholder="#receitas #receita #culinaria #gastronomia #delicia #comidadeverdade"></textarea>
+            <small style="font-size: 0.72rem; color: var(--text-muted);">As hashtags aumentam a descoberta orgânica de novos seguidores no Instagram.</small>
+          </div>
+
+          <button class="btn btn-secondary btn-sm" onclick="salvarConfigInstagramBtn(true)">💾 Salvar Regras</button>
+        </div>
+
+        <!-- Card 3: 🚀 Publicar Agora no Instagram (Teste Rápido) -->
+        <div id="cardTesteInstagram" style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
+          <h3 style="margin-top: 0; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+            🚀 Publicar Post Agora no Instagram (Feed ou Reels)
+          </h3>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+            <div>
+              <label for="igManualMediaUrl" style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.3rem; display: block;">URL da Foto ou Vídeo (ou escolha um arquivo):</label>
+              <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                <input type="url" id="igManualMediaUrl" class="form-control" placeholder="https://... ou escolha um arquivo" style="font-size: 0.85rem;">
+                <label class="btn btn-secondary btn-sm" style="cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 0.3rem;">
+                  📁 Escolher
+                  <input type="file" id="igManualFileInput" accept="image/*,video/mp4" style="display: none;" onchange="aoSelecionarArquivoManualInstagram(event)">
+                </label>
+              </div>
+              <small style="font-size: 0.72rem; color: var(--text-muted);">Formatos suportados: JPG, PNG, WEBP (Feed) ou MP4/MOV vertical (Reels).</small>
+            </div>
+            <div>
+              <label for="igManualLegenda" style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.3rem; display: block;">Legenda do Post:</label>
+              <textarea id="igManualLegenda" class="form-control" rows="3" placeholder="Escreva a legenda irresistível da postagem..." style="font-size: 0.85rem; resize: vertical;"></textarea>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+            <button class="btn" onclick="publicarPostManualInstagramBtn()" id="btnPublicarManualIg" style="background: linear-gradient(135deg, #e1306c, #bc1888); border: none;">
+              📸 Publicar Agora no Instagram
+            </button>
+          </div>
+        </div>
+
+        <!-- Card 4: Histórico de Posts do Instagram -->
+        <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+            <h3 style="margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+              📜 Histórico de Posts Enviados ao Instagram
+            </h3>
+            <div style="display: flex; gap: 0.5rem;">
+              <button class="btn btn-secondary btn-sm" onclick="carregarHistoricoInstagram()" style="font-size: 0.75rem;">🔄 Atualizar</button>
+              <button class="btn btn-danger btn-sm" onclick="limparHistoricoInstagramBtn()" id="btnLimparHistoricoIg" style="font-size: 0.75rem;">🗑️ Limpar Histórico</button>
+            </div>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table class="table" style="font-size: 0.82rem; width: 100%;">
+              <thead>
+                <tr>
+                  <th style="width: 140px;">Data/Hora</th>
+                  <th style="width: 70px;">Tipo</th>
+                  <th style="width: 60px;">Mídia</th>
+                  <th>Título / Legenda</th>
+                  <th style="width: 90px;">Origem</th>
+                  <th style="width: 110px;">Status</th>
+                  <th style="width: 130px; text-align: center;">Link</th>
+                </tr>
+              </thead>
+              <tbody id="tabelaHistoricoInstagramCorpo">
+                <tr>
+                  <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Nenhum post publicado no Instagram ainda.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div> <!-- Fim de #sub-instagram -->
 
       <!-- Sub-Aba 6: Controle Central de UTMs & Métricas de Tráfego -->
       <div id="sub-utms" class="sub-content-panel">
@@ -4554,6 +4758,7 @@ Uma receita prática, fofinha e deliciosa para o café da tarde!
       carregarFilaProjeto();
       carregarLogsProjeto();
       carregarConfigFacebookSilencioso();
+      carregarConfigInstagramSilencioso();
     }
 
     function atualizarCabecalhoProjeto(sessao) {
@@ -4756,6 +4961,9 @@ Uma receita prática, fofinha e deliciosa para o café da tarde!
       } else if (subId === 'sub-facebook') {
         carregarConfigFacebook();
         carregarFilaFacebook();
+      } else if (subId === 'sub-instagram') {
+        carregarConfigInstagram();
+        carregarHistoricoInstagram();
       } else if (subId === 'sub-utms') {
         carregarConfigUtm();
         carregarEstatisticasPonte();
@@ -8674,6 +8882,428 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
         if (data.sucesso) {
           mostrarToast('📘 Receita adicionada com sucesso à Esteira do Facebook!');
           carregarFilaFacebook();
+        } else {
+          mostrarToast(`Erro: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro: ${err.message}`, true);
+      }
+    }
+
+    // ==========================================
+    // MÓDULO DO INSTAGRAM BUSINESS & REELS
+    // ==========================================
+    let configInstagramCache = null;
+
+    async function carregarConfigInstagramSilencioso() {
+      if (!projetoSelecionado) return;
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/instagram/config`, {
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+        if (data.sucesso && data.config) {
+          configInstagramCache = data.config;
+          atualizarBadgeStatusInstagram(data.config);
+        }
+      } catch (_) {}
+    }
+
+    function atualizarBadgeStatusInstagram(config) {
+      const badge = document.getElementById('igStatusBadge');
+      if (!badge) return;
+      if (!config.igUserId || !config.accessToken) {
+        badge.innerText = '⚪ Não Configurado';
+        badge.style.background = 'rgba(148, 163, 184, 0.2)';
+        badge.style.color = '#94a3b8';
+      } else if (config.ativo) {
+        badge.innerText = `🟢 Ativo ${config.username ? '(@' + config.username + ')' : ''}`;
+        badge.style.background = 'rgba(225, 48, 108, 0.2)';
+        badge.style.color = '#f472b6';
+      } else {
+        badge.innerText = '⏸️ Pausado';
+        badge.style.background = 'rgba(251, 191, 36, 0.2)';
+        badge.style.color = '#fbbf24';
+      }
+    }
+
+    async function carregarConfigInstagram() {
+      if (!projetoSelecionado) return;
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/instagram/config`, {
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+
+        if (data.sucesso && data.config) {
+          configInstagramCache = data.config;
+          const c = data.config;
+
+          const chkAtivo = document.getElementById('igAtivo');
+          if (chkAtivo) chkAtivo.checked = Boolean(c.ativo);
+
+          const inputToken = document.getElementById('igAccessTokenInput');
+          if (inputToken) inputToken.value = c.accessToken || '';
+
+          const inputId = document.getElementById('igUserIdInput');
+          if (inputId) inputId.value = c.igUserId || '';
+
+          const chkRec = document.getElementById('igPostarReceitas');
+          if (chkRec) chkRec.checked = Boolean(c.postarAutomaticoReceitas ?? true);
+
+          const chkRss = document.getElementById('igPostarRss');
+          if (chkRss) chkRss.checked = Boolean(c.postarAutomaticoRss ?? true);
+
+          const chkCamp = document.getElementById('igPostarCampanhas');
+          if (chkCamp) chkCamp.checked = Boolean(c.postarAutomaticoCampanhas ?? false);
+
+          const chkHash = document.getElementById('igAdicionarHashtags');
+          if (chkHash) chkHash.checked = Boolean(c.adicionarHashtags ?? true);
+
+          const txtHash = document.getElementById('igHashtagsInput');
+          if (txtHash) txtHash.value = c.hashtags || '#receitas #receita #culinaria #gastronomia #delicia #comidadeverdade';
+
+          atualizarBadgeStatusInstagram(c);
+          renderizarPerfilInstagram(c);
+        }
+      } catch (err) {
+        console.error('Erro ao carregar config Instagram:', err);
+      }
+    }
+
+    function renderizarPerfilInstagram(c) {
+      const card = document.getElementById('igCardPerfil');
+      if (!card) return;
+
+      if (c.username || c.foto || c.nome) {
+        card.style.display = 'flex';
+        const img = document.getElementById('igFotoPerfil');
+        if (img) img.src = c.foto || 'https://via.placeholder.com/48?text=IG';
+        const nome = document.getElementById('igNomePerfil');
+        if (nome) nome.innerText = c.username ? `@${c.username}` : (c.nome || 'Instagram Business');
+        const seg = document.getElementById('igSeguidoresPerfil');
+        if (seg) seg.innerText = `${c.nome || ''} • Total de postagens enviadas: ${c.totalEnviados || 0}`;
+        const link = document.getElementById('igLinkPerfil');
+        if (link && c.username) link.href = `https://instagram.com/${c.username}`;
+      } else {
+        card.style.display = 'none';
+      }
+    }
+
+    function toggleVisibilidadeTokenIg() {
+      const input = document.getElementById('igAccessTokenInput');
+      const btn = document.getElementById('btnVerTokenIg');
+      if (!input) return;
+      if (input.type === 'password') {
+        input.type = 'text';
+        if (btn) btn.innerText = '🔒';
+      } else {
+        input.type = 'password';
+        if (btn) btn.innerText = '👁️';
+      }
+    }
+
+    async function salvarConfigInstagramBtn(mostrarAviso = true) {
+      if (!projetoSelecionado) return;
+
+      const payload = {
+        ativo: document.getElementById('igAtivo')?.checked ?? false,
+        accessToken: document.getElementById('igAccessTokenInput')?.value?.trim() || '',
+        igUserId: document.getElementById('igUserIdInput')?.value?.trim() || '',
+        postarAutomaticoReceitas: document.getElementById('igPostarReceitas')?.checked ?? true,
+        postarAutomaticoRss: document.getElementById('igPostarRss')?.checked ?? true,
+        postarAutomaticoCampanhas: document.getElementById('igPostarCampanhas')?.checked ?? false,
+        adicionarHashtags: document.getElementById('igAdicionarHashtags')?.checked ?? true,
+        hashtags: document.getElementById('igHashtagsInput')?.value?.trim() || ''
+      };
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/instagram/config`, {
+          method: 'POST',
+          headers: { ...obterHeaders(), 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await resp.json();
+
+        if (data.sucesso) {
+          configInstagramCache = data.config;
+          atualizarBadgeStatusInstagram(data.config);
+          renderizarPerfilInstagram(data.config);
+          if (mostrarAviso) {
+            mostrarToast('📸 Configurações do Instagram salvas com sucesso!');
+          }
+        } else {
+          mostrarToast(`Erro ao salvar: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro: ${err.message}`, true);
+      }
+    }
+
+    async function testarConexaoInstagramBtn() {
+      if (!projetoSelecionado) return;
+
+      const token = document.getElementById('igAccessTokenInput')?.value?.trim();
+      const id = document.getElementById('igUserIdInput')?.value?.trim();
+
+      if (!token || !id) {
+        mostrarToast('Preencha o Token da Meta e o Instagram Account ID para testar.', true);
+        return;
+      }
+
+      const btn = document.getElementById('btnTestarConexaoIg');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = '🔄 Conectando à Meta Graph API...';
+      }
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/instagram/testar-conexao`, {
+          method: 'POST',
+          headers: { ...obterHeaders(), 'Content-Type': 'application/json' },
+          body: JSON.stringify({ accessToken: token, igUserId: id })
+        });
+        const data = await resp.json();
+
+        if (data.sucesso) {
+          mostrarToast(`🎉 Sucesso! Conectado à conta @${data.dados.username} (${data.dados.seguidores || 0} seguidores)`);
+          await carregarConfigInstagram();
+        } else {
+          mostrarToast(`Falha na conexão: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro: ${err.message}`, true);
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerText = '🔄 Testar Conexão com Instagram';
+        }
+      }
+    }
+
+    async function detectarContasInstagramBtn() {
+      if (!projetoSelecionado) return;
+
+      const token = document.getElementById('igAccessTokenInput')?.value?.trim();
+      if (!token) {
+        mostrarToast('Cole o seu Access Token da Meta primeiro para detectar contas vinculadas.', true);
+        return;
+      }
+
+      const btn = document.getElementById('btnDetectarIg');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = '🔍 Buscando contas...';
+      }
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/instagram/detectar-contas`, {
+          method: 'POST',
+          headers: { ...obterHeaders(), 'Content-Type': 'application/json' },
+          body: JSON.stringify({ accessToken: token })
+        });
+        const data = await resp.json();
+
+        const listaBox = document.getElementById('igListaContasDetectadas');
+        const corpoBox = document.getElementById('igContasDetectadasCorpo');
+
+        if (data.sucesso && data.contas && data.contas.length > 0) {
+          mostrarToast(`✨ ${data.contas.length} conta(s) do Instagram Business encontrada(s)!`);
+          if (listaBox && corpoBox) {
+            corpoBox.innerHTML = data.contas.map(c => `
+              <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.05); padding: 0.5rem 0.75rem; border-radius: var(--radius-sm); border: 1px solid rgba(225, 48, 108, 0.3);">
+                <div style="display: flex; align-items: center; gap: 0.6rem;">
+                  <img src="${c.foto || 'https://via.placeholder.com/32'}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
+                  <div>
+                    <strong style="color: #fff; font-size: 0.85rem;">@${c.username}</strong>
+                    <span style="font-size: 0.72rem; color: var(--text-muted); display: block;">ID: ${c.igUserId} • Página: ${c.pageNome || ''}</span>
+                  </div>
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="selecionarContaInstagramDetectada('${c.igUserId}', '${c.username || ''}', '${c.pageAccessToken || ''}')" style="font-size: 0.75rem; border-color: #e1306c; color: #f472b6;">
+                  Usar Esta Conta ✓
+                </button>
+              </div>
+            `).join('');
+            listaBox.style.display = 'block';
+          }
+        } else {
+          mostrarToast('Nenhuma conta do Instagram Business vinculada a este token foi encontrada. Certifique-se de que a conta é Comercial e está conectada a uma Página do Facebook.', true);
+          if (listaBox) listaBox.style.display = 'none';
+        }
+      } catch (err) {
+        mostrarToast(`Erro ao detectar contas: ${err.message}`, true);
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerText = '🔍 Auto-Detectar Conta';
+        }
+      }
+    }
+
+    function selecionarContaInstagramDetectada(igUserId, username, pageAccessToken) {
+      const inputId = document.getElementById('igUserIdInput');
+      if (inputId) inputId.value = igUserId;
+
+      if (pageAccessToken) {
+        const inputToken = document.getElementById('igAccessTokenInput');
+        if (inputToken) inputToken.value = pageAccessToken;
+      }
+
+      const listaBox = document.getElementById('igListaContasDetectadas');
+      if (listaBox) listaBox.style.display = 'none';
+
+      mostrarToast(`Conta @${username} (ID: ${igUserId}) selecionada! Clique em "Salvar Configurações".`);
+      salvarConfigInstagramBtn(true);
+    }
+
+    function focarTestePostInstagram() {
+      const card = document.getElementById('cardTesteInstagram');
+      if (card) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        document.getElementById('igManualLegenda')?.focus();
+      }
+    }
+
+    async function aoSelecionarArquivoManualInstagram(evt) {
+      const file = evt.target.files?.[0];
+      if (!file) return;
+
+      mostrarToast('Enviando mídia para o servidor...');
+      const formData = new FormData();
+      formData.append('arquivo', file);
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/upload`, {
+          method: 'POST',
+          headers: obterHeaders(),
+          body: formData
+        });
+        const data = await resp.json();
+        if (data.sucesso && data.url) {
+          const inputUrl = document.getElementById('igManualMediaUrl');
+          if (inputUrl) inputUrl.value = data.url;
+          mostrarToast('Mídia carregada com sucesso!');
+        } else {
+          mostrarToast(`Erro no upload: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro: ${err.message}`, true);
+      }
+    }
+
+    async function publicarPostManualInstagramBtn() {
+      if (!projetoSelecionado) return;
+
+      const mediaUrl = document.getElementById('igManualMediaUrl')?.value?.trim();
+      const legenda = document.getElementById('igManualLegenda')?.value?.trim();
+
+      if (!mediaUrl) {
+        mostrarToast('Informe a URL da imagem ou vídeo (ou escolha um arquivo) para publicar no Instagram.', true);
+        return;
+      }
+
+      const btn = document.getElementById('btnPublicarManualIg');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = '⏳ Publicando no Instagram...';
+      }
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/instagram/publicar-agora`, {
+          method: 'POST',
+          headers: { ...obterHeaders(), 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mediaUrl, legenda, titulo: 'Post Manual' })
+        });
+        const data = await resp.json();
+
+        if (data.sucesso) {
+          mostrarToast('🎉 Post publicado com sucesso no Instagram!');
+          document.getElementById('igManualMediaUrl').value = '';
+          document.getElementById('igManualLegenda').value = '';
+          await carregarHistoricoInstagram();
+        } else {
+          mostrarToast(`Falha na publicação: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro: ${err.message}`, true);
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerText = '📸 Publicar Agora no Instagram';
+        }
+      }
+    }
+
+    async function carregarHistoricoInstagram() {
+      if (!projetoSelecionado) return;
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/instagram/historico`, {
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+
+        const tabela = document.getElementById('tabelaHistoricoInstagramCorpo');
+        if (!tabela) return;
+
+        if (data.sucesso && Array.isArray(data.historico)) {
+          if (data.historico.length === 0) {
+            tabela.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Nenhum post publicado no Instagram ainda.</td></tr>';
+          } else {
+            tabela.innerHTML = data.historico.map(item => {
+              const dataFormatada = item.enviadoEm ? new Date(item.enviadoEm).toLocaleString('pt-BR') : '--';
+              const isVideo = item.tipo === 'video' || (item.mediaUrl && item.mediaUrl.endsWith('.mp4'));
+              const badgeTipo = isVideo ? '<span class="badge" style="background: rgba(168, 85, 247, 0.2); color: #c084fc;">Reels</span>' : '<span class="badge" style="background: rgba(225, 48, 108, 0.2); color: #f472b6;">Feed</span>';
+              const statusBadge = item.sucesso ? '<span class="badge badge-connected">✅ Publicado</span>' : `<span class="badge badge-disconnected" title="${item.erro || ''}">❌ Falha</span>`;
+
+              const miniatura = item.mediaUrl ? `
+                <img src="${item.mediaUrl}" style="width: 38px; height: 38px; border-radius: 6px; object-fit: cover;" onerror="this.style.display='none'">
+              ` : '--';
+
+              const linkInsta = item.postUrl ? `
+                <a href="${item.postUrl}" target="_blank" class="btn btn-secondary btn-sm" style="font-size: 0.72rem; padding: 0.2rem 0.5rem; color: #f472b6; border-color: rgba(225, 48, 108, 0.4);">
+                  📸 Ver Post ↗
+                </a>
+              ` : '<span style="color: var(--text-muted); font-size: 0.72rem;">--</span>';
+
+              return `
+                <tr>
+                  <td style="font-family: monospace; font-size: 0.78rem;">${dataFormatada}</td>
+                  <td>${badgeTipo}</td>
+                  <td>${miniatura}</td>
+                  <td>
+                    <strong style="color: #fff; font-size: 0.85rem; display: block;">${item.titulo || 'Post'}</strong>
+                    <span style="font-size: 0.75rem; color: var(--text-muted); display: block; max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                      ${(item.legenda || '').replace(/[\r\n]+/g, ' ')}
+                    </span>
+                  </td>
+                  <td><span class="badge" style="font-size: 0.7rem;">${item.origem || 'manual'}</span></td>
+                  <td>${statusBadge}</td>
+                  <td style="text-align: center;">${linkInsta}</td>
+                </tr>
+              `;
+            }).join('');
+          }
+        }
+      } catch (err) {
+        console.error('Erro ao carregar histórico Instagram:', err);
+      }
+    }
+
+    async function limparHistoricoInstagramBtn() {
+      if (!projetoSelecionado) return;
+      if (!confirm('Deseja realmente limpar o histórico de postagens do Instagram?')) return;
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/instagram/historico`, {
+          method: 'DELETE',
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+        if (data.sucesso) {
+          mostrarToast('Histórico do Instagram limpo com sucesso.');
+          await carregarHistoricoInstagram();
         } else {
           mostrarToast(`Erro: ${data.erro}`, true);
         }

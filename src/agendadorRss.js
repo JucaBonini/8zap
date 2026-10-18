@@ -472,6 +472,38 @@ async function processarDisparoArtigoRss(projectId, config, horarioAtual) {
       'success'
     );
 
+    // Espelhamento automático simultâneo para o Facebook
+    try {
+      const facebookManager = require('./facebookManager');
+      facebookManager.publicarEspelhamentoAutomatico(projectId, {
+        origem: 'rss',
+        origemId: artigo.id,
+        titulo: artigo.titulo,
+        tipo: imagemParaEnvio ? 'imagem' : 'texto',
+        texto: textoMensagem,
+        imagemUrl: imagemParaEnvio || '',
+        linkComentario: artigo.link || ''
+      }).catch((err) => {
+        console.error('[Facebook Espelhamento RSS Erro]:', err.message);
+      });
+    } catch (_) {}
+
+    // Espelhamento automático simultâneo para o Instagram
+    try {
+      const instagramManager = require('./instagramManager');
+      instagramManager.publicarEspelhamentoInstagram(projectId, {
+        origem: 'rss',
+        origemId: artigo.id,
+        titulo: artigo.titulo,
+        tipo: imagemParaEnvio ? 'imagem' : 'texto',
+        texto: textoMensagem,
+        imagemUrl: imagemParaEnvio || '',
+        linkComentario: artigo.link || ''
+      }).catch((err) => {
+        console.error('[Instagram Espelhamento RSS Erro]:', err.message);
+      });
+    } catch (_) {}
+
     return {
       sucesso: true,
       artigo,
