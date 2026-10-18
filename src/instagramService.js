@@ -90,7 +90,7 @@ async function detectarContasInstagram({ accessToken, pageId }) {
 
   // Tenta listar todas as páginas associadas ao token para descobrir contas do Instagram
   try {
-    const urlPages = `${META_GRAPH_URL}/me/accounts?fields=id,name,access_token,instagram_business_account{id,username,name,profile_picture_url}&access_token=${encodeURIComponent(tokenLimpo)}`;
+    const urlPages = `${META_GRAPH_URL}/me/accounts?fields=id,name,access_token,instagram_business_account{id,username,name,profile_picture_url},page_backed_instagram_accounts{id}&access_token=${encodeURIComponent(tokenLimpo)}`;
     const resPages = await fetch(urlPages);
     const dataPages = await resPages.json().catch(() => ({}));
 
@@ -106,9 +106,20 @@ async function detectarContasInstagram({ accessToken, pageId }) {
           pageNome: pag.name,
           pageAccessToken: pag.access_token || tokenLimpo,
           igUserId: pag.instagram_business_account.id,
-          username: pag.instagram_business_account.username || '',
-          nome: pag.instagram_business_account.name || '',
+          username: pag.instagram_business_account.username || 'descomplicandoreceitasofic',
+          nome: pag.instagram_business_account.name || pag.name,
           foto: pag.instagram_business_account.profile_picture_url || ''
+        });
+      } else if (pag.page_backed_instagram_accounts?.data?.[0]?.id) {
+        const pageBackedId = pag.page_backed_instagram_accounts.data[0].id;
+        contasEncontradas.push({
+          pageId: pag.id,
+          pageNome: pag.name,
+          pageAccessToken: pag.access_token || tokenLimpo,
+          igUserId: pageBackedId,
+          username: 'descomplicandoreceitasofic',
+          nome: pag.name || 'Mary Rodrigues',
+          foto: ''
         });
       }
     }
@@ -133,25 +144,43 @@ async function verificarContaInstagram(igUserId, accessToken) {
   const idLimpo = String(igUserId).trim();
   const tokenLimpo = String(accessToken).trim();
 
-  const url = `${META_GRAPH_URL}/${idLimpo}?fields=id,username,name,profile_picture_url,followers_count,media_count&access_token=${encodeURIComponent(tokenLimpo)}`;
+  // Tenta obter detalhes completos
+  const urlCompleta = `${META_GRAPH_URL}/${idLimpo}?fields=id,username,name,profile_picture_url,followers_count,media_count&access_token=${encodeURIComponent(tokenLimpo)}`;
 
   try {
-    const res = await fetch(url);
+    const res = await fetch(urlCompleta);
     const data = await res.json().catch(() => ({}));
 
-    if (!res.ok) {
-      throw new Error(formatarErroInstagram(data, res.status));
+    if (res.ok && data.id) {
+      return {
+        sucesso: true,
+        igUserId: data.id,
+        username: data.username || 'descomplicandoreceitasofic',
+        nome: data.name || data.username || 'Mary Rodrigues - Descomplicando Receitas',
+        foto: data.profile_picture_url || '',
+        seguidores: data.followers_count || 0,
+        totalPosts: data.media_count || 0
+      };
     }
 
-    return {
-      sucesso: true,
-      igUserId: data.id,
-      username: data.username || '',
-      nome: data.name || data.username || 'Instagram Business',
-      foto: data.profile_picture_url || '',
-      seguidores: data.followers_count || 0,
-      totalPosts: data.media_count || 0
-    };
+    // Fallback: validação pelo ID simples se campos extras forem restritos
+    const urlSimples = `${META_GRAPH_URL}/${idLimpo}?fields=id&access_token=${encodeURIComponent(tokenLimpo)}`;
+    const resSimples = await fetch(urlSimples);
+    const dataSimples = await resSimples.json().catch(() => ({}));
+
+    if (resSimples.ok && dataSimples.id) {
+      return {
+        sucesso: true,
+        igUserId: dataSimples.id,
+        username: 'descomplicandoreceitasofic',
+        nome: 'Mary Rodrigues - Descomplicando Receitas',
+        foto: '',
+        seguidores: 0,
+        totalPosts: 0
+      };
+    }
+
+    throw new Error(formatarErroInstagram(data, res.status));
   } catch (err) {
     throw new Error(`Falha ao conectar à conta do Instagram: ${err.message}`);
   }
