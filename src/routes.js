@@ -17,15 +17,20 @@ if (!fs.existsSync(pastaUploads)) {
 /**
  * Middleware de Autenticação Simples via Header 'x-api-key'
  */
+function sanitizarChave(chave) {
+  if (!chave || typeof chave !== 'string') return '';
+  return chave.trim().replace(/^["']|["']$/g, '').trim();
+}
+
 function autenticarApiKey(req, res, next) {
-  const chaveConfigurada = process.env.API_KEY;
+  const chaveConfigurada = sanitizarChave(process.env.API_KEY);
 
   // Se por acaso não estiver configurado no .env, alerta mas não trava
   if (!chaveConfigurada) {
     return next();
   }
 
-  const chaveRecebida = req.headers['x-api-key'] || req.query.apiKey;
+  const chaveRecebida = sanitizarChave(req.headers['x-api-key'] || req.query.apiKey);
 
   if (!chaveRecebida || chaveRecebida !== chaveConfigurada) {
     return res.status(401).json({
