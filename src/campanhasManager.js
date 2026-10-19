@@ -272,7 +272,9 @@ async function adicionarItemCampanha(projectId, dadosItem) {
     link = '',
     imagem = '',
     legenda = '',
-    ativo = true
+    ativo = true,
+    esteira = true,
+    agendado_para = null
   } = dadosItem;
 
   if (!titulo || !titulo.trim()) {
@@ -291,6 +293,8 @@ async function adicionarItemCampanha(projectId, dadosItem) {
     imagem: imagem ? imagem.trim() : '',
     legenda: legenda ? legenda.trim() : '',
     ativo: ativo !== false,
+    esteira: esteira !== false,
+    agendado_para: agendado_para || null,
     vezesEnviado: 0,
     ultimoEnvioEm: null,
     criadoEm: new Date().toISOString()
@@ -327,6 +331,8 @@ async function atualizarItemCampanha(projectId, itemId, dadosAtualizacao) {
     const itemAtualizado = {
       ...itemExistente,
       ...dadosAtualizacao,
+      esteira: dadosAtualizacao.esteira !== undefined ? Boolean(dadosAtualizacao.esteira) : (itemExistente.esteira !== false),
+      agendado_para: dadosAtualizacao.agendado_para !== undefined ? dadosAtualizacao.agendado_para : itemExistente.agendado_para,
       id: itemExistente.id, // Não permite alterar o ID
       criadoEm: itemExistente.criadoEm
     };
@@ -378,8 +384,23 @@ async function obterProximoItemDisponivel(projectId, tipoDesejado = 'qualquer') 
     return null;
   }
 
-  // 1. Filtra itens ativos
-  let elegiveis = itens.filter((i) => i.ativo);
+  // 1. Filtra itens ativos e prontos para envio (modo esteira da grade ou com data fixa já vencida)
+  const agoraTimestamp = Date.now();
+  let elegiveis = itens.filter((i) => {
+    if (!i.ativo) return false;
+    // Se o item foi configurado com data fixa futura (sem ser esteira), não deve ser puxado pela esteira antes da hora
+    if (i.esteira === false && i.agendado_para) {
+      const ts = new Date(i.agendado_para).getTime();
+      return ts <= agoraTimestamp;
+    }
+    return true;
+  });
+
+  // Prioriza itens marcados como Modo Esteira
+  const itensEsteira = elegiveis.filter((i) => i.esteira !== false);
+  if (itensEsteira.length > 0) {
+    elegiveis = itensEsteira;
+  }
 
   // 2. Se houver filtro de tipo e houver itens desse tipo, prioriza o tipo desejado
   if (tipoDesejado && tipoDesejado !== 'qualquer') {

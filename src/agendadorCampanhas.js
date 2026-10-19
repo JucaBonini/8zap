@@ -8,6 +8,9 @@ const { logProjeto } = require('./logger');
 
 const diretorioData = path.join(__dirname, '..', 'data');
 
+// Trava em memória para impedir execuções simultâneas de campanhas para o mesmo projeto
+const campanhasEmDisparo = new Set();
+
 /**
  * Executa a checagem e disparo periódico de campanhas e ofertas para todos os projetos ativos
  */
@@ -27,6 +30,11 @@ async function verificarEDispararCampanhas() {
 
       // Pula se campanhas estiverem desativadas
       if (!config.ativo) {
+        continue;
+      }
+
+      // Se já houver um disparo de campanha em andamento para este projeto, pula para não encavalar
+      if (campanhasEmDisparo.has(projectId)) {
         continue;
       }
 
@@ -55,6 +63,18 @@ async function verificarEDispararCampanhas() {
         continue;
       }
 
+      // Se a Grade Diária Mestra estiver ativa e já gerenciar este mesmo horário para campanhas, deixa a Grade disparar
+      try {
+        const gradeManager = require('./gradeManager');
+        const configGrade = gradeManager.obterConfigGrade(projectId);
+        if (configGrade.ativo && Array.isArray(configGrade.horarios)) {
+          const temNaGrade = configGrade.horarios.some((s) => s.hora === horaAtual && s.origem === 'campanhas');
+          if (temNaGrade) {
+            continue;
+          }
+        }
+      } catch (_) {}
+
       // Verifica limite diário
       if (controle.totalHoje >= config.quantidadePorDia) {
         logProjeto(
@@ -79,6 +99,10 @@ async function verificarEDispararCampanhas() {
         'info'
       );
 
+      // MARCAÇÃO ATÔMICA IMEDIATA: Registra o horário consumido antes de começar o envio para blindar contra ticks concorrentes
+      controle.horariosDisparados.add(horaAtual);
+      await campanhasManager.salvarControleDiarioCampanhas(projectId, controle);
+
       // Executa o disparo do item
       await processarDisparoCampanha(projectId, config, horaAtual, tipoSlot);
     }
@@ -96,9 +120,50 @@ async function verificarEDispararCampanhas() {
  * @param {string} [itemIdForcado=null]
  */
 async function processarDisparoCampanha(projectId, config, horarioAtual, tipoSlot = 'qualquer', itemIdForcado = null) {
+  if (campanhasEmDisparo.has(projectId)) {
+    logProjeto(projectId, 'CAMPANHA_BLOQUEIO_CONCORRENCIA', `Disparo já em andamento para o projeto ${projectId}. Ignorando nova tentativa simultânea.`, 'warn');
+    return { sucesso: false, motivo: 'ja_em_disparo' };
+  }
+
+  campanhasEmDisparo.add(projectId);
   const controle = await campanhasManager.obterControleDiarioCampanhas(projectId);
 
   try {
+    const horaBase = typeof horarioAtual === 'string' ? horarioAtual.replace(/^MANUAL_/, '') : '';
+
+    // Se não for disparo manual de teste com item específico, valida regras de limite e unicidade por minuto
+    if (!itemIdForcado) {
+      // 1. Bloqueio de duplicidade no mesmo minuto (ex: 19:35)
+      if (horaBase && controle.horariosDisparados.has(horaBase)) {
+        logProjeto(
+          projectId,
+          'CAMPANHA_BLOQUEIO_DUPLICADO',
+          `Disparo para o minuto ${horaBase} já foi registrado hoje. Evitando envio duplicado de campanhas/Shopee.`,
+          'warn'
+        );
+        return { sucesso: false, motivo: 'ja_disparado_neste_minuto' };
+      }
+
+      // 2. Limite diário estrito (ex: 2 achadinhos por dia)
+      const limiteDiario = parseInt(config.quantidadePorDia, 10) || 2;
+      if (controle.totalHoje >= limiteDiario) {
+        logProjeto(
+          projectId,
+          'LIMITE_DIARIO_CAMPANHAS',
+          `Limite de disparos diários atingido (${controle.totalHoje}/${limiteDiario}). Disparo automático cancelado para proteger o algoritmo do WhatsApp.`,
+          'info'
+        );
+        return { sucesso: false, motivo: 'limite_diario_atingido' };
+      }
+    }
+
+    // Registra imediatamente o horário consumido para evitar ticks concorrentes
+    if (horaBase) {
+      controle.horariosDisparados.add(horaBase);
+    }
+    controle.horariosDisparados.add(horarioAtual);
+    await campanhasManager.salvarControleDiarioCampanhas(projectId, controle);
+
     let item = null;
 
     if (itemIdForcado) {
@@ -116,8 +181,6 @@ async function processarDisparoCampanha(projectId, config, horarioAtual, tipoSlo
         `Nenhum item disponível na fila de campanhas para o horário ${horarioAtual} [Filtro: ${tipoSlot}]. Disparo pulado com segurança.`,
         'warn'
       );
-      controle.horariosDisparados.add(horarioAtual);
-      await campanhasManager.salvarControleDiarioCampanhas(projectId, controle);
       return {
         sucesso: false,
         motivo: 'fila_vazia',
@@ -278,6 +341,10 @@ async function processarDisparoCampanha(projectId, config, horarioAtual, tipoSlo
 
     // Registra controle diário
     controle.horariosDisparados.add(horarioAtual);
+    if (typeof horarioAtual === 'string' && horarioAtual.startsWith('MANUAL_')) {
+      const horaBase = horarioAtual.replace(/^MANUAL_/, '');
+      controle.horariosDisparados.add(horaBase);
+    }
     controle.totalHoje += 1;
     await campanhasManager.salvarControleDiarioCampanhas(projectId, controle);
 
@@ -303,6 +370,8 @@ async function processarDisparoCampanha(projectId, config, horarioAtual, tipoSlo
       'error'
     );
     throw erroGeral;
+  } finally {
+    campanhasEmDisparo.delete(projectId);
   }
 }
 

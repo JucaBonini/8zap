@@ -297,6 +297,18 @@ async function verificarEDispararRss() {
         continue;
       }
 
+      // Se a Grade Diária estiver ativa e já gerenciar este mesmo horário para RSS, ignora aqui para evitar disparo duplo
+      try {
+        const gradeManager = require('./gradeManager');
+        const configGrade = gradeManager.obterConfigGrade(projectId);
+        if (configGrade.ativo && Array.isArray(configGrade.horarios)) {
+          const temNaGrade = configGrade.horarios.some((s) => s.hora === horaAtual && s.origem === 'rss');
+          if (temNaGrade) {
+            continue;
+          }
+        }
+      } catch (_) {}
+
       // Verifica se atingiu a quantidade diária máxima
       if (controle.totalHoje >= config.quantidadePorDia) {
         logProjeto(
@@ -309,6 +321,10 @@ async function verificarEDispararRss() {
         await salvarControleDiario(projectId, controle);
         continue;
       }
+
+      // Registra horário imediatamente para blindar contra concorrência
+      controle.horariosDisparados.add(horaAtual);
+      await salvarControleDiario(projectId, controle);
 
       // Processa o disparo do artigo
       await processarDisparoArtigoRss(projectId, config, horaAtual);
@@ -472,37 +488,6 @@ async function processarDisparoArtigoRss(projectId, config, horarioAtual) {
       'success'
     );
 
-    // Espelhamento automático simultâneo para o Facebook
-    try {
-      const facebookManager = require('./facebookManager');
-      facebookManager.publicarEspelhamentoAutomatico(projectId, {
-        origem: 'rss',
-        origemId: artigo.id,
-        titulo: artigo.titulo,
-        tipo: imagemParaEnvio ? 'imagem' : 'texto',
-        texto: textoMensagem,
-        imagemUrl: imagemParaEnvio || '',
-        linkComentario: artigo.link || ''
-      }).catch((err) => {
-        console.error('[Facebook Espelhamento RSS Erro]:', err.message);
-      });
-    } catch (_) {}
-
-    // Espelhamento automático simultâneo para o Instagram
-    try {
-      const instagramManager = require('./instagramManager');
-      instagramManager.publicarEspelhamentoInstagram(projectId, {
-        origem: 'rss',
-        origemId: artigo.id,
-        titulo: artigo.titulo,
-        tipo: imagemParaEnvio ? 'imagem' : 'texto',
-        texto: textoMensagem,
-        imagemUrl: imagemParaEnvio || '',
-        linkComentario: artigo.link || ''
-      }).catch((err) => {
-        console.error('[Instagram Espelhamento RSS Erro]:', err.message);
-      });
-    } catch (_) {}
 
     return {
       sucesso: true,

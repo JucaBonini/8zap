@@ -281,13 +281,15 @@ async function verificarEDispararGrade() {
           'info'
         );
 
+        // Registra execução imediatamente para blindar contra ticks concorrentes
+        config.historicoDisparos[dataHoje].push(chaveExecucao);
+        const caminho = obterCaminhoGrade(projectId);
+        try {
+          fs.writeFileSync(caminho, JSON.stringify(config, null, 2), 'utf8');
+        } catch (_) {}
+
         try {
           const resultado = await executarDisparoSlot(projectId, slot, config.destinos);
-
-          // Registra execução
-          config.historicoDisparos[dataHoje].push(chaveExecucao);
-          const caminho = obterCaminhoGrade(projectId);
-          fs.writeFileSync(caminho, JSON.stringify(config, null, 2), 'utf8');
 
           if (resultado && resultado.motivo === 'esteira_vazia') {
             logProjeto(
