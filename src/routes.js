@@ -407,6 +407,24 @@ router.post('/sessions/:projectId/fila', async (req, res) => {
 });
 
 /**
+ * DELETE /sessions/:projectId/fila-enviados
+ * Remove todos os itens que já foram enviados da fila de postagens
+ */
+router.delete('/sessions/:projectId/fila-enviados', async (req, res) => {
+  const { projectId } = req.params;
+  try {
+    const resultado = await agendador.limparEnviadosFila(projectId);
+    res.json({
+      sucesso: true,
+      mensagem: `${resultado.removidos} post(s) já enviado(s) removido(s) com sucesso.`,
+      removidos: resultado.removidos
+    });
+  } catch (err) {
+    res.status(500).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
  * DELETE /sessions/:projectId/fila/:id
  * Remove um item da fila de postagens
  */

@@ -221,6 +221,31 @@ async function removerItemFila(projectId, idItem) {
 }
 
 /**
+ * Remove todos os itens que já foram enviados da fila de um projeto (Thread-safe com Lock)
+ * @param {string} projectId
+ * @returns {Promise<{ removidos: number }>}
+ */
+async function limparEnviadosFila(projectId) {
+  return comLockProjeto(projectId, async () => {
+    const filaAtual = lerArquivoFila(projectId);
+    const pendentes = filaAtual.filter((item) => !item.enviado);
+    const removidos = filaAtual.length - pendentes.length;
+
+    if (removidos > 0) {
+      gravarArquivoFila(projectId, pendentes);
+      logProjeto(
+        projectId,
+        'FILA_LIMPEZA_ENVIADOS',
+        `Limpeza da fila manual: ${removidos} post(s) já enviado(s) removido(s).`,
+        'info'
+      );
+    }
+
+    return { removidos };
+  });
+}
+
+/**
  * Edita um item da fila de um projeto (Thread-safe com Lock)
  * @param {string} projectId
  * @param {string} idItem
@@ -348,10 +373,22 @@ async function reenviarItemFila(projectId, idItem) {
  */
 async function atualizarStatusItem(projectId, idItem, atualizacoes) {
   return comLockProjeto(projectId, async () => {
-    const filaAtual = lerArquivoFila(projectId);
+    let filaAtual = lerArquivoFila(projectId);
     const item = filaAtual.find((i) => i.id === idItem);
     if (item) {
       Object.assign(item, atualizacoes);
+
+      // Auto-retenção de segurança: mantém no máximo 60 posts já enviados no histórico
+      if (atualizacoes.enviado) {
+        const MAX_ENVIADOS_HISTORICO = 60;
+        const pendentesOuErro = filaAtual.filter((i) => !i.enviado);
+        const enviados = filaAtual.filter((i) => i.enviado);
+        if (enviados.length > MAX_ENVIADOS_HISTORICO) {
+          const enviadosRecentes = enviados.slice(-MAX_ENVIADOS_HISTORICO);
+          filaAtual = [...pendentesOuErro, ...enviadosRecentes];
+        }
+      }
+
       gravarArquivoFila(projectId, filaAtual);
     }
   });
@@ -677,6 +714,7 @@ module.exports = {
   editarItemFila,
   reenviarItemFila,
   removerItemFila,
+  limparEnviadosFila,
   atualizarStatusItem,
   dispararProximoItemEsteira,
   executarCicloAgendador,

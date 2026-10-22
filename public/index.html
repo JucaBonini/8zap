@@ -3182,7 +3182,34 @@
           </div>
         </form>
 
-        <h3 style="margin-bottom: 1rem;">Itens na Fila</h3>
+        <!-- Header e Controles da Tabela da Fila -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2rem; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+          <div>
+            <h3 style="margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+              Itens na Fila
+              <span id="badgeFilaTotalGeral" class="badge" style="background: rgba(255, 255, 255, 0.08); color: var(--text-muted); font-size: 0.75rem;">0 itens</span>
+            </h3>
+          </div>
+
+          <!-- Filtros de Visualização e Botão de Limpar Enviados -->
+          <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+            <div style="display: inline-flex; background: rgba(0, 0, 0, 0.25); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 2px; gap: 2px;">
+              <button type="button" id="btnFiltroFilaPendentes" class="btn btn-sm" onclick="alternarFiltroFilaManual('pendentes')" style="background: var(--primary); color: #000; font-weight: 600; font-size: 0.78rem; padding: 0.3rem 0.75rem; border: none; border-radius: 4px;">
+                ⏳ Fila Ativa (<span id="contFilaPendentes">0</span>)
+              </button>
+              <button type="button" id="btnFiltroFilaEnviados" class="btn btn-sm btn-secondary" onclick="alternarFiltroFilaManual('enviados')" style="font-size: 0.78rem; padding: 0.3rem 0.75rem; border: none; border-radius: 4px; background: transparent; color: var(--text-muted);">
+                ✅ Histórico Enviados (<span id="contFilaEnviados">0</span>)
+              </button>
+              <button type="button" id="btnFiltroFilaTodos" class="btn btn-sm btn-secondary" onclick="alternarFiltroFilaManual('todos')" style="font-size: 0.78rem; padding: 0.3rem 0.75rem; border: none; border-radius: 4px; background: transparent; color: var(--text-muted);">
+                📋 Todos (<span id="contFilaTodos">0</span>)
+              </button>
+            </div>
+
+            <button type="button" id="btnLimparEnviadosFila" class="btn btn-secondary btn-sm" onclick="limparEnviadosFilaBtn()" title="Remover da fila todos os posts que já foram enviados" style="font-size: 0.78rem; border-color: rgba(248, 113, 113, 0.4); color: #fca5a5; display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.35rem 0.75rem;">
+              🧹 Limpar Enviados
+            </button>
+          </div>
+        </div>
         <div class="table-responsive">
           <table>
             <thead>
@@ -6071,6 +6098,123 @@ Uma receita prática, fofinha e deliciosa para o café da tarde!
       }
     }
 
+    let filtroFilaManualAtual = 'pendentes'; // 'pendentes' | 'enviados' | 'todos'
+
+    function alternarFiltroFilaManual(filtro) {
+      filtroFilaManualAtual = filtro;
+
+      const btnPendentes = document.getElementById('btnFiltroFilaPendentes');
+      const btnEnviados = document.getElementById('btnFiltroFilaEnviados');
+      const btnTodos = document.getElementById('btnFiltroFilaTodos');
+
+      if (btnPendentes && btnEnviados && btnTodos) {
+        [btnPendentes, btnEnviados, btnTodos].forEach(btn => {
+          btn.style.background = 'transparent';
+          btn.style.color = 'var(--text-muted)';
+          btn.style.fontWeight = 'normal';
+        });
+
+        if (filtro === 'pendentes') {
+          btnPendentes.style.background = 'var(--primary)';
+          btnPendentes.style.color = '#000';
+          btnPendentes.style.fontWeight = '600';
+        } else if (filtro === 'enviados') {
+          btnEnviados.style.background = 'rgba(56, 189, 248, 0.2)';
+          btnEnviados.style.color = '#38bdf8';
+          btnEnviados.style.fontWeight = '600';
+        } else {
+          btnTodos.style.background = 'rgba(255, 255, 255, 0.15)';
+          btnTodos.style.color = '#fff';
+          btnTodos.style.fontWeight = '600';
+        }
+      }
+
+      renderizarTabelaFila();
+    }
+
+    function renderizarTabelaFila() {
+      const tbody = document.getElementById('tabelaFilaCorpo');
+      if (!tbody) return;
+
+      const totalPendentes = (itensFilaCache || []).filter(i => !i.enviado).length;
+      const totalEnviados = (itensFilaCache || []).filter(i => Boolean(i.enviado)).length;
+      const totalGeral = (itensFilaCache || []).length;
+
+      const contPend = document.getElementById('contFilaPendentes');
+      const contEnv = document.getElementById('contFilaEnviados');
+      const contTot = document.getElementById('contFilaTodos');
+      const badgeTot = document.getElementById('badgeFilaTotalGeral');
+      const btnLimpar = document.getElementById('btnLimparEnviadosFila');
+
+      if (contPend) contPend.innerText = totalPendentes;
+      if (contEnv) contEnv.innerText = totalEnviados;
+      if (contTot) contTot.innerText = totalGeral;
+      if (badgeTot) badgeTot.innerText = `${totalGeral} ${totalGeral === 1 ? 'item' : 'itens'}`;
+      if (btnLimpar) {
+        btnLimpar.style.opacity = totalEnviados > 0 ? '1' : '0.5';
+        btnLimpar.title = totalEnviados > 0 
+          ? `Remover da fila todos os ${totalEnviados} post(s) já enviados`
+          : 'Nenhum post enviado para limpar';
+      }
+
+      let itensParaExibir = [];
+      if (filtroFilaManualAtual === 'pendentes') {
+        itensParaExibir = (itensFilaCache || []).filter(i => !i.enviado);
+      } else if (filtroFilaManualAtual === 'enviados') {
+        itensParaExibir = (itensFilaCache || []).filter(i => Boolean(i.enviado));
+      } else {
+        itensParaExibir = itensFilaCache || [];
+      }
+
+      if (itensParaExibir.length === 0) {
+        let msgVazio = 'Nenhum post agendado na fila.';
+        if (filtroFilaManualAtual === 'pendentes') {
+          msgVazio = totalEnviados > 0 
+            ? '🎉 Nenhum post pendente na fila! Todos os posts já foram enviados. Clique em "Histórico Enviados" para visualizá-los.'
+            : 'Nenhum post pendente na fila.';
+        } else if (filtroFilaManualAtual === 'enviados') {
+          msgVazio = 'Nenhum post no histórico de enviados.';
+        }
+
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem 1rem;">${msgVazio}</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = itensParaExibir.map(item => {
+        const statusBadge = item.enviado 
+          ? `<span class="badge badge-connected"><span class="badge-dot"></span>Enviado</span>`
+          : item.erro 
+          ? `<span class="badge badge-desconectado" title="${item.erro}"><span class="badge-dot" style="background:#f87171;"></span>Erro</span>
+             <div style="font-size: 0.72rem; color: #f87171; max-width: 140px; word-break: break-word; margin-top: 4px; line-height: 1.1;" title="${item.erro}">${item.erro.length > 40 ? item.erro.substring(0, 40) + '...' : item.erro}</div>`
+          : `<span class="badge badge-aguardando_qr"><span class="badge-dot"></span>Pendente</span>`;
+
+        const conteudo = item.tipo === 'texto' 
+          ? (item.texto ? (item.texto.length > 40 ? item.texto.substring(0, 40) + '...' : item.texto) : '')
+          : item.tipo === 'audio'
+          ? `<span style="color: #4ade80; font-weight: 600;">🎤 Áudio PTT</span> <a href="${item.url}" target="_blank" style="color:var(--accent-blue); text-decoration:none; margin-left: 4px;">▶️ Ouvir</a>`
+          : `<a href="${item.url}" target="_blank" style="color:var(--accent-blue); text-decoration:none;">🔗 Ver Mídia</a> ${item.legenda ? ' - ' + item.legenda.substring(0, 20) : ''}`;
+
+        const dataFormatada = (item.esteira || !item.agendado_para)
+          ? `<span class="badge" style="background:rgba(56, 189, 248, 0.15); color:#38bdf8; border:1px solid rgba(56, 189, 248, 0.35); font-size:0.75rem; font-weight:600;"><span class="badge-dot" style="background:#38bdf8;"></span>📦 Esteira da Grade</span>`
+          : new Date(item.agendado_para).toLocaleString('pt-BR');
+
+        return `
+          <tr>
+            <td>${statusBadge}</td>
+            <td><strong style="text-transform: capitalize;">${item.tipo}</strong></td>
+            <td><code>${item.to}</code></td>
+            <td>${dataFormatada}</td>
+            <td>${conteudo}</td>
+            <td style="white-space: nowrap;">
+              <button class="btn btn-secondary btn-sm" onclick="reenviarItemFila('${item.id}')" title="Disparar este item agora" style="margin-right: 4px; padding: 0.25rem 0.5rem; font-size: 0.78rem;">🔄 Reenviar</button>
+              <button class="btn btn-secondary btn-sm" onclick="prepararEdicaoItemFila('${item.id}')" title="Editar este agendamento" style="margin-right: 4px; padding: 0.25rem 0.5rem; font-size: 0.78rem;">✏️ Editar</button>
+              <button class="btn btn-danger btn-sm" onclick="removerItemFila('${item.id}')" title="Remover da fila" style="padding: 0.25rem 0.5rem; font-size: 0.78rem;">🗑 Excluir</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
     async function carregarFilaProjeto() {
       if (!projetoSelecionado) return;
 
@@ -6080,50 +6224,48 @@ Uma receita prática, fofinha e deliciosa para o café da tarde!
         });
         const data = await resp.json();
 
-        const tbody = document.getElementById('tabelaFilaCorpo');
         if (!data.fila || data.fila.length === 0) {
           itensFilaCache = [];
-          tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Nenhum post agendado na fila.</td></tr>`;
-          return;
+        } else {
+          itensFilaCache = data.fila;
         }
 
-        itensFilaCache = data.fila;
-
-        tbody.innerHTML = data.fila.map(item => {
-          const statusBadge = item.enviado 
-            ? `<span class="badge badge-connected"><span class="badge-dot"></span>Enviado</span>`
-            : item.erro 
-            ? `<span class="badge badge-desconectado" title="${item.erro}"><span class="badge-dot" style="background:#f87171;"></span>Erro</span>
-               <div style="font-size: 0.72rem; color: #f87171; max-width: 140px; word-break: break-word; margin-top: 4px; line-height: 1.1;" title="${item.erro}">${item.erro.length > 40 ? item.erro.substring(0, 40) + '...' : item.erro}</div>`
-            : `<span class="badge badge-aguardando_qr"><span class="badge-dot"></span>Pendente</span>`;
-
-          const conteudo = item.tipo === 'texto' 
-            ? (item.texto.length > 40 ? item.texto.substring(0, 40) + '...' : item.texto)
-            : item.tipo === 'audio'
-            ? `<span style="color: #4ade80; font-weight: 600;">🎤 Áudio PTT</span> <a href="${item.url}" target="_blank" style="color:var(--accent-blue); text-decoration:none; margin-left: 4px;">▶️ Ouvir</a>`
-            : `<a href="${item.url}" target="_blank" style="color:var(--accent-blue); text-decoration:none;">🔗 Ver Mídia</a> ${item.legenda ? ' - ' + item.legenda.substring(0, 20) : ''}`;
-
-          const dataFormatada = (item.esteira || !item.agendado_para)
-            ? `<span class="badge" style="background:rgba(56, 189, 248, 0.15); color:#38bdf8; border:1px solid rgba(56, 189, 248, 0.35); font-size:0.75rem; font-weight:600;"><span class="badge-dot" style="background:#38bdf8;"></span>📦 Esteira da Grade</span>`
-            : new Date(item.agendado_para).toLocaleString('pt-BR');
-
-          return `
-            <tr>
-              <td>${statusBadge}</td>
-              <td><strong style="text-transform: capitalize;">${item.tipo}</strong></td>
-              <td><code>${item.to}</code></td>
-              <td>${dataFormatada}</td>
-              <td>${conteudo}</td>
-              <td style="white-space: nowrap;">
-                <button class="btn btn-secondary btn-sm" onclick="reenviarItemFila('${item.id}')" title="Disparar este item agora" style="margin-right: 4px; padding: 0.25rem 0.5rem; font-size: 0.78rem;">🔄 Reenviar</button>
-                <button class="btn btn-secondary btn-sm" onclick="prepararEdicaoItemFila('${item.id}')" title="Editar este agendamento" style="margin-right: 4px; padding: 0.25rem 0.5rem; font-size: 0.78rem;">✏️ Editar</button>
-                <button class="btn btn-danger btn-sm" onclick="removerItemFila('${item.id}')" title="Remover da fila" style="padding: 0.25rem 0.5rem; font-size: 0.78rem;">🗑 Excluir</button>
-              </td>
-            </tr>
-          `;
-        }).join('');
+        renderizarTabelaFila();
       } catch (err) {
         console.error('Erro ao carregar fila:', err);
+      }
+    }
+
+    async function limparEnviadosFilaBtn() {
+      if (!projetoSelecionado) return;
+      const totalEnviados = (itensFilaCache || []).filter(i => i.enviado).length;
+      if (totalEnviados === 0) {
+        mostrarToast('Não há posts enviados para limpar na fila.');
+        return;
+      }
+
+      if (!confirm(`Deseja remover todos os ${totalEnviados} post(s) já enviados desta fila de agendamento?`)) return;
+
+      const btn = document.getElementById('btnLimparEnviadosFila');
+      if (btn) btn.disabled = true;
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/fila-enviados`, {
+          method: 'DELETE',
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+        if (data.sucesso) {
+          mostrarToast(data.mensagem || 'Posts enviados removidos com sucesso.');
+          await carregarFilaProjeto();
+          if (typeof carregarGradeProjeto === 'function') carregarGradeProjeto();
+        } else {
+          mostrarToast(`Erro: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro: ${err.message}`, true);
+      } finally {
+        if (btn) btn.disabled = false;
       }
     }
 
