@@ -507,16 +507,34 @@ function marcarArtigoComoUsado(projectId, idArtigo) {
  * @param {string} projectId
  * @returns {object}
  */
-function obterEstatisticasArtigos(projectId) {
+function obterEstatisticasArtigos(projectId, opcoes = {}) {
   const pool = lerPoolArtigos(projectId);
   const usados = pool.filter((a) => a.usado).length;
   const disponiveis = pool.filter((a) => !a.usado).length;
+
+  const status = opcoes.status || 'todos';
+  const limite = Math.min(parseInt(opcoes.limite, 10) || 100, 2000);
+  const busca = typeof opcoes.busca === 'string' ? opcoes.busca.trim().toLowerCase() : '';
+
+  let filtrados = pool;
+  if (status === 'usados') {
+    filtrados = filtrados.filter((a) => a.usado);
+    filtrados.sort((a, b) => new Date(b.usado_em || 0).getTime() - new Date(a.usado_em || 0).getTime());
+  } else if (status === 'disponiveis') {
+    filtrados = filtrados.filter((a) => !a.usado);
+  } else {
+    filtrados = [...pool].reverse();
+  }
+
+  if (busca) {
+    filtrados = filtrados.filter((a) => (a.titulo || '').toLowerCase().includes(busca));
+  }
 
   return {
     total: pool.length,
     usados,
     disponiveis,
-    artigos: pool.slice(-30).reverse() // últimos 30 artigos
+    artigos: filtrados.slice(0, limite)
   };
 }
 

@@ -93,9 +93,9 @@ function formatarMensagemArtigo(artigo, config = {}, projectId = 'Receitas') {
       .replace(/\{resumo\}/gi, resumo)
       .replace(/\{link\}/gi, link);
   } else {
-    // Formato padrão estruturado com abertura sorteada
-    const blocoResumo = resumo ? `\n\n${resumo}` : '';
-    textoFinal = `${abertura}\n\n🍲 *${titulo}*${blocoResumo}\n\n👉 *Toque no link abaixo para ver os ingredientes e o modo de preparo completo:*\n🔗 ${link}`;
+    // Formato padrão estruturado com gancho na primeira linha e tom acolhedor
+    const blocoResumo = resumo ? `\n\n_${resumo}_` : '';
+    textoFinal = `🍲 *JANTAR RÁPIDO: ${titulo.toUpperCase()}*\n${abertura}${blocoResumo}\n\n👉 *Toque no link oficial para ver os ingredientes e preparo completo:* 👇\n🔗 ${link}\n\n📌 _Salva essa receita para quando precisar de uma ideia rápida!_`;
   }
 
   return reacaoGatilhos.aplicarGatilhoReacao(textoFinal, { categoria: 'artigos', projectId });
@@ -349,10 +349,20 @@ async function processarDisparoArtigoRss(projectId, config, horarioAtual) {
     // 1. Obtém um artigo aleatório não usado
     const artigo = await rssFetcher.obterArtigoAleatorioNaoUsado(projectId);
     if (!artigo) {
-      logProjeto(projectId, 'RSS_PULADO', `Nenhum artigo disponível no momento para o horário ${horarioAtual}.`, 'warn');
-      controle.horariosDisparados.add(horarioAtual);
-      await salvarControleDiario(projectId, controle);
-      return;
+      logProjeto(projectId, 'RSS_FALLBACK_MARY', `Nenhum artigo RSS disponível para o horário ${horarioAtual}. Acionando fallback com Receita da Mary...`, 'warn');
+      try {
+        const receitasManager = require('./receitasManager');
+        const permitidos = Array.isArray(config.destinosPermitidos) ? config.destinosPermitidos : [];
+        const resFallback = await receitasManager.dispararProximaReceita(projectId, permitidos);
+        controle.horariosDisparados.add(horarioAtual);
+        await salvarControleDiario(projectId, controle);
+        return resFallback;
+      } catch (errFallback) {
+        logProjeto(projectId, 'RSS_FALLBACK_ERRO', `Falha no fallback da Mary: ${errFallback.message}`, 'error');
+        controle.horariosDisparados.add(horarioAtual);
+        await salvarControleDiario(projectId, controle);
+        return;
+      }
     }
 
     // 2. Obtém a lista de destinos disponíveis

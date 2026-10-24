@@ -77,13 +77,10 @@ function obterConfigGrade(projectId) {
     ativo: false,
     destinos: [],
     horarios: [
-      { id: 'slot_1', hora: '07:45', origem: 'manual' },
-      { id: 'slot_2', hora: '10:15', origem: 'rss' },
-      { id: 'slot_3', hora: '11:45', origem: 'manual' },
-      { id: 'slot_4', hora: '15:05', origem: 'campanhas' },
-      { id: 'slot_5', hora: '17:20', origem: 'rss' },
-      { id: 'slot_6', hora: '19:35', origem: 'manual' },
-      { id: 'slot_7', hora: '21:00', origem: 'manual' }
+      { id: 'slot_1', hora: '11:15', origem: 'receitas' },
+      { id: 'slot_2', hora: '16:00', origem: 'campanhas' },
+      { id: 'slot_3', hora: '18:45', origem: 'rss' },
+      { id: 'slot_4', hora: '20:30', origem: 'manual' }
     ],
     historicoDisparos: {}
   };

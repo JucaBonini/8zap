@@ -111,7 +111,7 @@ function obterConfigPadrao() {
       { hora: '16:30', tipo: 'shopee', rotulo: 'Oferta Shopee da Tarde' }
     ],
     destinosPermitidos: [],
-    templateShopee: '🔥 *ACHADINHO IMPERDÍVEL!* 🔥\n\n🛍️ *{titulo}*\n{destaque}\n{preco}\n\n👉 *Acesse pelo link oficial para garantir com desconto:* 👇\n🛒 {link}',
+    templateShopee: '🛒 *Achadinho da Cozinha: {titulo}*\n{destaque}\n\n{preco}\n🎟️ *Dica:* Ative o cupom de Frete Grátis na página antes de fechar!\n\n👉 *Pegue o seu com desconto aqui:* 👇\n🛒 {link}\n\n⚠️ _Preço e estoque válidos no momento da postagem._',
     templateImagem: '✨ *{titulo}*\n\n{destaque}\n\n{link}',
     // Configurações do Radar / Robô Shopee
     shopeeAppId: '',

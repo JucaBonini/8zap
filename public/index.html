@@ -1153,6 +1153,24 @@
       text-align: center;
     }
 
+    .stat-card.clickable {
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+
+    .stat-card.clickable:hover {
+      background: rgba(255, 255, 255, 0.05);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+    }
+
+    .stat-card.clickable.active {
+      border-color: rgba(74, 222, 128, 0.6);
+      background: linear-gradient(135deg, rgba(74, 222, 128, 0.12), rgba(0, 0, 0, 0.35));
+      box-shadow: 0 0 15px rgba(74, 222, 128, 0.2);
+    }
+
     .stat-value {
       font-size: 1.5rem;
       font-weight: 700;
@@ -2124,6 +2142,170 @@
       border-color: rgba(37, 211, 102, 0.4) !important;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
     }
+
+    /* Banco de Ofertas & Imagens - Dashboard e Abas de Separação */
+    .camp-metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 0.85rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .camp-metric-card {
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 0.85rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .camp-metric-card:hover {
+      background: rgba(255, 255, 255, 0.06);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+    }
+
+    .camp-metric-card.active {
+      border-color: rgba(56, 189, 248, 0.6);
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(37, 211, 102, 0.08));
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+    }
+
+    .camp-metric-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.35rem;
+      flex-shrink: 0;
+    }
+
+    .camp-metric-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .camp-metric-label {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .camp-metric-value {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #fff;
+      font-family: 'JetBrains Mono', monospace;
+      line-height: 1.2;
+      margin-top: 2px;
+    }
+
+    .camp-nav-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+      background: rgba(0, 0, 0, 0.25);
+      padding: 0.6rem 0.8rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+    }
+
+    .camp-tabs-group {
+      display: inline-flex;
+      background: rgba(10, 15, 25, 0.6);
+      padding: 3px;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      gap: 3px;
+      flex-wrap: wrap;
+    }
+
+    .camp-tab-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      padding: 0.45rem 0.9rem;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .camp-tab-btn:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .camp-tab-btn.active {
+      color: #fff;
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(37, 211, 102, 0.25));
+      border-color: rgba(56, 189, 248, 0.4);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    }
+
+    .camp-tab-badge {
+      padding: 0.1rem 0.45rem;
+      border-radius: 10px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    .camp-tab-btn.active .camp-tab-badge {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .camp-filters-group {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .camp-search-input {
+      background: rgba(10, 15, 25, 0.7) !important;
+      border: 1px solid var(--border-color) !important;
+      border-radius: var(--radius-sm) !important;
+      color: #fff !important;
+      padding: 0.42rem 0.8rem !important;
+      font-size: 0.82rem !important;
+      min-width: 220px;
+      transition: all 0.2s ease;
+    }
+
+    .camp-search-input:focus {
+      border-color: var(--primary) !important;
+      box-shadow: 0 0 10px var(--primary-glow) !important;
+    }
+
+    .camp-select-filter {
+      background: rgba(10, 15, 25, 0.7) !important;
+      border: 1px solid var(--border-color) !important;
+      border-radius: var(--radius-sm) !important;
+      color: #fff !important;
+      padding: 0.42rem 0.65rem !important;
+      font-size: 0.82rem !important;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -2719,33 +2901,78 @@
             </div>
           </div>
 
-          <div class="stats-grid">
-            <div class="stat-card">
-              <div class="stat-value" id="statTotalArtigos">0</div>
-              <div class="stat-label">Total Extraído</div>
+          <!-- Cards de Métricas: JÁ POSTADOS EM PRIMEIRO! -->
+          <div class="stats-grid" style="margin-bottom: 1.25rem;">
+            <!-- 1º CARD: JÁ POSTADOS (DESTAQUE VERDE) -->
+            <div class="stat-card clickable active" id="cardMetricaRssPostados" onclick="definirFiltroRssAba('postados')" title="Clique para filtrar apenas o que já foi postado">
+              <div class="stat-value" style="color: #4ade80; display: flex; align-items: center; justify-content: center; gap: 0.4rem;">
+                <span style="font-size: 1.15rem;">✅</span>
+                <span id="statUsados">0</span>
+              </div>
+              <div class="stat-label" style="font-weight: 700; color: #4ade80;">Já Postados</div>
             </div>
-            <div class="stat-card">
-              <div class="stat-value" style="color: var(--accent-blue);" id="statDisponiveis">0</div>
-              <div class="stat-label">Disponíveis (Novos)</div>
+
+            <!-- 2º CARD: DISPONÍVEIS (A POSTAR) -->
+            <div class="stat-card clickable" id="cardMetricaRssDisponiveis" onclick="definirFiltroRssAba('disponiveis')" title="Clique para ver o que está disponível para ser postado">
+              <div class="stat-value" style="color: var(--accent-blue); display: flex; align-items: center; justify-content: center; gap: 0.4rem;">
+                <span style="font-size: 1.15rem;">⏳</span>
+                <span id="statDisponiveis">0</span>
+              </div>
+              <div class="stat-label">Disponíveis (A Postar)</div>
             </div>
-            <div class="stat-card">
-              <div class="stat-value" style="color: #4ade80;" id="statUsados">0</div>
-              <div class="stat-label">Já Postados</div>
+
+            <!-- 3º CARD: TOTAL EXTRAÍDO -->
+            <div class="stat-card clickable" id="cardMetricaRssTotal" onclick="definirFiltroRssAba('todos')" title="Clique para ver todo o acervo">
+              <div class="stat-value" style="color: #a78bfa; display: flex; align-items: center; justify-content: center; gap: 0.4rem;">
+                <span style="font-size: 1.15rem;">📚</span>
+                <span id="statTotalArtigos">0</span>
+              </div>
+              <div class="stat-label">Total Extraído (Acervo)</div>
             </div>
           </div>
 
-          <h4 style="margin-bottom: 0.75rem; font-size: 0.95rem;">Histórico Recente de Postagens RSS</h4>
+          <!-- Barra de Abas e Separação: Já Postados vs A Postar -->
+          <div class="camp-nav-bar" style="margin-bottom: 0.85rem;">
+            <div class="camp-tabs-group">
+              <button class="camp-tab-btn active" id="tabRssPostados" onclick="definirFiltroRssAba('postados')">
+                <span>✅ Já Postados</span>
+                <span class="camp-tab-badge" id="badgeRssTabPostados" style="background: rgba(74, 222, 128, 0.25); color: #4ade80;">0</span>
+              </button>
+              <button class="camp-tab-btn" id="tabRssDisponiveis" onclick="definirFiltroRssAba('disponiveis')">
+                <span>⏳ A Postar / Disponíveis</span>
+                <span class="camp-tab-badge" id="badgeRssTabDisponiveis" style="background: rgba(56, 189, 248, 0.25); color: #38bdf8;">0</span>
+              </button>
+              <button class="camp-tab-btn" id="tabRssTodos" onclick="definirFiltroRssAba('todos')">
+                <span>📚 Todo o Acervo</span>
+                <span class="camp-tab-badge" id="badgeRssTabTodos">0</span>
+              </button>
+            </div>
+
+            <!-- Campo de Busca Rápida -->
+            <div style="flex: 1; max-width: 340px; min-width: 220px;">
+              <input type="text" id="inputBuscaRss" class="form-control" style="padding: 0.45rem 0.85rem; font-size: 0.82rem; background: rgba(0,0,0,0.3); border-color: rgba(255,255,255,0.12); width: 100%; border-radius: 6px;" placeholder="🔍 Filtrar por título da receita..." oninput="aoBuscarRss(this.value)">
+            </div>
+          </div>
+
+          <!-- Banner Informativo Contextual -->
+          <div id="bannerInfoFiltroRss" style="padding: 0.55rem 0.85rem; border-radius: var(--radius-sm); margin-bottom: 0.85rem; font-size: 0.82rem; background: rgba(74, 222, 128, 0.08); border-left: 3px solid #4ade80; color: #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.4rem;">
+            <span id="textoInfoFiltroRss">Exibindo artigos e receitas <strong>já postados</strong> nos seus canais e grupos.</span>
+            <span id="contadorItensRss" style="font-weight: 600; font-family: monospace; color: #4ade80;">0 registro(s)</span>
+          </div>
+
+          <!-- Tabela de Conteúdos RSS -->
           <div class="table-responsive">
             <table>
-              <thead>
+              <thead id="tabelaHistoricoRssCabecalho">
                 <tr>
-                  <th>Data/Hora</th>
-                  <th>Destino(s)</th>
-                  <th>Artigo Publicado</th>
+                  <th style="width: 175px;">Data/Hora</th>
+                  <th style="width: 230px;">Destino(s)</th>
+                  <th>Artigo / Receita Publicada</th>
+                  <th style="width: 140px; text-align: center;">Status</th>
                 </tr>
               </thead>
               <tbody id="tabelaHistoricoRssCorpo">
-                <tr><td colspan="3" style="text-align: center; color: var(--text-muted);">Nenhum post de RSS disparado ainda.</td></tr>
+                <tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Carregando dados...</td></tr>
               </tbody>
             </table>
           </div>
@@ -2990,28 +3217,113 @@
           </form>
         </div>
 
-        <!-- Card 3: Banco de Itens Cadastrados -->
+        <!-- Card 3: Banco de Itens Cadastrados (Com Abas e Separação Visual) -->
         <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
-            <h3>📦 Banco de Ofertas & Imagens Cadastradas (<span id="totalItensCampanhas">0</span>)</h3>
-            <button class="btn btn-secondary btn-sm" onclick="carregarItensCampanhas()">🔄 Atualizar Lista</button>
+          
+          <!-- Cabeçalho do Card -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.6rem;">
+            <div>
+              <h3 style="display: flex; align-items: center; gap: 0.5rem;">
+                📦 Banco de Ofertas &amp; Imagens
+                <span id="totalItensCampanhas" class="badge badge-connected" style="font-size: 0.75rem;">0 itens</span>
+              </h3>
+              <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">
+                Gerencie seus achadinhos Shopee, dicas e imagens da esteira com separação clara de postagens.
+              </p>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+              <button class="btn btn-secondary btn-sm" onclick="carregarItensCampanhas()">🔄 Atualizar Lista</button>
+              <button class="btn btn-sm" onclick="document.getElementById('formItemCampanha').scrollIntoView({ behavior: 'smooth' })">➕ Nova Oferta</button>
+            </div>
           </div>
 
+          <!-- Mini Dashboard de Métricas (Cards de Status Clicáveis) -->
+          <div class="camp-metrics-grid">
+            <div class="camp-metric-card" id="cardMetricaAguardando" onclick="definirFiltroCampanhasAba('aguardando')" title="Clique para filtrar apenas o que está para ser postado">
+              <div class="camp-metric-icon" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24;">⏳</div>
+              <div class="camp-metric-info">
+                <div class="camp-metric-label">A Postar (Na Fila)</div>
+                <div class="camp-metric-value" style="color: #fbbf24;" id="countCampAguardando">0</div>
+              </div>
+            </div>
+
+            <div class="camp-metric-card" id="cardMetricaPostados" onclick="definirFiltroCampanhasAba('postados')" title="Clique para filtrar apenas o que já foi postado">
+              <div class="camp-metric-icon" style="background: rgba(34, 197, 94, 0.15); color: #4ade80;">✅</div>
+              <div class="camp-metric-info">
+                <div class="camp-metric-label">Já Postados</div>
+                <div class="camp-metric-value" style="color: #4ade80;" id="countCampPostados">0</div>
+              </div>
+            </div>
+
+            <div class="camp-metric-card" id="cardMetricaPausados" onclick="definirFiltroCampanhasAba('pausados')" title="Clique para filtrar itens inativos ou pausados">
+              <div class="camp-metric-icon" style="background: rgba(148, 163, 184, 0.15); color: #94a3b8;">⏸️</div>
+              <div class="camp-metric-info">
+                <div class="camp-metric-label">Pausados / Inativos</div>
+                <div class="camp-metric-value" style="color: #94a3b8;" id="countCampPausados">0</div>
+              </div>
+            </div>
+
+            <div class="camp-metric-card active" id="cardMetricaTodos" onclick="definirFiltroCampanhasAba('todos')" title="Clique para ver todos os itens">
+              <div class="camp-metric-icon" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8;">📋</div>
+              <div class="camp-metric-info">
+                <div class="camp-metric-label">Acervo Total</div>
+                <div class="camp-metric-value" style="color: #fff;" id="countCampTodos">0</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Barra de Abas de Navegação + Busca em Tempo Real -->
+          <div class="camp-nav-bar">
+            <!-- Abas -->
+            <div class="camp-tabs-group">
+              <button class="camp-tab-btn active" id="btnCampTab-todos" onclick="definirFiltroCampanhasAba('todos')">
+                📋 Todos <span class="camp-tab-badge" id="badgeCampTabTodos">0</span>
+              </button>
+              <button class="camp-tab-btn" id="btnCampTab-aguardando" onclick="definirFiltroCampanhasAba('aguardando')">
+                ⏳ A Postar (Na Fila) <span class="camp-tab-badge" id="badgeCampTabAguardando" style="background: rgba(245, 158, 11, 0.3); color: #fde68a;">0</span>
+              </button>
+              <button class="camp-tab-btn" id="btnCampTab-postados" onclick="definirFiltroCampanhasAba('postados')">
+                ✅ Já Postados <span class="camp-tab-badge" id="badgeCampTabPostados" style="background: rgba(34, 197, 94, 0.3); color: #bbf7d0;">0</span>
+              </button>
+              <button class="camp-tab-btn" id="btnCampTab-pausados" onclick="definirFiltroCampanhasAba('pausados')">
+                ⏸️ Pausados <span class="camp-tab-badge" id="badgeCampTabPausados">0</span>
+              </button>
+            </div>
+
+            <!-- Filtros Rápidos -->
+            <div class="camp-filters-group">
+              <input type="text" id="inputBuscaCampanhas" class="camp-search-input" placeholder="🔍 Buscar por título ou link..." oninput="aoBuscarCampanhas(this.value)">
+              <select id="selectTipoCampanhas" class="camp-select-filter" onchange="aoFiltrarTipoCampanhas(this.value)">
+                <option value="todos">Todos os Tipos</option>
+                <option value="shopee">🛍️ Shopee</option>
+                <option value="imagem">🖼️ Imagem</option>
+                <option value="texto">💬 Texto</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Banner Informativo da Aba Selecionada -->
+          <div id="bannerInfoFiltroCampanhas" style="background: rgba(56, 189, 248, 0.06); border: 1px solid rgba(56, 189, 248, 0.18); border-radius: var(--radius-sm); padding: 0.6rem 0.9rem; margin-bottom: 0.85rem; font-size: 0.8rem; color: #bae6fd; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+            <span id="textoInfoFiltroCampanhas">Exibindo todas as ofertas cadastradas.</span>
+            <span id="badgeInfoFiltroOrdenacao" style="font-size: 0.72rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;">Ordenação: Padrão</span>
+          </div>
+
+          <!-- Tabela de Dados -->
           <div style="overflow-x: auto;">
             <table class="data-table" id="tabelaCampanhas">
               <thead>
                 <tr>
                   <th style="width: 60px;">Mídia</th>
-                  <th>Título & Destaque</th>
+                  <th>Título &amp; Destaque</th>
                   <th>Tipo</th>
                   <th>Preço</th>
-                  <th>Status & Envios</th>
+                  <th>Status &amp; Envios</th>
                   <th style="width: 160px; text-align: right;">Ações</th>
                 </tr>
               </thead>
               <tbody id="corpoTabelaCampanhas">
                 <tr>
-                  <td colspan="6" style="text-align: center; color: var(--text-muted);">Carregando itens cadastrados...</td>
+                  <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Carregando itens cadastrados...</td>
                 </tr>
               </tbody>
             </table>
@@ -5352,19 +5664,105 @@ Uma receita prática, fofinha e deliciosa para o café da tarde!
       }
     }
 
+    // ==========================================
+    // CONTROLE DE UX / UI DO POOL DE ARTIGOS & HISTÓRICO RSS
+    // ==========================================
+    let filtroRssAbaAtual = 'postados'; // 'postados' (Já Postados em 1º!), 'disponiveis', 'todos'
+    let termoBuscaRssAtual = '';
+    let historicoRssCache = [];
+    let artigosRssCache = [];
+    let statsRssCache = { total: 0, usados: 0, disponiveis: 0 };
+
+    function escaparHtmlRss(texto) {
+      if (!texto) return '';
+      return String(texto)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function definirFiltroRssAba(aba) {
+      filtroRssAbaAtual = aba;
+
+      // Abas de navegação
+      const btnPostados = document.getElementById('tabRssPostados');
+      const btnDisponiveis = document.getElementById('tabRssDisponiveis');
+      const btnTodos = document.getElementById('tabRssTodos');
+      if (btnPostados) btnPostados.classList.toggle('active', aba === 'postados');
+      if (btnDisponiveis) btnDisponiveis.classList.toggle('active', aba === 'disponiveis');
+      if (btnTodos) btnTodos.classList.toggle('active', aba === 'todos');
+
+      // Cards de métricas superiores
+      const cardPostados = document.getElementById('cardMetricaRssPostados');
+      const cardDisp = document.getElementById('cardMetricaRssDisponiveis');
+      const cardTotal = document.getElementById('cardMetricaRssTotal');
+      if (cardPostados) cardPostados.classList.toggle('active', aba === 'postados');
+      if (cardDisp) cardDisp.classList.toggle('active', aba === 'disponiveis');
+      if (cardTotal) cardTotal.classList.toggle('active', aba === 'todos');
+
+      // Banner informativo
+      const banner = document.getElementById('bannerInfoFiltroRss');
+      const texto = document.getElementById('textoInfoFiltroRss');
+      if (banner && texto) {
+        if (aba === 'postados') {
+          banner.style.background = 'rgba(74, 222, 128, 0.08)';
+          banner.style.borderLeftColor = '#4ade80';
+          texto.innerHTML = 'Exibindo: <strong>Artigos e Receitas Já Postados</strong> nos seus canais e grupos.';
+        } else if (aba === 'disponiveis') {
+          banner.style.background = 'rgba(56, 189, 248, 0.08)';
+          banner.style.borderLeftColor = 'var(--accent-blue)';
+          texto.innerHTML = 'Exibindo: <strong>Receitas Disponíveis (A Postar)</strong> na fila para os próximos horários.';
+        } else {
+          banner.style.background = 'rgba(168, 85, 247, 0.08)';
+          banner.style.borderLeftColor = '#a855f7';
+          texto.innerHTML = 'Exibindo: <strong>Todo o Acervo Completo de Receitas</strong> extraído do site.';
+        }
+      }
+
+      renderizarTabelaRss();
+    }
+
+    function aoBuscarRss(termo) {
+      termoBuscaRssAtual = (termo || '').toLowerCase().trim();
+      renderizarTabelaRss();
+    }
+
     async function carregarArtigosERssStats() {
       if (!projetoSelecionado) return;
 
       try {
-        const resp = await fetch(`/sessions/${projetoSelecionado}/rss/artigos`, {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/rss/artigos?limite=1500`, {
           headers: obterHeaders()
         });
         const data = await resp.json();
 
         if (data.sucesso) {
-          document.getElementById('statTotalArtigos').innerText = data.total || 0;
-          document.getElementById('statDisponiveis').innerText = data.disponiveis || 0;
-          document.getElementById('statUsados').innerText = data.usados || 0;
+          statsRssCache = {
+            total: data.total || 0,
+            usados: data.usados || 0,
+            disponiveis: data.disponiveis || 0
+          };
+          artigosRssCache = Array.isArray(data.artigos) ? data.artigos : [];
+
+          // Atualiza cards de métricas (Já Postados em 1º!)
+          const elStatUsados = document.getElementById('statUsados');
+          const elStatDisp = document.getElementById('statDisponiveis');
+          const elStatTotal = document.getElementById('statTotalArtigos');
+          if (elStatUsados) elStatUsados.innerText = statsRssCache.usados;
+          if (elStatDisp) elStatDisp.innerText = statsRssCache.disponiveis;
+          if (elStatTotal) elStatTotal.innerText = statsRssCache.total;
+
+          // Atualiza badges das abas
+          const badgePostados = document.getElementById('badgeRssTabPostados');
+          const badgeDisp = document.getElementById('badgeRssTabDisponiveis');
+          const badgeTodos = document.getElementById('badgeRssTabTodos');
+          if (badgePostados) badgePostados.innerText = statsRssCache.usados || historicoRssCache.length;
+          if (badgeDisp) badgeDisp.innerText = statsRssCache.disponiveis;
+          if (badgeTodos) badgeTodos.innerText = statsRssCache.total;
+
+          renderizarTabelaRss();
         }
       } catch (err) {
         console.error('Erro ao carregar stats do RSS:', err);
@@ -5380,24 +5778,229 @@ Uma receita prática, fofinha e deliciosa para o café da tarde!
         });
         const data = await resp.json();
 
-        const tbody = document.getElementById('tabelaHistoricoRssCorpo');
-        if (!data.historico || data.historico.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: var(--text-muted);">Nenhum post de RSS disparado ainda.</td></tr>`;
+        if (data.sucesso && Array.isArray(data.historico)) {
+          historicoRssCache = data.historico;
+          const badgePostados = document.getElementById('badgeRssTabPostados');
+          if (badgePostados && !statsRssCache.usados) {
+            badgePostados.innerText = historicoRssCache.length;
+          }
+        } else {
+          historicoRssCache = [];
+        }
+
+        renderizarTabelaRss();
+      } catch (err) {
+        console.error('Erro ao carregar histórico RSS:', err);
+      }
+    }
+
+    function renderizarTabelaRss() {
+      const thead = document.getElementById('tabelaHistoricoRssCabecalho');
+      const tbody = document.getElementById('tabelaHistoricoRssCorpo');
+      const contador = document.getElementById('contadorItensRss');
+      if (!tbody) return;
+
+      const busca = termoBuscaRssAtual;
+
+      // ==========================================
+      // ABA 1: JÁ POSTADOS (EM PRIMEIRO LUGAR)
+      // ==========================================
+      if (filtroRssAbaAtual === 'postados') {
+        if (thead) {
+          thead.innerHTML = `
+            <tr>
+              <th style="width: 175px;">Data/Hora</th>
+              <th style="width: 230px;">Destino(s)</th>
+              <th>Artigo / Receita Publicada</th>
+              <th style="width: 140px; text-align: center;">Status</th>
+            </tr>
+          `;
+        }
+
+        // Se houver registros no histórico de destinos
+        if (historicoRssCache && historicoRssCache.length > 0) {
+          let lista = historicoRssCache;
+          if (busca) {
+            lista = lista.filter(h =>
+              (h.tituloArtigo || '').toLowerCase().includes(busca) ||
+              (h.nome || '').toLowerCase().includes(busca) ||
+              (h.jid || '').toLowerCase().includes(busca)
+            );
+          }
+
+          if (contador) contador.innerText = `${lista.length} post(s) enviado(s)`;
+
+          if (lista.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Nenhum post encontrado para a busca "${escaparHtmlRss(busca)}".</td></tr>`;
+            return;
+          }
+
+          tbody.innerHTML = lista.map(h => {
+            const dataFmt = new Date(h.usado_em).toLocaleString('pt-BR');
+            return `
+              <tr>
+                <td><code>${dataFmt}</code></td>
+                <td><strong>${escaparHtmlRss(h.nome || h.jid)}</strong> <span style="font-size:0.7rem; color:var(--text-muted);">(${escaparHtmlRss(h.tipo || 'destino')})</span></td>
+                <td>
+                  <div style="font-weight: 600; color: #fff;">${escaparHtmlRss(h.tituloArtigo || 'Artigo Publicado')}</div>
+                </td>
+                <td style="text-align: center;">
+                  <span class="badge" style="background: rgba(74, 222, 128, 0.15); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.3); font-size: 0.75rem;">✅ Já Postado</span>
+                </td>
+              </tr>
+            `;
+          }).join('');
           return;
         }
 
-        tbody.innerHTML = data.historico.map(h => {
-          const dataFmt = new Date(h.usado_em).toLocaleString('pt-BR');
+        // Alternativa: Se o histórico de destinos ainda estiver vazio mas houver artigos marcados como usados no pool
+        const artigosUsados = artigosRssCache.filter(a => a.usado);
+        if (artigosUsados.length > 0) {
+          let lista = artigosUsados;
+          if (busca) {
+            lista = lista.filter(a => (a.titulo || '').toLowerCase().includes(busca));
+          }
+
+          if (contador) contador.innerText = `${lista.length} artigo(s) postado(s)`;
+
+          if (lista.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Nenhum artigo postado encontrado para "${escaparHtmlRss(busca)}".</td></tr>`;
+            return;
+          }
+
+          tbody.innerHTML = lista.map(a => {
+            const dataFmt = a.usado_em ? new Date(a.usado_em).toLocaleString('pt-BR') : 'Disparado';
+            return `
+              <tr>
+                <td><code>${dataFmt}</code></td>
+                <td><span style="color: var(--text-muted);">Canal / Grade Automática</span></td>
+                <td>
+                  <div style="font-weight: 600; color: #fff;">${escaparHtmlRss(a.titulo)}</div>
+                  ${a.link ? `<a href="${a.link}" target="_blank" rel="noopener noreferrer" style="font-size: 0.75rem; color: var(--accent-blue); text-decoration: none;">🔗 Ver receita original</a>` : ''}
+                </td>
+                <td style="text-align: center;">
+                  <span class="badge" style="background: rgba(74, 222, 128, 0.15); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.3); font-size: 0.75rem;">✅ Já Postado</span>
+                </td>
+              </tr>
+            `;
+          }).join('');
+          return;
+        }
+
+        if (contador) contador.innerText = `0 post(s)`;
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Nenhum post de RSS disparado ainda. As postagens enviadas aparecerão aqui automaticamente.</td></tr>`;
+        return;
+      }
+
+      // ==========================================
+      // ABA 2: A POSTAR / DISPONÍVEIS
+      // ==========================================
+      if (filtroRssAbaAtual === 'disponiveis') {
+        if (thead) {
+          thead.innerHTML = `
+            <tr>
+              <th style="min-width: 260px;">Receita / Artigo a Postar</th>
+              <th>Prévia do Conteúdo</th>
+              <th style="width: 140px; text-align: center;">Status na Fila</th>
+              <th style="width: 110px; text-align: center;">Link</th>
+            </tr>
+          `;
+        }
+
+        let lista = artigosRssCache.filter(a => !a.usado);
+        if (busca) {
+          lista = lista.filter(a =>
+            (a.titulo || '').toLowerCase().includes(busca) ||
+            (a.resumo || '').toLowerCase().includes(busca)
+          );
+        }
+
+        if (contador) contador.innerText = `${lista.length} receita(s) disponível(is)`;
+
+        if (lista.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Nenhuma receita disponível encontrada${busca ? ` para "${escaparHtmlRss(busca)}"` : ''}.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = lista.slice(0, 150).map(a => {
+          const dataFmt = a.publicado_em ? new Date(a.publicado_em).toLocaleDateString('pt-BR') : 'Recente';
           return `
             <tr>
-              <td><code>${dataFmt}</code></td>
-              <td><strong>${h.nome || h.jid}</strong> <span style="font-size:0.7rem; color:var(--text-muted);">(${h.tipo})</span></td>
-              <td>${h.tituloArtigo || 'Artigo'}</td>
+              <td>
+                <div style="font-weight: 600; color: #fff;">${escaparHtmlRss(a.titulo)}</div>
+                <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 2px;">Extraído: ${dataFmt}</div>
+              </td>
+              <td>
+                <div style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.35; max-height: 2.8rem; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                  ${escaparHtmlRss(a.resumo || 'Receita pronta para a esteira de conteúdo.')}
+                </div>
+              </td>
+              <td style="text-align: center;">
+                <span class="badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); font-size: 0.75rem;">⏳ Pronto a Postar</span>
+              </td>
+              <td style="text-align: center;">
+                <a href="${a.link}" target="_blank" rel="noopener noreferrer" class="btn btn-sm" style="padding: 0.25rem 0.6rem; font-size: 0.75rem; text-decoration: none; display: inline-block;">🔗 Acessar</a>
+              </td>
             </tr>
           `;
         }).join('');
-      } catch (err) {
-        console.error('Erro ao carregar histórico RSS:', err);
+        return;
+      }
+
+      // ==========================================
+      // ABA 3: TODO O ACERVO
+      // ==========================================
+      if (filtroRssAbaAtual === 'todos') {
+        if (thead) {
+          thead.innerHTML = `
+            <tr>
+              <th style="min-width: 260px;">Receita / Artigo</th>
+              <th style="width: 140px;">Data de Extração</th>
+              <th style="width: 140px; text-align: center;">Situação</th>
+              <th style="width: 110px; text-align: center;">Link</th>
+            </tr>
+          `;
+        }
+
+        let lista = artigosRssCache;
+        if (busca) {
+          lista = lista.filter(a =>
+            (a.titulo || '').toLowerCase().includes(busca) ||
+            (a.resumo || '').toLowerCase().includes(busca)
+          );
+        }
+
+        if (contador) contador.innerText = `${lista.length} receita(s) no total`;
+
+        if (lista.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Nenhum artigo encontrado no acervo${busca ? ` para "${escaparHtmlRss(busca)}"` : ''}.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = lista.slice(0, 150).map(a => {
+          const dataFmt = a.publicado_em ? new Date(a.publicado_em).toLocaleDateString('pt-BR') : '-';
+          return `
+            <tr>
+              <td>
+                <div style="font-weight: 600; color: #fff;">${escaparHtmlRss(a.titulo)}</div>
+                ${a.resumo ? `<div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 480px;">${escaparHtmlRss(a.resumo)}</div>` : ''}
+              </td>
+              <td>
+                <code>${dataFmt}</code>
+              </td>
+              <td style="text-align: center;">
+                ${a.usado 
+                  ? `<span class="badge" style="background: rgba(74, 222, 128, 0.15); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.3); font-size: 0.75rem;">✅ Já Postado</span>`
+                  : `<span class="badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); font-size: 0.75rem;">⏳ Disponível</span>`
+                }
+              </td>
+              <td style="text-align: center;">
+                <a href="${a.link}" target="_blank" rel="noopener noreferrer" class="btn btn-sm" style="padding: 0.25rem 0.6rem; font-size: 0.75rem; text-decoration: none; display: inline-block;">🔗 Acessar</a>
+              </td>
+            </tr>
+          `;
+        }).join('');
+        return;
       }
     }
 
@@ -6732,6 +7335,9 @@ Uma receita prática, fofinha e deliciosa para o café da tarde!
     }
 
     let itensCampanhasCache = [];
+    let filtroCampanhasAbaAtual = 'todos'; // 'todos' | 'aguardando' | 'postados' | 'pausados'
+    let termoBuscaCampanhasAtual = '';
+    let filtroTipoCampanhasAtual = 'todos';
     let idItemEmEdicao = null;
 
     async function carregarItensCampanhas() {
@@ -6745,71 +7351,248 @@ Uma receita prática, fofinha e deliciosa para o café da tarde!
 
         if (data.sucesso && Array.isArray(data.itens)) {
           itensCampanhasCache = data.itens;
-          document.getElementById('totalItensCampanhas').innerText = data.itens.length;
-          renderizarListaCampanhas(data.itens);
+          aplicarFiltrosERenderizarCampanhas();
         }
       } catch (err) {
         console.error('Erro ao carregar itens:', err);
       }
     }
 
-    function renderizarListaCampanhas(itens) {
+    function definirFiltroCampanhasAba(aba) {
+      filtroCampanhasAbaAtual = aba;
+
+      // Atualiza botões das abas
+      document.querySelectorAll('.camp-tab-btn').forEach(btn => btn.classList.remove('active'));
+      const btnAtivo = document.getElementById(`btnCampTab-${aba}`);
+      if (btnAtivo) btnAtivo.classList.add('active');
+
+      // Atualiza mini cards de métricas
+      document.querySelectorAll('.camp-metric-card').forEach(card => card.classList.remove('active'));
+      const mapaCard = {
+        todos: 'cardMetricaTodos',
+        aguardando: 'cardMetricaAguardando',
+        postados: 'cardMetricaPostados',
+        pausados: 'cardMetricaPausados'
+      };
+      const cardAtivo = document.getElementById(mapaCard[aba]);
+      if (cardAtivo) cardAtivo.classList.add('active');
+
+      aplicarFiltrosERenderizarCampanhas();
+    }
+
+    function aoBuscarCampanhas(termo) {
+      termoBuscaCampanhasAtual = (termo || '').toLowerCase().trim();
+      aplicarFiltrosERenderizarCampanhas();
+    }
+
+    function aoFiltrarTipoCampanhas(tipo) {
+      filtroTipoCampanhasAtual = tipo || 'todos';
+      aplicarFiltrosERenderizarCampanhas();
+    }
+
+    function aplicarFiltrosERenderizarCampanhas() {
+      const itens = Array.isArray(itensCampanhasCache) ? itensCampanhasCache : [];
+
+      // 1. Cálculo dos Contadores Globais
+      const total = itens.length;
+      const postados = itens.filter(i => (i.vezesEnviado && i.vezesEnviado > 0) || Boolean(i.ultimoEnvioEm));
+      const pausados = itens.filter(i => !i.ativo);
+      const nuncaEnviados = itens.filter(i => i.ativo && (!i.ultimoEnvioEm || !i.vezesEnviado || i.vezesEnviado === 0));
+
+      // Se houver itens nunca enviados, a contagem de "A Postar" são os inéditos.
+      // Se todos já foram enviados pelo menos 1x, os ativos continuam na rotação da esteira.
+      const totalAguardando = nuncaEnviados.length > 0 ? nuncaEnviados.length : itens.filter(i => i.ativo).length;
+
+      // Atualiza elementos do DOM com contadores
+      const elTotalHeader = document.getElementById('totalItensCampanhas');
+      if (elTotalHeader) elTotalHeader.innerText = `${total} itens`;
+
+      const elCountTodos = document.getElementById('countCampTodos');
+      if (elCountTodos) elCountTodos.innerText = total;
+      const elBadgeTabTodos = document.getElementById('badgeCampTabTodos');
+      if (elBadgeTabTodos) elBadgeTabTodos.innerText = total;
+
+      const elCountPostados = document.getElementById('countCampPostados');
+      if (elCountPostados) elCountPostados.innerText = postados.length;
+      const elBadgeTabPostados = document.getElementById('badgeCampTabPostados');
+      if (elBadgeTabPostados) elBadgeTabPostados.innerText = postados.length;
+
+      const elCountAguardando = document.getElementById('countCampAguardando');
+      if (elCountAguardando) elCountAguardando.innerText = totalAguardando;
+      const elBadgeTabAguardando = document.getElementById('badgeCampTabAguardando');
+      if (elBadgeTabAguardando) elBadgeTabAguardando.innerText = totalAguardando;
+
+      const elCountPausados = document.getElementById('countCampPausados');
+      if (elCountPausados) elCountPausados.innerText = pausados.length;
+      const elBadgeTabPausados = document.getElementById('badgeCampTabPausados');
+      if (elBadgeTabPausados) elBadgeTabPausados.innerText = pausados.length;
+
+      // 2. Filtro por Termo de Busca
+      let filtrados = itens;
+      if (termoBuscaCampanhasAtual) {
+        filtrados = filtrados.filter(i => {
+          const tit = (i.titulo || '').toLowerCase();
+          const des = (i.destaque || '').toLowerCase();
+          const lnk = (i.link || '').toLowerCase();
+          return tit.includes(termoBuscaCampanhasAtual) || des.includes(termoBuscaCampanhasAtual) || lnk.includes(termoBuscaCampanhasAtual);
+        });
+      }
+
+      // 3. Filtro por Tipo (shopee, imagem, texto)
+      if (filtroTipoCampanhasAtual && filtroTipoCampanhasAtual !== 'todos') {
+        filtrados = filtrados.filter(i => (i.tipo || 'shopee') === filtroTipoCampanhasAtual);
+      }
+
+      // 4. Filtro por Aba e Ordenação Inteligente
+      let bannerTexto = '';
+      let bannerOrdem = 'Padrão';
+      let itensParaRenderizar = [];
+      let ehModoRotativoAguardando = false;
+
+      if (filtroCampanhasAbaAtual === 'postados') {
+        itensParaRenderizar = filtrados.filter(i => (i.vezesEnviado && i.vezesEnviado > 0) || Boolean(i.ultimoEnvioEm));
+        // Ordena: último envio mais recente primeiro
+        itensParaRenderizar.sort((a, b) => new Date(b.ultimoEnvioEm || 0).getTime() - new Date(a.ultimoEnvioEm || 0).getTime());
+        bannerTexto = `Mostrando <strong>${itensParaRenderizar.length}</strong> oferta(s) que <strong>já foram postadas</strong> no canal.`;
+        bannerOrdem = 'Mais recentes postados primeiro';
+      } else if (filtroCampanhasAbaAtual === 'aguardando') {
+        // Se temos itens inéditos que nunca foram enviados, prioriza eles
+        const ineditos = filtrados.filter(i => i.ativo && (!i.ultimoEnvioEm || !i.vezesEnviado || i.vezesEnviado === 0));
+        if (ineditos.length > 0) {
+          itensParaRenderizar = ineditos;
+          bannerTexto = `Mostrando <strong>${itensParaRenderizar.length}</strong> oferta(s) <strong>inéditas na fila</strong> aguardando o primeiro disparo às 16:00.`;
+          bannerOrdem = 'Ordem de cadastro na fila';
+        } else {
+          // Se todos já foram enviados, mostra os ativos ordenados pela prioridade de rotação da esteira (o enviado há mais tempo vai primeiro)
+          ehModoRotativoAguardando = true;
+          itensParaRenderizar = filtrados.filter(i => i.ativo);
+          itensParaRenderizar.sort((a, b) => new Date(a.ultimoEnvioEm || 0).getTime() - new Date(b.ultimoEnvioEm || 0).getTime());
+          bannerTexto = `Todas as ofertas já foram enviadas pelo menos 1x. Mostrando as <strong>${itensParaRenderizar.length}</strong> ofertas ativas na ordem da <strong>próxima esteira rotativa</strong> (#1 é o próximo das 16:00).`;
+          bannerOrdem = 'Próximo na esteira (#1, #2, ...)';
+        }
+      } else if (filtroCampanhasAbaAtual === 'pausados') {
+        itensParaRenderizar = filtrados.filter(i => !i.ativo);
+        bannerTexto = `Mostrando <strong>${itensParaRenderizar.length}</strong> oferta(s) <strong>pausadas ou inativas</strong> (não serão disparadas pelo robô).`;
+        bannerOrdem = 'Inativos';
+      } else {
+        // Todos
+        itensParaRenderizar = filtrados;
+        bannerTexto = `Exibindo todas as <strong>${itensParaRenderizar.length}</strong> ofertas e imagens do catálogo.`;
+        bannerOrdem = 'Geral';
+      }
+
+      // Atualiza banner de status
+      const elBannerTexto = document.getElementById('textoInfoFiltroCampanhas');
+      if (elBannerTexto) elBannerTexto.innerHTML = bannerTexto;
+      const elBannerOrdem = document.getElementById('badgeInfoFiltroOrdenacao');
+      if (elBannerOrdem) elBannerOrdem.innerText = `Ordenação: ${bannerOrdem}`;
+
+      // 5. Renderiza as linhas na tabela
+      renderizarLinhasTabelaCampanhas(itensParaRenderizar, ehModoRotativoAguardando);
+    }
+
+    function renderizarLinhasTabelaCampanhas(itens, ehModoRotativo = false) {
       const corpo = document.getElementById('corpoTabelaCampanhas');
+      if (!corpo) return;
+
       if (!itens || itens.length === 0) {
+        let msgVazia = 'Nenhum item encontrado para os filtros selecionados.';
+        let iconeVazio = '🔍';
+        if (filtroCampanhasAbaAtual === 'aguardando') {
+          msgVazia = '🎉 Nenhuma oferta pendente! Todas as ofertas cadastradas já foram postadas ou estão pausadas.';
+          iconeVazio = '🎉';
+        } else if (filtroCampanhasAbaAtual === 'postados') {
+          msgVazia = 'Nenhuma oferta foi postada ainda. O disparo ocorrerá no horário configurado na Grade (16:00).';
+          iconeVazio = '⏳';
+        } else if (filtroCampanhasAbaAtual === 'pausados') {
+          msgVazia = 'Nenhuma oferta pausada. Todos os seus itens estão ativos na esteira!';
+          iconeVazio = '✨';
+        }
+
         corpo.innerHTML = `
           <tr>
-            <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">
-              Nenhum produto ou imagem cadastrado. Adicione sua primeira oferta no formulário acima!
+            <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2.5rem 1rem;">
+              <div style="font-size: 2rem; margin-bottom: 0.5rem;">${iconeVazio}</div>
+              <p style="font-size: 0.95rem; color: #fff; font-weight: 500;">${msgVazia}</p>
+              <p style="font-size: 0.78rem; margin-top: 0.35rem;">Use a busca acima ou clique em <strong>"📋 Todos"</strong> para ver todo o catálogo.</p>
             </td>
           </tr>
         `;
         return;
       }
 
-      corpo.innerHTML = itens.map(item => {
+      corpo.innerHTML = itens.map((item, index) => {
         const badgeTipo = item.tipo === 'shopee'
-          ? `<span style="background: rgba(238, 77, 45, 0.2); color: #ff5722; border: 1px solid #ff5722; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.75rem; font-weight: bold;">🛍️ Shopee</span>`
+          ? `<span style="background: rgba(238, 77, 45, 0.15); color: #ff5722; border: 1px solid rgba(238, 77, 45, 0.4); padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: bold; display: inline-flex; align-items: center; gap: 0.3rem;">🛍️ Shopee</span>`
           : item.tipo === 'imagem'
-          ? `<span style="background: rgba(0, 188, 212, 0.2); color: #00e5ff; border: 1px solid #00bcd4; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.75rem; font-weight: bold;">🖼️ Imagem</span>`
-          : `<span style="background: rgba(255, 255, 255, 0.1); color: #fff; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.75rem;">💬 Texto</span>`;
+          ? `<span style="background: rgba(0, 188, 212, 0.15); color: #00e5ff; border: 1px solid rgba(0, 188, 212, 0.4); padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: bold; display: inline-flex; align-items: center; gap: 0.3rem;">🖼️ Imagem</span>`
+          : `<span style="background: rgba(255, 255, 255, 0.08); color: #fff; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">💬 Texto</span>`;
 
         const thumb = item.imagem
-          ? `<img src="${item.imagem}" style="width: 44px; height: 44px; object-fit: cover; border-radius: 4px; border: 1px solid var(--border-color);" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'44\' height=\'44\'><rect width=\'100%\' height=\'100%\' fill=\'%23333\'/></svg>'">`
-          : `<div style="width: 44px; height: 44px; background: rgba(255,255,255,0.05); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">📄</div>`;
+          ? `<a href="${item.imagem}" target="_blank" title="Clique para ver imagem ampliada">
+               <img src="${item.imagem}" style="width: 48px; height: 48px; object-fit: cover; border-radius: 6px; border: 1px solid rgba(255,255,255,0.12); transition: transform 0.15s ease;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'48\\' height=\\'48\\'><rect width=\\'100%\\' height=\\'100%\\' fill=\\'%23222\\'/></svg>'">
+             </a>`
+          : `<div style="width: 48px; height: 48px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">📄</div>`;
 
-        const statusTag = item.ativo
-          ? `<span style="color: #4caf50; font-weight: bold; font-size: 0.8rem;">● Ativo</span>`
-          : `<span style="color: #888; font-size: 0.8rem;">○ Inativo</span>`;
-
-        const badgeModo = item.esteira !== false
-          ? `<span class="badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; font-size: 0.72rem; margin-top: 3px; display: inline-block;">📦 Esteira</span>`
-          : (item.agendado_para ? `<span class="badge" style="background: rgba(168, 85, 247, 0.15); color: #c084fc; font-size: 0.72rem; margin-top: 3px; display: inline-block;">📅 ${new Date(item.agendado_para).toLocaleString('pt-BR')}</span>` : '');
-
+        const jaFoiPostado = (item.vezesEnviado && item.vezesEnviado > 0) || Boolean(item.ultimoEnvioEm);
         const ultimoEnvioFormatado = item.ultimoEnvioEm
           ? new Date(item.ultimoEnvioEm).toLocaleString('pt-BR')
           : 'Nunca enviado';
 
+        // Bloco de Status Dinâmico e Intuitivo
+        let statusHtml = '';
+        if (!item.ativo) {
+          statusHtml = `
+            <div>
+              <span class="badge" style="background: rgba(148, 163, 184, 0.15); color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.3); font-size: 0.75rem; padding: 0.2rem 0.5rem; border-radius: 5px;">⏸️ Inativo / Pausado</span>
+            </div>
+            <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 3px;">Envios: ${item.vezesEnviado || 0}x</div>
+          `;
+        } else if (!jaFoiPostado) {
+          statusHtml = `
+            <div>
+              <span class="badge" style="background: rgba(245, 158, 11, 0.18); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); font-size: 0.75rem; padding: 0.2rem 0.55rem; border-radius: 5px; font-weight: 600;">⏳ Na Fila (Inédito)</span>
+            </div>
+            <div style="font-size: 0.72rem; color: #38bdf8; margin-top: 3px; font-weight: 500;">🚀 Pronto para 1º disparo</div>
+          `;
+        } else {
+          // Já foi postado
+          const posicaoEsteiraTag = ehModoRotativo
+            ? `<div style="font-size: 0.73rem; color: #38bdf8; margin-top: 2px; font-weight: 600;">🔄 Próximo na esteira: #${index + 1}</div>`
+            : '';
+
+          statusHtml = `
+            <div>
+              <span class="badge" style="background: rgba(34, 197, 94, 0.16); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.35); font-size: 0.75rem; padding: 0.2rem 0.55rem; border-radius: 5px; font-weight: 600;">✅ Já Postado (${item.vezesEnviado || 1}x)</span>
+            </div>
+            ${posicaoEsteiraTag}
+            <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 3px;">Último: ${ultimoEnvioFormatado}</div>
+          `;
+        }
+
+        const badgeModo = item.esteira !== false
+          ? `<span class="badge" style="background: rgba(56, 189, 248, 0.12); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.25); font-size: 0.68rem; margin-top: 3px; display: inline-block;">📦 Esteira</span>`
+          : (item.agendado_para ? `<span class="badge" style="background: rgba(168, 85, 247, 0.12); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.25); font-size: 0.68rem; margin-top: 3px; display: inline-block;">📅 ${new Date(item.agendado_para).toLocaleString('pt-BR')}</span>` : '');
+
         return `
-          <tr>
+          <tr style="${!item.ativo ? 'opacity: 0.6;' : ''}">
             <td>${thumb}</td>
             <td>
-              <strong style="color: var(--text-primary); font-size: 0.9rem;">${item.titulo}</strong>
-              ${item.destaque ? `<div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">${item.destaque}</div>` : ''}
-              ${item.link ? `<div style="font-size: 0.72rem; color: var(--primary); margin-top: 2px; word-break: break-all;"><a href="${item.link}" target="_blank" style="color: inherit;">${item.link}</a></div>` : ''}
+              <strong style="color: var(--text-primary); font-size: 0.88rem; line-height: 1.35; display: block;">${item.titulo}</strong>
+              ${item.destaque ? `<div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 3px;">${item.destaque}</div>` : ''}
+              ${item.link ? `<div style="font-size: 0.72rem; color: var(--primary); margin-top: 3px; word-break: break-all;"><a href="${item.link}" target="_blank" style="color: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 0.25rem;">🔗 Abrir link da oferta ↗</a></div>` : ''}
             </td>
             <td>${badgeTipo}</td>
-            <td style="font-weight: 500; color: #ffeb3b; font-size: 0.85rem;">${item.preco || '-'}</td>
+            <td style="font-weight: 700; color: #facc15; font-size: 0.86rem; font-family: 'JetBrains Mono', monospace;">${item.preco || '-'}</td>
             <td>
-              <div>${statusTag}</div>
+              ${statusHtml}
               ${badgeModo}
-              <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">Enviado: <strong>${item.vezesEnviado || 0}x</strong></div>
-              <div style="font-size: 0.7rem; color: var(--text-muted);">Último: ${ultimoEnvioFormatado}</div>
             </td>
             <td style="text-align: right; white-space: nowrap;">
-              <button class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.45rem; font-size: 0.75rem; margin-right: 4px;" onclick="dispararCampanhaAgora('${item.id}')" title="Disparar teste deste item agora">⚡ Testar</button>
-              <button class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.45rem; font-size: 0.75rem; margin-right: 4px;" onclick="prepararEdicaoItemCampanha('${item.id}')" title="Editar este item">✏️</button>
-              <button class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.45rem; font-size: 0.75rem; margin-right: 4px;" onclick="alternarStatusItemCampanha('${item.id}', ${item.ativo})" title="${item.ativo ? 'Pausar' : 'Ativar'}">${item.ativo ? '⏸' : '▶'}</button>
-              <button class="btn btn-danger btn-sm" style="padding: 0.25rem 0.45rem; font-size: 0.75rem;" onclick="excluirItemCampanha('${item.id}', '${item.titulo.replace(/'/g, "\\'")}')" title="Excluir">🗑</button>
+              <button class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; margin-right: 4px;" onclick="dispararCampanhaAgora('${item.id}')" title="Disparar teste deste item agora">⚡ Testar</button>
+              <button class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; margin-right: 4px;" onclick="prepararEdicaoItemCampanha('${item.id}')" title="Editar este item">✏️</button>
+              <button class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; margin-right: 4px;" onclick="alternarStatusItemCampanha('${item.id}', ${item.ativo})" title="${item.ativo ? 'Pausar oferta' : 'Ativar oferta'}">${item.ativo ? '⏸' : '▶'}</button>
+              <button class="btn btn-danger btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="excluirItemCampanha('${item.id}', '${item.titulo.replace(/'/g, "\\'")}')" title="Excluir do acervo">🗑</button>
             </td>
           </tr>
         `;

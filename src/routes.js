@@ -658,8 +658,9 @@ router.post('/sessions/:projectId/rss/fetch', async (req, res) => {
  */
 router.get('/sessions/:projectId/rss/artigos', (req, res) => {
   const { projectId } = req.params;
+  const { status, limite, busca } = req.query;
   try {
-    const stats = rssFetcher.obterEstatisticasArtigos(projectId);
+    const stats = rssFetcher.obterEstatisticasArtigos(projectId, { status, limite, busca });
     res.json({
       sucesso: true,
       projectId,
