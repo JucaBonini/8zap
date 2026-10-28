@@ -73,14 +73,19 @@ function obterCaminhoGrade(projectId) {
  */
 function obterConfigGrade(projectId) {
   const caminho = obterCaminhoGrade(projectId);
+  const isProjetoReceitas = (projectId || '').toLowerCase().includes('receita');
   const padrao = {
     ativo: false,
     destinos: [],
-    horarios: [
+    horarios: isProjetoReceitas ? [
       { id: 'slot_1', hora: '11:15', origem: 'receitas' },
       { id: 'slot_2', hora: '16:00', origem: 'campanhas' },
       { id: 'slot_3', hora: '18:45', origem: 'rss' },
       { id: 'slot_4', hora: '20:30', origem: 'manual' }
+    ] : [
+      { id: 'slot_1', hora: '10:00', origem: 'manual' },
+      { id: 'slot_2', hora: '15:00', origem: 'rss' },
+      { id: 'slot_3', hora: '19:30', origem: 'manual' }
     ],
     historicoDisparos: {}
   };

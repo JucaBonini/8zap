@@ -523,6 +523,17 @@ async function dispararProximaReceita(projectId, destinosGrade = null) {
   let proximaReceita = lista.find((r) => r.status === 'pronto');
 
   if (!proximaReceita) {
+    const isReceitas = (projectId || '').toLowerCase().includes('receita') || config.ativo;
+    if (!isReceitas) {
+      logProjeto(
+        projectId,
+        'GRADE_RECEITAS_IGNORADO',
+        'Este projeto não possui o módulo de Receitas IA ativo. Disparo de receitas cancelado para evitar cruzamento de nicho.',
+        'info'
+      );
+      return { sucesso: false, motivo: 'modulo_receitas_inativo' };
+    }
+
     logProjeto(
       projectId,
       'GRADE_RECEITAS_ESTEIRA_VAZIA',

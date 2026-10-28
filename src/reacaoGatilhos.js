@@ -58,11 +58,14 @@ function obterCaminhoConfigGatilhos(projectId) {
  */
 function obterConfigGatilhos(projectId = 'Receitas') {
   const caminho = obterCaminhoConfigGatilhos(projectId);
+  const isReceitas = (projectId || '').toLowerCase().includes('receita');
   const padrao = {
     ativo: true,
     modo: 'rotativo', // 'rotativo' | 'personalizado'
-    textoPersonalizado: '💬 *Se você quer que eu mande a versão de sobremesa amanhã, reaja com 🔥 ou ❤️!*',
-    aplicarEmReceitas: true,
+    textoPersonalizado: isReceitas
+      ? '💬 *Se você quer que eu mande a versão de sobremesa amanhã, reaja com 🔥 ou ❤️!*'
+      : '💬 *Gostou do conteúdo? Deixe sua reação abaixo com ❤️ ou 🔥!*',
+    aplicarEmReceitas: isReceitas,
     aplicarEmRss: true,
     aplicarEmCampanhas: true,
     aplicarEmFilaManual: true,
@@ -151,10 +154,12 @@ function mensagemJaPossuiGatilho(texto) {
  */
 function aplicarGatilhoReacao(textoOriginal, opcoes = {}) {
   const {
-    categoria = 'culinaria',
     projectId = 'Receitas',
     forcar = false
   } = opcoes;
+
+  const isReceitas = (projectId || '').toLowerCase().includes('receita');
+  const categoria = opcoes.categoria || (isReceitas ? 'culinaria' : 'universal');
 
   const textoLimpo = (textoOriginal || '').trim();
   if (!textoLimpo) return textoLimpo;

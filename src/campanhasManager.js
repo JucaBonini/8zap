@@ -99,24 +99,27 @@ function obterCaminhoControleDiario(projectId) {
  * Retorna a configuração padrão de campanhas
  * @returns {object}
  */
-function obterConfigPadrao() {
+function obterConfigPadrao(projectId = '') {
+  const isReceitas = (projectId || '').toLowerCase().includes('receita');
   return {
-    ativo: true,
+    ativo: isReceitas, // Para novos projetos gerais inicia desativado para o usuário configurar
     modoFila: 'rotativo', // 'rotativo' (reutiliza após cooldown) ou 'consumir' (envia uma vez e desativa)
     quantidadePorDia: 5,
     cooldownDias: 7,
     // Cada slot de horário pode opcionalmente especificar o tipo desejado ('shopee', 'imagem', ou 'qualquer')
     horarios: [
-      { hora: '10:30', tipo: 'imagem', rotulo: 'Dica / Imagem da Manhã' },
-      { hora: '16:30', tipo: 'shopee', rotulo: 'Oferta Shopee da Tarde' }
+      { hora: '10:30', tipo: 'imagem', rotulo: 'Dica / Post da Manhã' },
+      { hora: '16:30', tipo: 'shopee', rotulo: 'Oferta / Campanha da Tarde' }
     ],
     destinosPermitidos: [],
-    templateShopee: '🛒 *Achadinho da Cozinha: {titulo}*\n{destaque}\n\n{preco}\n🎟️ *Dica:* Ative o cupom de Frete Grátis na página antes de fechar!\n\n👉 *Pegue o seu com desconto aqui:* 👇\n🛒 {link}\n\n⚠️ _Preço e estoque válidos no momento da postagem._',
+    templateShopee: isReceitas
+      ? '🛒 *Achadinho da Cozinha: {titulo}*\n{destaque}\n\n{preco}\n🎟️ *Dica:* Ative o cupom de Frete Grátis na página antes de fechar!\n\n👉 *Pegue o seu com desconto aqui:* 👇\n🛒 {link}\n\n⚠️ _Preço e estoque válidos no momento da postagem._'
+      : '🔥 *Achadinho / Oferta: {titulo}*\n{destaque}\n\n{preco}\n🎟️ *Dica:* Aproveite o cupom na página antes de finalizar!\n\n👉 *Acesse a oferta oficial aqui:* 👇\n🛒 {link}\n\n⚠️ _Preço e estoque válidos no momento da postagem._',
     templateImagem: '✨ *{titulo}*\n\n{destaque}\n\n{link}',
     // Configurações do Radar / Robô Shopee
     shopeeAppId: '',
     shopeeSecret: '',
-    shopeeCategoriaPadrao: 'cozinha',
+    shopeeCategoriaPadrao: isReceitas ? 'cozinha' : 'geral',
     shopeeDescontoMinimo: 20
   };
 }
@@ -129,7 +132,7 @@ function obterConfigPadrao() {
 function obterConfigCampanhas(projectId) {
   const caminho = obterCaminhoConfigCampanhas(projectId);
   if (!fs.existsSync(caminho)) {
-    const padrao = obterConfigPadrao();
+    const padrao = obterConfigPadrao(projectId);
     try {
       fs.writeFileSync(caminho, JSON.stringify(padrao, null, 2), 'utf8');
     } catch (_) {}
@@ -139,7 +142,7 @@ function obterConfigCampanhas(projectId) {
   try {
     const conteudo = fs.readFileSync(caminho, 'utf8');
     const dados = JSON.parse(conteudo);
-    const padrao = obterConfigPadrao();
+    const padrao = obterConfigPadrao(projectId);
 
     // Normaliza horários legados se forem apenas strings ["10:30", "16:30"]
     let horariosNormalizados = dados.horarios;
