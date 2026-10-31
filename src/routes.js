@@ -271,6 +271,58 @@ router.delete('/sessions/:projectId', async (req, res) => {
 });
 
 // ==========================================
+// ROTAS DE PERFIL DA SESSÃO & NICHO MULTI-TENANT
+// ==========================================
+
+const perfilManager = require('./perfilManager');
+
+/**
+ * GET /nichos
+ * Retorna o catálogo de nichos pré-configurados disponíveis
+ */
+router.get('/nichos', (req, res) => {
+  res.json({
+    sucesso: true,
+    nichos: Object.values(perfilManager.CATALOGO_NICHOS)
+  });
+});
+
+/**
+ * GET /sessions/:projectId/perfil
+ * Retorna o perfil de nicho e módulos ativos da sessão
+ */
+router.get('/sessions/:projectId/perfil', (req, res) => {
+  const { projectId } = req.params;
+  try {
+    const perfil = perfilManager.obterPerfil(projectId);
+    res.json({
+      sucesso: true,
+      perfil
+    });
+  } catch (err) {
+    res.status(500).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * POST /sessions/:projectId/perfil
+ * Atualiza o nicho, módulos e persona da sessão
+ */
+router.post('/sessions/:projectId/perfil', (req, res) => {
+  const { projectId } = req.params;
+  try {
+    const perfilSalvo = perfilManager.salvarPerfil(projectId, req.body);
+    res.json({
+      sucesso: true,
+      mensagem: 'Perfil da sessão atualizado com sucesso!',
+      perfil: perfilSalvo
+    });
+  } catch (err) {
+    res.status(400).json({ sucesso: false, erro: err.message });
+  }
+});
+
+// ==========================================
 // ROTAS DE ENVIO DE MENSAGENS
 // ==========================================
 

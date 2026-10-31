@@ -100,7 +100,15 @@ function obterCaminhoControleDiario(projectId) {
  * @returns {object}
  */
 function obterConfigPadrao(projectId = '') {
-  const isReceitas = (projectId || '').toLowerCase().includes('receita');
+  let isReceitas = (projectId || '').toLowerCase().includes('receita');
+  let categoriaPadrao = isReceitas ? 'cozinha' : 'geral';
+  try {
+    const perfilManager = require('./perfilManager');
+    const perfil = perfilManager.obterPerfil(projectId);
+    isReceitas = perfil.nicho === 'culinaria' || Boolean(perfil.modulos?.receitasIa);
+    if (perfil.categoriaShopee) categoriaPadrao = perfil.categoriaShopee;
+  } catch (_) {}
+
   return {
     ativo: isReceitas, // Para novos projetos gerais inicia desativado para o usuário configurar
     modoFila: 'rotativo', // 'rotativo' (reutiliza após cooldown) ou 'consumir' (envia uma vez e desativa)
@@ -119,7 +127,7 @@ function obterConfigPadrao(projectId = '') {
     // Configurações do Radar / Robô Shopee
     shopeeAppId: '',
     shopeeSecret: '',
-    shopeeCategoriaPadrao: isReceitas ? 'cozinha' : 'geral',
+    shopeeCategoriaPadrao: categoriaPadrao,
     shopeeDescontoMinimo: 20
   };
 }

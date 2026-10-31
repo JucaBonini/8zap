@@ -58,7 +58,12 @@ function obterCaminhoConfigGatilhos(projectId) {
  */
 function obterConfigGatilhos(projectId = 'Receitas') {
   const caminho = obterCaminhoConfigGatilhos(projectId);
-  const isReceitas = (projectId || '').toLowerCase().includes('receita');
+  let isReceitas = (projectId || '').toLowerCase().includes('receita');
+  try {
+    const perfilManager = require('./perfilManager');
+    const perfil = perfilManager.obterPerfil(projectId);
+    isReceitas = perfil.nicho === 'culinaria' || Boolean(perfil.modulos?.receitasIa);
+  } catch (_) {}
   const padrao = {
     ativo: true,
     modo: 'rotativo', // 'rotativo' | 'personalizado'
@@ -158,7 +163,12 @@ function aplicarGatilhoReacao(textoOriginal, opcoes = {}) {
     forcar = false
   } = opcoes;
 
-  const isReceitas = (projectId || '').toLowerCase().includes('receita');
+  let isReceitas = (projectId || '').toLowerCase().includes('receita');
+  try {
+    const perfilManager = require('./perfilManager');
+    const perfil = perfilManager.obterPerfil(projectId);
+    isReceitas = perfil.nicho === 'culinaria' || Boolean(perfil.modulos?.receitasIa);
+  } catch (_) {}
   const categoria = opcoes.categoria || (isReceitas ? 'culinaria' : 'universal');
 
   const textoLimpo = (textoOriginal || '').trim();

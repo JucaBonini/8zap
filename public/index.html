@@ -2537,7 +2537,7 @@
               <label for="gradeNovaOrigemSelect" style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.3rem;">Tipo / Módulo de Disparo:</label>
               <select id="gradeNovaOrigemSelect" class="form-control" style="font-weight: 500;">
                 <option value="manual">📝 Fila Manual (Consome o próximo post da esteira)</option>
-                <option value="receitas">🍳 Receita da Mary (IA) - Posta receita do dia (com ou sem foto)</option>
+                <option value="receitas" id="optGradeReceitas">🍳 Receita da Mary (IA) - Posta receita do dia (com ou sem foto)</option>
                 <option value="rss">📰 RSS Automático (Posta próxima receita/artigo do feed)</option>
                 <option value="campanhas">🛍️ Ofertas & Imagens (Posta oferta/promoção Shopee)</option>
               </select>
@@ -4341,6 +4341,70 @@ Uma receita prática, fofinha e deliciosa para o café da tarde!
           </div>
         </div>
 
+        <!-- Card 1.5: Perfil da Sessão & Nicho de Conteúdo (Multi-Nicho) -->
+        <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
+            <div>
+              <h3 style="margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                <span id="iconeNichoHeader">🎯</span> Perfil da Sessão &amp; Nicho de Conteúdo
+              </h3>
+              <p style="font-size: 0.82rem; color: var(--text-muted);">
+                Defina o segmento desta sessão para que a IA e os disparadores adaptem linguagem, formatos e módulos automáticos.
+              </p>
+            </div>
+            <span class="badge badge-connected" id="badgeNichoAtivo">Nicho: Carregando...</span>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group" style="flex: 1; min-width: 250px;">
+              <label for="selectNichoProjeto" style="font-weight: 600;">Segmento / Nicho do WhatsApp:</label>
+              <select id="selectNichoProjeto" class="form-control" onchange="aoTrocarNichoSelect()">
+                <option value="culinaria">🍳 Culinária &amp; Gastronomia (Mary)</option>
+                <option value="tecnologia">💻 Tecnologia, Gadgets &amp; Inovação</option>
+                <option value="marketing">📈 Marketing Digital &amp; Negócios</option>
+                <option value="noticias">📰 Notícias &amp; Mídia Geral</option>
+                <option value="achadinhos">🛍️ Achadinhos, Cupons &amp; Ofertas</option>
+                <option value="geral">⚙️ Geral / Personalizado</option>
+              </select>
+            </div>
+            <div class="form-group" style="flex: 1; min-width: 250px;">
+              <label for="inputCategoriaShopee" style="font-weight: 600;">Categoria Shopee / Radar de Ofertas:</label>
+              <input type="text" id="inputCategoriaShopee" class="form-control" placeholder="ex: cozinha, eletronicos, moda, geral">
+            </div>
+          </div>
+
+          <div style="margin-top: 0.5rem; margin-bottom: 1.25rem;">
+            <label style="font-weight: 600; font-size: 0.88rem; display: block; margin-bottom: 0.5rem;">Módulos Ativos para Esta Sessão:</label>
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.85rem; background: rgba(255,255,255,0.03); padding: 0.45rem 0.85rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                <input type="checkbox" id="chkModuloFilaManual" checked style="accent-color: var(--primary);">
+                <span>📝 Fila Manual (Esteira)</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.85rem; background: rgba(255,255,255,0.03); padding: 0.45rem 0.85rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                <input type="checkbox" id="chkModuloRss" checked style="accent-color: var(--primary);">
+                <span>📰 Notícias RSS</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.85rem; background: rgba(255,255,255,0.03); padding: 0.45rem 0.85rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                <input type="checkbox" id="chkModuloCampanhas" checked style="accent-color: var(--primary);">
+                <span>🛍️ Ofertas &amp; Shopee</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.85rem; background: rgba(255,255,255,0.03); padding: 0.45rem 0.85rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                <input type="checkbox" id="chkModuloReceitasIa" style="accent-color: #fb923c;">
+                <span>🍳 Receitas Culinárias IA (Mary)</span>
+              </label>
+            </div>
+            <p style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.4rem;">
+              Desative "Receitas Culinárias" para projetos que não falam sobre comida. O painel e a grade adaptarão as opções automaticamente.
+            </p>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end;">
+            <button type="button" class="btn btn-sm" onclick="salvarPerfilProjetoForm()">
+              💾 Salvar Perfil do Nicho
+            </button>
+          </div>
+        </div>
+
         <!-- Card 2: Inteligência Artificial & Chaves de API -->
         <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
@@ -4922,6 +4986,7 @@ Uma receita prática, fofinha e deliciosa para o café da tarde!
       };
 
       atualizarCabecalhoProjeto(sessao);
+      carregarPerfilProjeto();
       navegarAbaPrincipal('cockpit');
       verificarStatusEQr();
       carregarConfiguracaoRss();
@@ -5090,6 +5155,7 @@ Uma receita prática, fofinha e deliciosa para o café da tarde!
         trocarSubConteudo(subConteudoAtivo);
       } else if (nomeAba === 'config') {
         iniciarPollingQr();
+        carregarPerfilProjeto();
         carregarConfigReceitas();
         carregarDestinosReceitas();
         carregarLogsProjeto();
@@ -5097,6 +5163,9 @@ Uma receita prática, fofinha e deliciosa para o café da tarde!
     }
 
     function trocarSubConteudo(subId, evt) {
+      if (subId === 'sub-receitas' && perfilProjetoAtual && perfilProjetoAtual.modulos && perfilProjetoAtual.modulos.receitasIa === false) {
+        subId = 'sub-rss';
+      }
       subConteudoAtivo = subId;
       document.querySelectorAll('.sub-pill-btn').forEach(btn => btn.classList.remove('active'));
       document.querySelectorAll('.sub-content-panel').forEach(panel => panel.classList.remove('active'));
@@ -8417,6 +8486,157 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
         }
       } catch (err) {
         mostrarToast(`Erro ao conectar: ${err.message}`, true);
+      }
+    }
+
+    // ==========================================
+    // GESTÃO DE PERFIL DA SESSÃO & NICHO MULTI-TENANT
+    // ==========================================
+    let perfilProjetoAtual = null;
+
+    async function carregarPerfilProjeto() {
+      if (!projetoSelecionado) return null;
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/perfil`, {
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+
+        if (data.sucesso && data.perfil) {
+          perfilProjetoAtual = data.perfil;
+
+          const selNicho = document.getElementById('selectNichoProjeto');
+          if (selNicho) selNicho.value = data.perfil.nicho || 'geral';
+
+          const inputShopee = document.getElementById('inputCategoriaShopee');
+          if (inputShopee) inputShopee.value = data.perfil.categoriaShopee || '';
+
+          const chkFila = document.getElementById('chkModuloFilaManual');
+          if (chkFila) chkFila.checked = data.perfil.modulos?.filaManual !== false;
+
+          const chkRss = document.getElementById('chkModuloRss');
+          if (chkRss) chkRss.checked = data.perfil.modulos?.rss !== false;
+
+          const chkCamp = document.getElementById('chkModuloCampanhas');
+          if (chkCamp) chkCamp.checked = data.perfil.modulos?.campanhas !== false;
+
+          const chkRec = document.getElementById('chkModuloReceitasIa');
+          if (chkRec) chkRec.checked = Boolean(data.perfil.modulos?.receitasIa);
+
+          const badgeNicho = document.getElementById('badgeNichoAtivo');
+          if (badgeNicho) {
+            badgeNicho.innerText = `${data.perfil.icone || '🎯'} Nicho: ${data.perfil.nomeNicho}`;
+          }
+
+          const iconeHeader = document.getElementById('iconeNichoHeader');
+          if (iconeHeader) iconeHeader.innerText = data.perfil.icone || '🎯';
+
+          aplicarAjustesPerfilNaInterface(data.perfil);
+          return data.perfil;
+        }
+      } catch (err) {
+        console.error('Erro ao carregar perfil do projeto:', err);
+      }
+      return null;
+    }
+
+    function aplicarAjustesPerfilNaInterface(perfil) {
+      if (!perfil || !perfil.modulos) return;
+
+      const temReceitas = Boolean(perfil.modulos.receitasIa);
+
+      // 1. Sub-Pill na Central de Conteúdos
+      const btnSubReceitas = document.getElementById('btnSub-sub-receitas');
+      if (btnSubReceitas) {
+        btnSubReceitas.style.display = temReceitas ? 'inline-flex' : 'none';
+      }
+
+      // Se estiver na aba de receitas mas o módulo foi desligado, redireciona suavemente
+      if (!temReceitas && subConteudoAtivo === 'sub-receitas') {
+        trocarSubConteudo('sub-rss');
+      }
+
+      // 2. Opção no select da Grade Diária
+      const optGradeReceitas = document.getElementById('optGradeReceitas');
+      if (optGradeReceitas) {
+        optGradeReceitas.style.display = temReceitas ? '' : 'none';
+        const selectOrigem = document.getElementById('gradeNovaOrigemSelect');
+        if (selectOrigem && selectOrigem.value === 'receitas' && !temReceitas) {
+          selectOrigem.value = 'manual';
+        }
+      }
+    }
+
+    function aoTrocarNichoSelect() {
+      const sel = document.getElementById('selectNichoProjeto');
+      if (!sel) return;
+      const nichoEscolhido = sel.value;
+
+      const mapaCategoriasShopee = {
+        culinaria: 'cozinha',
+        tecnologia: 'eletronicos',
+        marketing: 'livros',
+        noticias: 'geral',
+        achadinhos: 'geral',
+        geral: 'geral'
+      };
+
+      const inputShopee = document.getElementById('inputCategoriaShopee');
+      if (inputShopee) {
+        inputShopee.value = mapaCategoriasShopee[nichoEscolhido] || 'geral';
+      }
+
+      const chkRec = document.getElementById('chkModuloReceitasIa');
+      if (chkRec) {
+        chkRec.checked = (nichoEscolhido === 'culinaria');
+      }
+    }
+
+    async function salvarPerfilProjetoForm() {
+      if (!projetoSelecionado) return;
+
+      const selNicho = document.getElementById('selectNichoProjeto');
+      const nicho = selNicho ? selNicho.value : 'geral';
+      const categoriaShopee = document.getElementById('inputCategoriaShopee')?.value?.trim() || 'geral';
+
+      const modulos = {
+        filaManual: document.getElementById('chkModuloFilaManual')?.checked ?? true,
+        rss: document.getElementById('chkModuloRss')?.checked ?? true,
+        campanhas: document.getElementById('chkModuloCampanhas')?.checked ?? true,
+        receitasIa: document.getElementById('chkModuloReceitasIa')?.checked ?? false,
+        facebook: true
+      };
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/perfil`, {
+          method: 'POST',
+          headers: obterHeaders(),
+          body: JSON.stringify({
+            nicho,
+            categoriaShopee,
+            modulos
+          })
+        });
+
+        const data = await resp.json();
+        if (data.sucesso && data.perfil) {
+          perfilProjetoAtual = data.perfil;
+          aplicarAjustesPerfilNaInterface(data.perfil);
+
+          const badgeNicho = document.getElementById('badgeNichoAtivo');
+          if (badgeNicho) {
+            badgeNicho.innerText = `${data.perfil.icone || '🎯'} Nicho: ${data.perfil.nomeNicho}`;
+          }
+          const iconeHeader = document.getElementById('iconeNichoHeader');
+          if (iconeHeader) iconeHeader.innerText = data.perfil.icone || '🎯';
+
+          mostrarToast('✅ Perfil da sessão salvo com sucesso!');
+        } else {
+          mostrarToast(`Erro ao salvar perfil: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro ao salvar: ${err.message}`, true);
       }
     }
 

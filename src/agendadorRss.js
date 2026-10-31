@@ -93,7 +93,13 @@ function formatarMensagemArtigo(artigo, config = {}, projectId = 'Receitas') {
       .replace(/\{resumo\}/gi, resumo)
       .replace(/\{link\}/gi, link);
   } else {
-    const isReceitas = (projectId || '').toLowerCase().includes('receita');
+    let isReceitas = (projectId || '').toLowerCase().includes('receita');
+    try {
+      const perfilManager = require('./perfilManager');
+      const perfil = perfilManager.obterPerfil(projectId);
+      isReceitas = perfil.nicho === 'culinaria' || Boolean(perfil.modulos?.receitasIa);
+    } catch (_) {}
+
     if (isReceitas) {
       // Formato padrão estruturado com gancho na primeira linha e tom acolhedor para receitas
       const blocoResumo = resumo ? `\n\n_${resumo}_` : '';
@@ -356,7 +362,13 @@ async function processarDisparoArtigoRss(projectId, config, horarioAtual) {
     // 1. Obtém um artigo aleatório não usado
     const artigo = await rssFetcher.obterArtigoAleatorioNaoUsado(projectId);
     if (!artigo) {
-      const isReceitas = (projectId || '').toLowerCase().includes('receita');
+      let isReceitas = (projectId || '').toLowerCase().includes('receita');
+      try {
+        const perfilManager = require('./perfilManager');
+        const perfil = perfilManager.obterPerfil(projectId);
+        isReceitas = perfil.nicho === 'culinaria' || Boolean(perfil.modulos?.receitasIa);
+      } catch (_) {}
+
       if (isReceitas) {
         logProjeto(projectId, 'RSS_FALLBACK_MARY', `Nenhum artigo RSS disponível para o horário ${horarioAtual}. Acionando fallback com Receita da Mary...`, 'warn');
         try {

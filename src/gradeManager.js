@@ -73,11 +73,12 @@ function obterCaminhoGrade(projectId) {
  */
 function obterConfigGrade(projectId) {
   const caminho = obterCaminhoGrade(projectId);
-  const isProjetoReceitas = (projectId || '').toLowerCase().includes('receita');
+  const perfilManager = require('./perfilManager');
+  const perfil = perfilManager.obterPerfil(projectId);
   const padrao = {
     ativo: false,
     destinos: [],
-    horarios: isProjetoReceitas ? [
+    horarios: perfil.modulos.receitasIa ? [
       { id: 'slot_1', hora: '11:15', origem: 'receitas' },
       { id: 'slot_2', hora: '16:00', origem: 'campanhas' },
       { id: 'slot_3', hora: '18:45', origem: 'rss' },
@@ -220,6 +221,12 @@ async function executarDisparoSlot(projectId, slot, destinosGrade) {
   } else if (slot.origem === 'campanhas') {
     return agendadorCampanhas.dispararCampanhaManual(projectId, null, destinosGrade);
   } else if (slot.origem === 'receitas') {
+    const perfilManager = require('./perfilManager');
+    const perfil = perfilManager.obterPerfil(projectId);
+    if (!perfil.modulos.receitasIa) {
+      logProjeto(projectId, 'GRADE_SLOT_PULADO', `Slot de "receitas" ignorado: módulo de receitas desativado para o perfil "${perfil.nomeNicho}".`, 'info');
+      return { sucesso: false, motivo: 'modulo_receitas_desativado' };
+    }
     const receitasManager = require('./receitasManager');
     return receitasManager.dispararProximaReceita(projectId, destinosGrade);
   } else {
