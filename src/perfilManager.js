@@ -24,7 +24,7 @@ const CATALOGO_NICHOS = {
       filaManual: true,
       facebook: true
     },
-    templateRssPadrao: '🍲 *JANTAR RÁPIDO: {TITULO}*\n{abertura}\n\n_{resumo}_\n\n👉 *Toque no link oficial para ver os ingredientes e preparo completo:* 👇\n🔗 {link}\n\n📌 _Salva essa receita para quando precisar de uma ideia rápida!_',
+    templateRssPadrao: '🍽️ *{TITULO}*\n{abertura}\n\n_{resumo}_\n\n👉 *Toque no link oficial para ver os ingredientes e preparo completo:* 👇\n🔗 {link}\n\n📌 _Salva essa receita para quando precisar de uma ideia rápida!_',
     templateShopeePadrao: '🛒 *Achadinho da Cozinha: {titulo}*\n{destaque}\n\n{preco}\n🎟️ *Dica:* Ative o cupom de Frete Grátis na página antes de fechar!\n\n👉 *Pegue o seu com desconto aqui:* 👇\n🛒 {link}\n\n⚠️ _Preço e estoque válidos no momento da postagem._'
   },
   tecnologia: {

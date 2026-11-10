@@ -57,8 +57,7 @@ const ABERTURAS_PADRAO = [
   '👩‍🍳 Bora cozinhar?',
   '🍝 Direto da cozinha:',
   '😋 Se joga nessa receita:',
-  '🍲 Receita do dia:',
-  'Olá, meninas(os)! Como vão? 💛 Trouxe uma receita boa pra vocês:'
+  '🍲 Dica do dia:'
 ];
 
 /**
@@ -101,9 +100,9 @@ function formatarMensagemArtigo(artigo, config = {}, projectId = 'Receitas') {
     } catch (_) {}
 
     if (isReceitas) {
-      // Formato padrão estruturado com gancho na primeira linha e tom acolhedor para receitas
+      // Formato padrão estruturado com o título direto na primeira linha (sem prefixos que cortam na prévia)
       const blocoResumo = resumo ? `\n\n_${resumo}_` : '';
-      textoFinal = `🍲 *JANTAR RÁPIDO: ${titulo.toUpperCase()}*\n${abertura}${blocoResumo}\n\n👉 *Toque no link oficial para ver os ingredientes e preparo completo:* 👇\n🔗 ${link}\n\n📌 _Salva essa receita para quando precisar de uma ideia rápida!_`;
+      textoFinal = `🍽️ *${titulo.toUpperCase()}*\n${abertura}${blocoResumo}\n\n👉 *Toque no link oficial para ver os ingredientes e preparo completo:* 👇\n🔗 ${link}\n\n📌 _Salva essa receita para quando precisar de uma ideia rápida!_`;
     } else {
       // Formato neutro profissional para qualquer outro nicho (notícias, tecnologia, digital, etc.)
       const blocoResumo = resumo ? `\n\n${resumo}` : '';
