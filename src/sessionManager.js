@@ -437,13 +437,19 @@ function obterStatusSessao(projectId) {
 function obterQrCode(projectId) {
   const idSanitizado = projectId.replace(/[^a-zA-Z0-9_-]/g, '_');
   const sessao = sessoes.get(idSanitizado);
+  const statusDetalhado = obterStatusSessao(idSanitizado);
 
   if (!sessao) {
     return {
       projectId: idSanitizado,
       status: 'nao_iniciado',
       qr: null,
-      usuarioConectado: null
+      usuarioConectado: null,
+      template: statusDetalhado.template,
+      nicho: statusDetalhado.nicho,
+      icone: statusDetalhado.icone,
+      nomeNicho: statusDetalhado.nomeNicho,
+      modulos: statusDetalhado.modulos
     };
   }
 
@@ -452,7 +458,12 @@ function obterQrCode(projectId) {
       projectId: idSanitizado,
       status: 'connected',
       qr: null,
-      usuarioConectado: sessao.usuarioConectado
+      usuarioConectado: sessao.usuarioConectado,
+      template: statusDetalhado.template,
+      nicho: statusDetalhado.nicho,
+      icone: statusDetalhado.icone,
+      nomeNicho: statusDetalhado.nomeNicho,
+      modulos: statusDetalhado.modulos
     };
   }
 
@@ -460,7 +471,12 @@ function obterQrCode(projectId) {
     projectId: idSanitizado,
     status: sessao.status,
     qr: sessao.qrCodeBase64,
-    usuarioConectado: sessao.usuarioConectado
+    usuarioConectado: sessao.usuarioConectado,
+    template: statusDetalhado.template,
+    nicho: statusDetalhado.nicho,
+    icone: statusDetalhado.icone,
+    nomeNicho: statusDetalhado.nomeNicho,
+    modulos: statusDetalhado.modulos
   };
 }
 
