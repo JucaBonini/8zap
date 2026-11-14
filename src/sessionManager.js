@@ -388,16 +388,22 @@ function obterStatusSessao(projectId) {
     perfil = perfilManager.obterPerfil(idSanitizado);
   } catch (_) {}
 
-  const template = perfil?.template || (idSanitizado.toLowerCase().includes('receita') ? 'RECEITAS' : 'RECEITAS');
+  const isReceita = idSanitizado.toLowerCase().includes('receita') || idSanitizado === 'Receitas';
+  const template = perfil?.template || (isReceita ? 'RECEITAS' : 'GENERICO');
   const icone = perfil?.icone || (template === 'RECEITAS' ? '🍳' : '🌐');
-  const nomeNicho = perfil?.nomeNicho || (template === 'RECEITAS' ? 'Culinária & Receitas' : 'Universal / Genérico');
-  const modulos = perfil?.modulos || { receitasIa: template === 'RECEITAS' };
+  const nomeNicho = perfil?.nomeNicho || (template === 'RECEITAS' ? 'Culinária & Receitas (Mary)' : 'Universal / Genérico');
+  const modulos = perfil?.modulos || {
+    receitasIa: template === 'RECEITAS',
+    autoResposta: template === 'GENERICO',
+    capturaLeads: template === 'GENERICO'
+  };
+  const nicho = perfil?.nicho || (template === 'RECEITAS' ? 'culinaria' : 'geral');
 
   if (!sessao) {
     return {
       projectId: idSanitizado,
       template,
-      nicho: perfil?.nicho || 'culinaria',
+      nicho,
       nomeNicho,
       icone,
       modulos,
@@ -411,7 +417,7 @@ function obterStatusSessao(projectId) {
   return {
     projectId: idSanitizado,
     template,
-    nicho: perfil?.nicho || 'culinaria',
+    nicho,
     nomeNicho,
     icone,
     modulos,

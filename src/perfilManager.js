@@ -139,21 +139,22 @@ function obterPerfil(projectId) {
   const nichoPadraoId = isCulinaria ? 'culinaria' : 'geral';
   const catalogoPadrao = CATALOGO_NICHOS[nichoPadraoId];
 
-  // Regra Inegociável: Instâncias legadas ou sem perfil assumem template 'RECEITAS' por compatibilidade total
-  const templatePadrao = isCulinaria || projectId === 'Receitas' ? TEMPLATES.RECEITAS : TEMPLATES.RECEITAS;
+  // Se não contiver "receita" nem for a sessão mestre 'Receitas', o padrão é GENERICO
+  const templatePadrao = isCulinaria || projectId === 'Receitas' ? TEMPLATES.RECEITAS : TEMPLATES.GENERICO;
 
   const padrao = {
     projectId,
     template: templatePadrao,
     nicho: catalogoPadrao.id,
-    nomeNicho: catalogoPadrao.nome,
-    icone: catalogoPadrao.icone,
+    nomeNicho: templatePadrao === TEMPLATES.RECEITAS ? 'Culinária & Receitas (Mary)' : 'Universal / Genérico',
+    icone: templatePadrao === TEMPLATES.RECEITAS ? '🍳' : '🌐',
     persona: catalogoPadrao.personaPadrao,
     categoriaShopee: catalogoPadrao.categoriaShopeePadrao,
     modulos: {
       ...catalogoPadrao.modulosPadrao,
-      autoResposta: false,
-      capturaLeads: false
+      receitasIa: templatePadrao === TEMPLATES.RECEITAS,
+      autoResposta: templatePadrao === TEMPLATES.GENERICO,
+      capturaLeads: templatePadrao === TEMPLATES.GENERICO
     },
     criadoEm: new Date().toISOString(),
     atualizadoEm: new Date().toISOString()
@@ -260,7 +261,10 @@ function salvarPerfil(projectId, novosDados = {}) {
   const caminho = obterCaminhoPerfil(projectId);
   const atual = obterPerfil(projectId);
 
-  const template = novosDados.template || atual.template || TEMPLATES.RECEITAS;
+  const template = novosDados.template ||
+    (novosDados.modulos?.receitasIa !== undefined
+      ? (novosDados.modulos.receitasIa ? TEMPLATES.RECEITAS : TEMPLATES.GENERICO)
+      : (atual.template || (atual.modulos?.receitasIa ? TEMPLATES.RECEITAS : TEMPLATES.GENERICO)));
   const nichoId = novosDados.nicho || atual.nicho;
   const catalogo = CATALOGO_NICHOS[nichoId] || CATALOGO_NICHOS.geral;
 

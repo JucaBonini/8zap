@@ -2430,7 +2430,7 @@
           <span class="nav-icon">📦</span>
           <div class="nav-text">
             <strong>2. Central de Conteúdos</strong>
-            <span>Receitas, RSS, Ofertas &amp; Posts</span>
+            <span id="subtituloNavConteudo">Conteúdos &amp; Automações</span>
           </div>
         </button>
         <button class="main-nav-btn" id="btnNav-config" onclick="navegarAbaPrincipal('config', event)">
@@ -8858,16 +8858,33 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
       if (!perfil || !perfil.modulos) return;
 
       const temReceitas = Boolean(perfil.modulos.receitasIa);
+      const isUniversal = perfil.template === 'GENERICO' || (!temReceitas);
 
-      // 1. Sub-Pill na Central de Conteúdos
+      // Subtítulo do botão principal 2. Central de Conteúdos
+      const subNav = document.getElementById('subtituloNavConteudo');
+      if (subNav) {
+        subNav.innerText = isUniversal ? 'Gatilhos, Leads, RSS & Posts' : 'Receitas, RSS, Ofertas & Posts';
+      }
+
+      // 1. Sub-Pills na Central de Conteúdos
       const btnSubReceitas = document.getElementById('btnSub-sub-receitas');
       if (btnSubReceitas) {
         btnSubReceitas.style.display = temReceitas ? 'inline-flex' : 'none';
       }
 
-      // Se estiver na aba de receitas mas o módulo foi desligado, redireciona suavemente
-      if (!temReceitas && subConteudoAtivo === 'sub-receitas') {
-        trocarSubConteudo('sub-rss');
+      const btnSubAuto = document.getElementById('btnSub-sub-autoresposta');
+      if (btnSubAuto) {
+        btnSubAuto.style.display = (isUniversal || perfil.modulos.autoResposta) ? 'inline-flex' : 'none';
+      }
+
+      const btnSubLeads = document.getElementById('btnSub-sub-leads');
+      if (btnSubLeads) {
+        btnSubLeads.style.display = (isUniversal || perfil.modulos.capturaLeads) ? 'inline-flex' : 'none';
+      }
+
+      // Se for instância universal e estiver na aba de receitas, redireciona para a aba de auto-resposta (palavras-chave)
+      if (isUniversal && subConteudoAtivo === 'sub-receitas') {
+        trocarSubConteudo('sub-autoresposta');
       }
 
       // 2. Opção no select da Grade Diária
@@ -8936,6 +8953,7 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
         if (data.sucesso && data.perfil) {
           perfilProjetoAtual = data.perfil;
           aplicarAjustesPerfilNaInterface(data.perfil);
+          carregarListaSessoes();
 
           const badgeNicho = document.getElementById('badgeNichoAtivo');
           if (badgeNicho) {
