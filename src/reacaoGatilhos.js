@@ -24,11 +24,11 @@ const CATALOGO_GATILHOS = {
     '💬 *Gostou da dica da Mary de hoje? Deixe sua reação com ❤️ ou 👏 abaixo!*'
   ],
   artigos: [
-    '💬 *Gostou dessa receita? Deixe sua reação abaixo (❤️ ou 🔥) para o WhatsApp sempre te entregar os pratos em primeira mão!*',
-    '💬 *Quer que eu traga outra versão dessa dica amanhã? Reaja com 🔥 ou 😋!*',
-    '💬 *Achou essa ideia fácil e prática? Reaja com 👏 ou ❤️ pra eu saber!*',
-    '💬 *Se você quer mais dicas práticas como essa, reaja com 💡 ou ❤️!*',
-    '💬 *Quer o passo a passo em vídeo na próxima? Reaja com 🔥 ou 👍!*'
+    '💬 *Gostou desse conteúdo? Deixe sua reação abaixo (❤️ ou 🔥) para o WhatsApp sempre te entregar as novidades em primeira mão!*',
+    '💬 *Quer que eu traga outra versão dessa dica amanhã? Reaja com 🔥 ou 💡!*',
+    '💬 *Achou essa ideia prática e valiosa? Reaja com 👏 ou ❤️ pra eu saber!*',
+    '💬 *Se você quer mais conteúdos como este, reaja com 💡 ou ❤️!*',
+    '💬 *Quer mais detalhes sobre esse tema no próximo post? Reaja com 🔥 ou 👍!*'
   ],
   campanhas: [
     '💬 *Quer mais achadinhos úteis de cozinha em promoção? Reaja com 🔥 ou ❤️!*',
@@ -169,7 +169,10 @@ function aplicarGatilhoReacao(textoOriginal, opcoes = {}) {
     const perfil = perfilManager.obterPerfil(projectId);
     isReceitas = perfil.nicho === 'culinaria' || Boolean(perfil.modulos?.receitasIa);
   } catch (_) {}
-  const categoria = opcoes.categoria || (isReceitas ? 'culinaria' : 'universal');
+  let categoria = opcoes.categoria || (isReceitas ? 'culinaria' : 'universal');
+  if (!isReceitas && categoria === 'culinaria') {
+    categoria = 'universal';
+  }
 
   const textoLimpo = (textoOriginal || '').trim();
   if (!textoLimpo) return textoLimpo;

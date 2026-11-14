@@ -154,7 +154,8 @@ function obterPerfil(projectId) {
       ...catalogoPadrao.modulosPadrao,
       receitasIa: templatePadrao === TEMPLATES.RECEITAS,
       autoResposta: templatePadrao === TEMPLATES.GENERICO,
-      capturaLeads: templatePadrao === TEMPLATES.GENERICO
+      capturaLeads: templatePadrao === TEMPLATES.GENERICO,
+      conteudoIa: templatePadrao === TEMPLATES.GENERICO
     },
     criadoEm: new Date().toISOString(),
     atualizadoEm: new Date().toISOString()
@@ -231,6 +232,7 @@ function inicializarPerfilNovo(projectId, opcoes = {}) {
       receitasIa: template === TEMPLATES.RECEITAS,
       autoResposta: template === TEMPLATES.GENERICO,
       capturaLeads: template === TEMPLATES.GENERICO,
+      conteudoIa: template === TEMPLATES.GENERICO,
       rss: catalogo.modulosPadrao.rss,
       campanhas: template === TEMPLATES.RECEITAS ? catalogo.modulosPadrao.campanhas : false,
       filaManual: true,

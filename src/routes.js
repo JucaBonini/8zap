@@ -1231,6 +1231,130 @@ router.delete('/sessions/:projectId/receitas/:id', async (req, res) => {
 });
 
 // ==========================================
+// ROTAS DE GERADOR DE CONTEÚDO IA UNIVERSAL (MULTI-NICHO)
+// ==========================================
+
+const conteudoIaUniversalService = require('./conteudoIaUniversalService');
+
+/**
+ * GET /sessions/:projectId/conteudo-ia
+ * Retorna o histórico de conteúdos IA gerados para a instância
+ */
+router.get('/sessions/:projectId/conteudo-ia', (req, res) => {
+  const { projectId } = req.params;
+  try {
+    const historico = conteudoIaUniversalService.obterHistorico(projectId);
+    res.json({ sucesso: true, historico });
+  } catch (err) {
+    res.status(500).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * POST /sessions/:projectId/conteudo-ia/gerar
+ * Gera um novo conteúdo por IA (OpenAI / Gemini) com base no tema e persona
+ */
+router.post('/sessions/:projectId/conteudo-ia/gerar', async (req, res) => {
+  const { projectId } = req.params;
+  try {
+    const item = await conteudoIaUniversalService.gerarConteudoUniversal(projectId, req.body);
+    res.json({ sucesso: true, mensagem: `Conteúdo "${item.titulo}" gerado com sucesso!`, item });
+  } catch (err) {
+    res.status(500).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * DELETE /sessions/:projectId/conteudo-ia/:id
+ * Remove um conteúdo do histórico
+ */
+router.delete('/sessions/:projectId/conteudo-ia/:id', (req, res) => {
+  const { projectId, id } = req.params;
+  try {
+    conteudoIaUniversalService.removerDoHistorico(projectId, id);
+    res.json({ sucesso: true, mensagem: 'Item removido do histórico com sucesso.' });
+  } catch (err) {
+    res.status(400).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * POST /sessions/:projectId/conteudo-ia/enviar-fila
+ * Envia o conteúdo gerado direto para a Fila Manual / Esteira
+ */
+router.post('/sessions/:projectId/conteudo-ia/enviar-fila', async (req, res) => {
+  const { projectId } = req.params;
+  const { textoWhatsApp, urlImagem, agendado_para, to } = req.body || {};
+
+  try {
+    let destinosFinais = to;
+    if (!destinosFinais || !destinosFinais.length) {
+      destinosFinais = destinosManager.obterDestinosAtivos(projectId).map(d => d.jid);
+    }
+    if (!destinosFinais || !destinosFinais.length) {
+      return res.status(400).json({ sucesso: false, erro: 'Nenhum destino ou canal ativo configurado no Piloto Automático.' });
+    }
+
+    const tipo = urlImagem ? 'imagem' : 'texto';
+    const novoItem = await agendador.adicionarItemFila(projectId, {
+      tipo,
+      to: destinosFinais,
+      texto: tipo === 'texto' ? textoWhatsApp : undefined,
+      url: urlImagem || undefined,
+      legenda: tipo === 'imagem' ? textoWhatsApp : undefined,
+      agendado_para: agendado_para || undefined,
+      esteira: true
+    });
+
+    res.json({ sucesso: true, mensagem: 'Conteúdo adicionado à Fila de Disparos!', item: novoItem });
+  } catch (err) {
+    res.status(500).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * POST /sessions/:projectId/conteudo-ia/broadcast
+ * Dispara o conteúdo gerado imediatamente para canais ou lista de contatos
+ */
+router.post('/sessions/:projectId/conteudo-ia/broadcast', async (req, res) => {
+  const { projectId } = req.params;
+  const { textoWhatsApp, urlImagem, destinos } = req.body || {};
+
+  try {
+    let destinosAlvos = destinos;
+    if (!destinosAlvos || !destinosAlvos.length) {
+      destinosAlvos = destinosManager.obterDestinosAtivos(projectId).map(d => d.jid);
+    }
+    if (!destinosAlvos || !destinosAlvos.length) {
+      return res.status(400).json({ sucesso: false, erro: 'Nenhum destino ativo selecionado para o disparo.' });
+    }
+
+    let enviados = 0;
+    for (const jid of destinosAlvos) {
+      if (urlImagem) {
+        await sessionManager.enviarMensagem(projectId, {
+          to: jid,
+          type: 'imagem',
+          url: urlImagem,
+          caption: textoWhatsApp
+        });
+      } else {
+        await sessionManager.enviarMensagem(projectId, {
+          to: jid,
+          type: 'texto',
+          text: textoWhatsApp
+        });
+      }
+      enviados++;
+    }
+
+    res.json({ sucesso: true, mensagem: `Disparado com sucesso para ${enviados} destino(s)!`, enviados });
+  } catch (err) {
+    res.status(500).json({ sucesso: false, erro: err.message });
+  }
+});
+
+// ==========================================
 // ROTAS DE PÁGINA DO FACEBOOK (ESTEIRA BUFFER)
 // ==========================================
 

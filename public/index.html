@@ -2623,6 +2623,9 @@
           <button class="sub-pill-btn" id="btnSub-sub-leads" onclick="trocarSubConteudo('sub-leads', event)" style="border-color: rgba(168, 85, 247, 0.4); color: #c084fc; display: none;">
             👥 Leads &amp; Contatos
           </button>
+          <button class="sub-pill-btn" id="btnSub-sub-ia-universal" onclick="trocarSubConteudo('sub-ia-universal', event)" style="border-color: rgba(16, 185, 129, 0.4); color: #34d399; display: none;">
+            ✨ Criar com IA
+          </button>
           <button class="sub-pill-btn" id="btnSub-sub-antiban" onclick="trocarSubConteudo('sub-antiban', event)" style="border-color: rgba(34, 197, 94, 0.4); color: #4ade80;">
             🛡️ Blindagem &amp; Anti-Ban
           </button>
@@ -4445,6 +4448,111 @@ Uma receita prática, fofinha e deliciosa para o café da tarde!
           </div>
         </div>
       </div> <!-- Fim de #sub-leads -->
+
+      <!-- Sub-Aba: Gerador de Conteúdo IA Universal -->
+      <div id="sub-ia-universal" class="sub-content-panel">
+        <!-- Banner Principal -->
+        <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(5, 150, 105, 0.05)); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: var(--radius-md); padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div style="display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #10b981, #059669); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; box-shadow: 0 0 20px rgba(16, 185, 129, 0.35);">
+              ✨
+            </div>
+            <div>
+              <h3 style="margin: 0; font-size: 1.15rem; color: #fff;">Gerador de Conteúdo IA (Universal)</h3>
+              <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: var(--text-muted);">
+                Crie reflexões, estudos e pílulas de sabedoria para o WhatsApp com ChatGPT ou Google Gemini, adaptados à persona da sua instância.
+              </p>
+            </div>
+          </div>
+          <div style="display: flex; gap: 0.5rem;">
+            <button class="btn btn-secondary btn-sm" onclick="carregarHistoricoIaUniversal()">🔄 Atualizar</button>
+          </div>
+        </div>
+
+        <!-- Formulário de Criação -->
+        <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
+          <h4 style="margin: 0 0 1rem 0; font-size: 0.95rem; color: #fff; display: flex; align-items: center; gap: 0.5rem;">
+            📝 Novo Conteúdo com Inteligência Artificial
+          </h4>
+
+          <div class="form-row" style="margin-bottom: 1rem;">
+            <div class="form-group" style="flex: 2; min-width: 280px;">
+              <label for="inputTemaIaUniversal" style="font-weight: 600; font-size: 0.85rem;">Tema, Assunto ou Tópico:</label>
+              <input type="text" id="inputTemaIaUniversal" class="form-control" placeholder="ex: A Árvore da Vida e os 10 Sefirot na Cabala, O Segredo da Presença Plena...">
+            </div>
+            <div class="form-group" style="flex: 1; min-width: 200px;">
+              <label for="selectFormatoIaUniversal" style="font-weight: 600; font-size: 0.85rem;">Formato do Conteúdo:</label>
+              <select id="selectFormatoIaUniversal" class="form-control">
+                <option value="reflexao" selected>🧘 Reflexão &amp; Estudo Profundo</option>
+                <option value="artigo">📚 Artigo / Estudo em Tópicos</option>
+                <option value="dica_rapida">💡 Pílula de Sabedoria (Rápida)</option>
+                <option value="mensagem_diaria">🌅 Mensagem do Dia / Inspiração</option>
+                <option value="copy_vendas">🎯 Convite / Chamada para Ação</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row" style="align-items: center; margin-bottom: 1.25rem;">
+            <div class="form-group" style="flex: 1; min-width: 200px;">
+              <label for="selectProvedorIaUniversal" style="font-weight: 600; font-size: 0.85rem;">Motor de IA:</label>
+              <select id="selectProvedorIaUniversal" class="form-control">
+                <option value="gemini" selected>Google Gemini 2.0 Flash (Recomendado / Grátis)</option>
+                <option value="openai">ChatGPT OpenAI (gpt-4o-mini)</option>
+              </select>
+            </div>
+            <div class="form-group" style="flex: 1; min-width: 220px; display: flex; align-items: center; gap: 0.5rem; margin-top: 1.2rem;">
+              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.85rem;">
+                <input type="checkbox" id="chkGerarImagemIaUniversal" style="accent-color: #10b981;">
+                <span>🎨 Gerar Imagem Ilustrativa com IA</span>
+              </label>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+            <button type="button" class="btn btn-primary" id="btnGerarIaUniversal" onclick="gerarConteudoIaUniversal()" style="background: linear-gradient(135deg, #10b981, #059669); border: none; font-weight: 600;">
+              ✨ Gerar Conteúdo Agora
+            </button>
+          </div>
+        </div>
+
+        <!-- Box de Prévia do Conteúdo Gerado -->
+        <div id="boxResultadoIaUniversal" style="display: none; background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+            <h4 style="margin: 0; font-size: 0.95rem; color: #34d399; display: flex; align-items: center; gap: 0.5rem;">
+              ✅ Conteúdo Criado com Sucesso!
+            </h4>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <button class="btn btn-secondary btn-sm" onclick="copiarTextoConteudoIaPreview()">📋 Copiar Texto</button>
+              <button class="btn btn-secondary btn-sm" onclick="enviarConteudoIaPreviewFila()">📥 Enviar para Fila de Disparos</button>
+              <button class="btn btn-sm" onclick="dispararConteudoIaPreviewAgora()" style="background: #10b981; border: none; font-weight: 600;">🚀 Disparar Imediatamente</button>
+            </div>
+          </div>
+
+          <!-- Balão estilo WhatsApp -->
+          <div style="max-width: 580px; background: #1f2c34; border-radius: 8px; padding: 0.85rem; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+            <div id="previewImagemIaUniversalBox" style="display: none; margin-bottom: 0.75rem; border-radius: 6px; overflow: hidden; max-height: 380px;">
+              <img id="previewImagemIaUniversal" src="" alt="Imagem IA" style="width: 100%; height: auto; display: block; object-fit: cover;">
+            </div>
+            <div id="previewTextoIaUniversal" style="color: #e9edef; font-size: 0.88rem; line-height: 1.5; white-space: pre-wrap; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;"></div>
+          </div>
+        </div>
+
+        <!-- Histórico de Conteúdos Criados -->
+        <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h4 style="margin: 0; font-size: 0.95rem; color: #fff;">
+              📂 Histórico de Conteúdos Criados
+            </h4>
+            <span class="badge" id="badgeTotalHistoricoIa" style="background: rgba(255,255,255,0.08); color: var(--text-muted); font-size: 0.75rem;">0 conteúdos</span>
+          </div>
+
+          <div id="listaHistoricoIaUniversal" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1rem;">
+            <div style="text-align: center; color: var(--text-muted); padding: 2rem; grid-column: 1 / -1;">
+              Nenhum conteúdo gerado ainda. Digite um tema acima e clique em "Gerar Conteúdo Agora"!
+            </div>
+          </div>
+        </div>
+      </div> <!-- Fim de #sub-ia-universal -->
       </div> <!-- Fim de #secao-conteudo -->
 
       <!-- SEÇÃO 3: AJUSTES & CONEXÕES -->
@@ -5501,6 +5609,12 @@ Uma receita prática, fofinha e deliciosa para o café da tarde!
         carregarConfigGatilhos();
       } else if (subId === 'sub-antiban') {
         carregarAntiBanProjeto();
+      } else if (subId === 'sub-autoresposta') {
+        carregarGatilhosUniversais();
+      } else if (subId === 'sub-leads') {
+        carregarLeadsUniversais();
+      } else if (subId === 'sub-ia-universal') {
+        carregarHistoricoIaUniversal();
       }
     }
 
@@ -8882,6 +8996,11 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
         btnSubLeads.style.display = (isUniversal || perfil.modulos.capturaLeads) ? 'inline-flex' : 'none';
       }
 
+      const btnSubIaUniv = document.getElementById('btnSub-sub-ia-universal');
+      if (btnSubIaUniv) {
+        btnSubIaUniv.style.display = (isUniversal || perfil.modulos.conteudoIa) ? 'inline-flex' : 'none';
+      }
+
       // Se for instância universal e estiver na aba de receitas, redireciona para a aba de auto-resposta (palavras-chave)
       if (isUniversal && subConteudoAtivo === 'sub-receitas') {
         trocarSubConteudo('sub-autoresposta');
@@ -11332,6 +11451,281 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
           btn.innerText = '🚀 Iniciar Disparo para a Lista';
         }
         mostrarToast(`Falha de conexão: ${err.message}`, true);
+      }
+    }
+
+    // ==========================================
+    // GERADOR DE CONTEÚDO IA UNIVERSAL (MULTI-NICHO)
+    // ==========================================
+
+    let conteudoIaPreviewCache = null;
+    let historicoIaCache = [];
+
+    async function carregarHistoricoIaUniversal() {
+      if (!projetoSelecionado) return;
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/conteudo-ia`, {
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+        if (data.sucesso && Array.isArray(data.historico)) {
+          historicoIaCache = data.historico;
+          renderizarHistoricoIa(historicoIaCache);
+        }
+      } catch (err) {
+        console.error('Erro ao carregar histórico de conteúdo IA:', err);
+      }
+    }
+
+    function renderizarHistoricoIa(itens) {
+      const container = document.getElementById('listaHistoricoIaUniversal');
+      const badge = document.getElementById('badgeTotalHistoricoIa');
+      if (!container) return;
+
+      if (badge) badge.innerText = `${itens.length} conteúdo(s)`;
+
+      if (!itens || itens.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; color: var(--text-muted); padding: 2rem; grid-column: 1 / -1;">
+            Nenhum conteúdo gerado ainda. Digite um tema acima e clique em "Gerar Conteúdo Agora"!
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = itens.map(item => {
+        const dataFormatada = new Date(item.criadoEm).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+        const temImg = Boolean(item.urlImagem);
+        const provIcone = item.provedor === 'gemini' ? '✨ Gemini' : '🤖 ChatGPT';
+
+        return `
+          <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 1rem; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              ${temImg ? `<div style="width: 100%; height: 160px; border-radius: 6px; overflow: hidden; margin-bottom: 0.75rem; background: #111;">
+                <img src="${item.urlImagem}" style="width: 100%; height: 100%; object-fit: cover;">
+              </div>` : ''}
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.4rem;">
+                <strong style="font-size: 0.9rem; color: #fff; line-height: 1.3;">${item.titulo || 'Sem título'}</strong>
+                <span class="badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; font-size: 0.7rem; white-space: nowrap;">${provIcone}</span>
+              </div>
+              <div style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.6rem;">
+                📅 ${dataFormatada} | 🏷️ ${item.formato || 'reflexão'}
+              </div>
+              <div style="font-size: 0.8rem; color: #cbd5e1; max-height: 120px; overflow-y: auto; white-space: pre-wrap; margin-bottom: 0.75rem; padding: 0.5rem; background: rgba(0,0,0,0.25); border-radius: 4px; line-height: 1.4;">${item.textoWhatsApp}</div>
+            </div>
+            <div style="display: flex; gap: 0.4rem; justify-content: flex-end; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 0.75rem; flex-wrap: wrap;">
+              <button class="btn btn-secondary btn-sm" onclick="copiarTextoConteudoIaHistorico('${item.id}')" title="Copiar texto" style="padding: 0.3rem 0.5rem; font-size: 0.75rem;">📋 Copiar</button>
+              <button class="btn btn-secondary btn-sm" onclick="enviarConteudoIaHistoricoFila('${item.id}')" title="Enviar para a esteira" style="padding: 0.3rem 0.5rem; font-size: 0.75rem;">📥 Fila</button>
+              <button class="btn btn-sm" onclick="dispararConteudoIaHistoricoAgora('${item.id}')" title="Disparar nos canais" style="background: #10b981; border: none; padding: 0.3rem 0.5rem; font-size: 0.75rem;">🚀 Disparar</button>
+              <button class="btn btn-danger btn-sm" onclick="excluirConteudoIa('${item.id}')" title="Excluir do histórico" style="padding: 0.3rem 0.5rem; font-size: 0.75rem;">🗑</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function gerarConteudoIaUniversal() {
+      if (!projetoSelecionado) {
+        mostrarToast('Selecione ou crie uma instância primeiro.', true);
+        return;
+      }
+
+      const inputTema = document.getElementById('inputTemaIaUniversal');
+      const selectFormato = document.getElementById('selectFormatoIaUniversal');
+      const selectProvedor = document.getElementById('selectProvedorIaUniversal');
+      const chkImagem = document.getElementById('chkGerarImagemIaUniversal');
+      const btn = document.getElementById('btnGerarIaUniversal');
+
+      const tema = inputTema ? inputTema.value.trim() : '';
+      if (!tema) {
+        mostrarToast('Digite o tema ou assunto do conteúdo.', true);
+        if (inputTema) inputTema.focus();
+        return;
+      }
+
+      const formato = selectFormato ? selectFormato.value : 'reflexao';
+      const provedor = selectProvedor ? selectProvedor.value : 'gemini';
+      const gerarImagem = chkImagem ? chkImagem.checked : false;
+
+      btn.disabled = true;
+      btn.innerText = gerarImagem ? '⏳ Gerando Texto & Imagem IA...' : '⏳ Escrevendo Conteúdo IA...';
+      mostrarToast('Criando conteúdo com Inteligência Artificial, aguarde alguns segundos...');
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/conteudo-ia/gerar`, {
+          method: 'POST',
+          headers: { ...obterHeaders(), 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            tema,
+            formato,
+            provedor,
+            gerarImagem
+          })
+        });
+
+        const data = await resp.json();
+        btn.disabled = false;
+        btn.innerText = '✨ Gerar Conteúdo Agora';
+
+        if (data.sucesso && data.item) {
+          conteudoIaPreviewCache = data.item;
+          mostrarToast(`Conteúdo "${data.item.titulo}" criado com sucesso!`);
+          exibirPreviewIaUniversal(data.item);
+          carregarHistoricoIaUniversal();
+        } else {
+          mostrarToast(`Erro ao gerar: ${data.erro || 'Falha na IA'}`, true);
+        }
+      } catch (err) {
+        btn.disabled = false;
+        btn.innerText = '✨ Gerar Conteúdo Agora';
+        mostrarToast(`Falha de conexão: ${err.message}`, true);
+      }
+    }
+
+    function exibirPreviewIaUniversal(item) {
+      const box = document.getElementById('boxResultadoIaUniversal');
+      const boxImg = document.getElementById('previewImagemIaUniversalBox');
+      const img = document.getElementById('previewImagemIaUniversal');
+      const texto = document.getElementById('previewTextoIaUniversal');
+
+      if (!box || !texto) return;
+
+      if (item.urlImagem && img && boxImg) {
+        img.src = item.urlImagem;
+        boxImg.style.display = 'block';
+      } else if (boxImg) {
+        boxImg.style.display = 'none';
+      }
+
+      texto.innerText = item.textoWhatsApp || '';
+      box.style.display = 'block';
+      box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function copiarTextoConteudoIaPreview() {
+      if (!conteudoIaPreviewCache || !conteudoIaPreviewCache.textoWhatsApp) return;
+      navigator.clipboard.writeText(conteudoIaPreviewCache.textoWhatsApp);
+      mostrarToast('Texto copiado para a área de transferência!');
+    }
+
+    async function enviarConteudoIaPreviewFila() {
+      if (!conteudoIaPreviewCache || !projetoSelecionado) return;
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/conteudo-ia/enviar-fila`, {
+          method: 'POST',
+          headers: { ...obterHeaders(), 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            textoWhatsApp: conteudoIaPreviewCache.textoWhatsApp,
+            urlImagem: conteudoIaPreviewCache.urlImagem
+          })
+        });
+        const data = await resp.json();
+        if (data.sucesso) {
+          mostrarToast('Conteúdo enviado com sucesso para a Fila de Disparos!');
+        } else {
+          mostrarToast(`Erro ao enviar para fila: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Falha: ${err.message}`, true);
+      }
+    }
+
+    async function dispararConteudoIaPreviewAgora() {
+      if (!conteudoIaPreviewCache || !projetoSelecionado) return;
+      if (!confirm('Deseja disparar este conteúdo imediatamente para todos os destinos/canais ativos?')) return;
+
+      try {
+        mostrarToast('Iniciando disparo imediato...');
+        const resp = await fetch(`/sessions/${projetoSelecionado}/conteudo-ia/broadcast`, {
+          method: 'POST',
+          headers: { ...obterHeaders(), 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            textoWhatsApp: conteudoIaPreviewCache.textoWhatsApp,
+            urlImagem: conteudoIaPreviewCache.urlImagem
+          })
+        });
+        const data = await resp.json();
+        if (data.sucesso) {
+          mostrarToast(data.mensagem || 'Disparo concluído com sucesso!');
+        } else {
+          mostrarToast(`Erro no disparo: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Falha: ${err.message}`, true);
+      }
+    }
+
+    function copiarTextoConteudoIaHistorico(id) {
+      const item = historicoIaCache.find(x => x.id === id);
+      if (!item) return;
+      navigator.clipboard.writeText(item.textoWhatsApp);
+      mostrarToast('Texto copiado!');
+    }
+
+    async function enviarConteudoIaHistoricoFila(id) {
+      const item = historicoIaCache.find(x => x.id === id);
+      if (!item || !projetoSelecionado) return;
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/conteudo-ia/enviar-fila`, {
+          method: 'POST',
+          headers: { ...obterHeaders(), 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            textoWhatsApp: item.textoWhatsApp,
+            urlImagem: item.urlImagem
+          })
+        });
+        const data = await resp.json();
+        if (data.sucesso) {
+          mostrarToast('Item enviado para a Fila de Disparos!');
+        } else {
+          mostrarToast(`Erro: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Falha: ${err.message}`, true);
+      }
+    }
+
+    async function dispararConteudoIaHistoricoAgora(id) {
+      const item = historicoIaCache.find(x => x.id === id);
+      if (!item || !projetoSelecionado) return;
+      if (!confirm(`Deseja disparar "${item.titulo}" imediatamente para todos os destinos ativos?`)) return;
+
+      try {
+        mostrarToast('Iniciando disparo...');
+        const resp = await fetch(`/sessions/${projetoSelecionado}/conteudo-ia/broadcast`, {
+          method: 'POST',
+          headers: { ...obterHeaders(), 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            textoWhatsApp: item.textoWhatsApp,
+            urlImagem: item.urlImagem
+          })
+        });
+        const data = await resp.json();
+        if (data.sucesso) {
+          mostrarToast(data.mensagem || 'Disparado com sucesso!');
+        } else {
+          mostrarToast(`Erro: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Falha: ${err.message}`, true);
+      }
+    }
+
+    async function excluirConteudoIa(id) {
+      if (!projetoSelecionado) return;
+      if (!confirm('Deseja excluir este conteúdo do histórico?')) return;
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/conteudo-ia/${id}`, {
+          method: 'DELETE',
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+        if (data.sucesso) {
+          mostrarToast('Conteúdo excluído.');
+          carregarHistoricoIaUniversal();
+        }
+      } catch (err) {
+        mostrarToast(`Erro: ${err.message}`, true);
       }
     }
   </script>
