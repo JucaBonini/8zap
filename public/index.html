@@ -4646,7 +4646,7 @@ Uma receita prática, fofinha e deliciosa para o café da tarde!
               <h3 style="margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.5rem;">
                 🤖 Configuração de Inteligência Artificial &amp; Chaves de API
               </h3>
-              <p style="font-size: 0.82rem; color: var(--text-muted);">
+              <p id="subtituloCardIaConfig" style="font-size: 0.82rem; color: var(--text-muted);">
                 Defina suas chaves de API para geração de conteúdos, receitas da Mary e fotos culinárias ultra-realistas (DALL-E 3 ou Imagen 3).
               </p>
             </div>
@@ -4706,7 +4706,7 @@ Uma receita prática, fofinha e deliciosa para o café da tarde!
           <!-- Configurações de Otimização de Imagem (3G/WhatsApp) -->
           <div class="form-row">
             <div class="form-group">
-              <label for="recResolucao">Resolução da Fotografia Gastronômica:</label>
+              <label for="recResolucao" id="labelResolucaoIa">Resolução da Fotografia Gastronômica:</label>
               <select id="recResolucao" class="form-control">
                 <option value="800" selected>800 × 800 px (Recomendado para WhatsApp no Brasil - ~100 KB)</option>
                 <option value="1024">1024 × 1024 px (Alta Definição Retina - ~150 KB)</option>
@@ -4725,11 +4725,11 @@ Uma receita prática, fofinha e deliciosa para o café da tarde!
           <!-- Persona e Voz da IA -->
           <div class="form-group" style="margin-bottom: 1.25rem;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; flex-wrap: wrap; gap: 0.4rem;">
-              <label for="recPersonaCustom" style="margin-bottom: 0; font-weight: 600;">Tom de Voz &amp; Instruções da IA (Prompt de Sistema da Mary):</label>
-              <button type="button" class="btn btn-secondary btn-sm" onclick="restaurarPersonaPadraoMary()" style="font-size: 0.72rem; padding: 0.2rem 0.55rem;">Restaurar Voz da Mary</button>
+              <label for="recPersonaCustom" id="labelPersonaIa" style="margin-bottom: 0; font-weight: 600;">Tom de Voz &amp; Instruções da IA (Prompt de Sistema da Mary):</label>
+              <button type="button" class="btn btn-secondary btn-sm" id="btnRestaurarPersonaIa" onclick="restaurarPersonaPadraoMary()" style="font-size: 0.72rem; padding: 0.2rem 0.55rem;">Restaurar Voz da Mary</button>
             </div>
             <textarea id="recPersonaCustom" class="form-control" style="min-height: 100px; font-size: 0.82rem; line-height: 1.5;" placeholder="Instruções para como a IA conversa com seu público no WhatsApp..."></textarea>
-            <p style="font-size: 0.73rem; color: var(--text-muted); margin-top: 0.3rem;">
+            <p id="subtextoPersonaIa" style="font-size: 0.73rem; color: var(--text-muted); margin-top: 0.3rem;">
               Personalize para adaptar o vocabulário, estilo culinário (ex: fitness, doces finos, mineira) ou saudações.
             </p>
           </div>
@@ -4738,8 +4738,8 @@ Uma receita prática, fofinha e deliciosa para o café da tarde!
           <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color); margin-bottom: 1.25rem;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem; flex-wrap: wrap; gap: 0.5rem;">
               <div>
-                <label style="margin-bottom: 0; font-weight: 600; font-size: 0.9rem;">📢 Canais &amp; Grupos de Destino para Receitas:</label>
-                <span style="font-size: 0.75rem; color: var(--text-muted); display: block;">Selecione os canais que receberão as receitas automáticas</span>
+                <label id="labelDestinosIa" style="margin-bottom: 0; font-weight: 600; font-size: 0.9rem;">📢 Canais &amp; Grupos de Destino para Receitas:</label>
+                <span id="subtextoDestinosIa" style="font-size: 0.75rem; color: var(--text-muted); display: block;">Selecione os canais que receberão as receitas automáticas</span>
               </div>
               <div style="display: flex; gap: 0.4rem; align-items: center;">
                 <button type="button" class="btn btn-secondary btn-sm" onclick="marcarTodosDestinosReceitas(true)" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">Marcar Todos</button>
@@ -8771,6 +8771,15 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
       }
     }
 
+    function limparPromptIa() {
+      const txt = document.getElementById('recPersonaCustom');
+      if (txt) {
+        txt.value = '';
+        mostrarToast('Campo de prompt limpo. Agora você pode colar ou digitar seu prompt personalizado!');
+        txt.focus();
+      }
+    }
+
     function atualizarBadgeStatusIaReceitas(cfg) {
       const config = cfg || configReceitasCache || {};
       const provedor = provedorIaSelecionado || config.provedor || 'openai';
@@ -9072,6 +9081,42 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
       if (cQr && cQr.classList.contains('is-connected')) {
         verificarStatusEQr();
       }
+
+      // 4. Adaptação dos rótulos do Card de IA em Ajustes
+      const subCardIa = document.getElementById('subtituloCardIaConfig');
+      const lblRes = document.getElementById('labelResolucaoIa');
+      const lblPers = document.getElementById('labelPersonaIa');
+      const btnPers = document.getElementById('btnRestaurarPersonaIa');
+      const subPers = document.getElementById('subtextoPersonaIa');
+      const lblDest = document.getElementById('labelDestinosIa');
+      const subDest = document.getElementById('subtextoDestinosIa');
+      const txtPers = document.getElementById('recPersonaCustom');
+
+      if (isUniversal) {
+        if (subCardIa) subCardIa.innerText = 'Defina suas chaves de API para geração de conteúdos, reflexões e imagens para o seu nicho (DALL-E 3 ou Imagen 3).';
+        if (lblRes) lblRes.innerText = 'Resolução da Imagem / Foto (IA):';
+        if (lblPers) lblPers.innerText = 'Tom de Voz & Prompt de Sistema da IA (Personalizado):';
+        if (btnPers) {
+          btnPers.innerText = 'Deixar em Branco';
+          btnPers.setAttribute('onclick', 'limparPromptIa()');
+        }
+        if (subPers) subPers.innerText = 'Insira o seu prompt de sistema para guiar a IA sobre o tom de voz, estilo e regras de conteúdo do seu negócio (ex: Cabala, infoprodutos, e-commerce).';
+        if (txtPers) txtPers.setAttribute('placeholder', 'Digite ou cole aqui o seu Prompt de Sistema para a IA (ou deixe em branco)...');
+        if (lblDest) lblDest.innerText = '📢 Canais & Grupos de Destino dos Disparos:';
+        if (subDest) subDest.innerText = 'Selecione os canais que receberão as postagens automáticas da IA';
+      } else {
+        if (subCardIa) subCardIa.innerText = 'Defina suas chaves de API para geração de receitas da Mary e fotos culinárias ultra-realistas (DALL-E 3 ou Imagen 3).';
+        if (lblRes) lblRes.innerText = 'Resolução da Fotografia Gastronômica:';
+        if (lblPers) lblPers.innerText = 'Tom de Voz & Instruções da IA (Prompt de Sistema da Mary):';
+        if (btnPers) {
+          btnPers.innerText = 'Restaurar Voz da Mary';
+          btnPers.setAttribute('onclick', 'restaurarPersonaPadraoMary()');
+        }
+        if (subPers) subPers.innerText = 'Personalize para adaptar o vocabulário, estilo culinário (ex: fitness, doces finos, mineira) ou saudações.';
+        if (txtPers) txtPers.setAttribute('placeholder', 'Instruções para como a IA conversa com seu público no WhatsApp...');
+        if (lblDest) lblDest.innerText = '📢 Canais & Grupos de Destino para Receitas:';
+        if (subDest) subDest.innerText = 'Selecione os canais que receberão as receitas automáticas';
+      }
     }
 
     function aoTrocarNichoSelect() {
@@ -9176,9 +9221,20 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
           const qualidade = document.getElementById('recQualidade');
           if (qualidade) qualidade.value = String(data.config.qualidadeCompressao || 80);
 
+          const sessaoObj = sessoesGlobais.find(s => s.projectId === projetoSelecionado);
+          const isReceitas = (sessaoObj && sessaoObj.template === 'RECEITAS') || 
+                             (perfilProjetoAtual && perfilProjetoAtual.template === 'RECEITAS') ||
+                             (perfilProjetoAtual && perfilProjetoAtual.modulos && perfilProjetoAtual.modulos.receitasIa) || 
+                             (projetoSelecionado && projetoSelecionado.toLowerCase().includes('receita'));
+
           const persona = document.getElementById('recPersonaCustom');
           if (persona) {
-            persona.value = data.config.personaCustom || PERSONA_PADRAO_MARY_JS;
+            if (isReceitas) {
+              persona.value = data.config.personaCustom || PERSONA_PADRAO_MARY_JS;
+            } else {
+              // Nicho Universal / Genérico: DEIXA EM BRANCO para o usuário colocar o seu próprio prompt!
+              persona.value = data.config.personaCustom || '';
+            }
           }
 
           atualizarBadgeStatusIaReceitas(data.config);
@@ -9223,7 +9279,10 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
           const keyGeminiRapida = document.getElementById('recApiKeyGeminiRapida');
           if (keyGeminiRapida) keyGeminiRapida.value = apiKeyGemini;
           atualizarBadgeStatusIaReceitas(data.config);
-          mostrarToast('✅ Configurações de Receitas IA salvas com sucesso!');
+          const isReceitas = (perfilProjetoAtual && perfilProjetoAtual.template === 'RECEITAS') ||
+                             (perfilProjetoAtual && perfilProjetoAtual.modulos && perfilProjetoAtual.modulos.receitasIa) ||
+                             (projetoSelecionado && projetoSelecionado.toLowerCase().includes('receita'));
+          mostrarToast(isReceitas ? '✅ Configurações de Receitas IA salvas com sucesso!' : '✅ Configurações de Inteligência Artificial salvas com sucesso!');
         } else {
           mostrarToast(`Erro ao salvar: ${data.erro}`, true);
         }

@@ -330,7 +330,7 @@ async function gerarConteudoUniversal(projectId, opcoes = {}) {
   const keyGeminiFinal = apiKeyGemini || chavesConfig.apiKeyGemini || process.env.GEMINI_API_KEY || '';
   const provedorFinal = provedor || chavesConfig.provedor || (keyGeminiFinal && !keyOpenaiFinal ? 'gemini' : 'openai');
 
-  const personaFinal = personaCustom || perfil.persona || '';
+  const personaFinal = personaCustom || chavesConfig.personaCustom || perfil.persona || '';
 
   logProjeto(projectId, 'IA_UNIVERSAL_GERANDO', `Iniciando geração de conteúdo IA. Tema: "${tema}", Formato: ${formato}, Provedor: ${provedorFinal}`, 'info');
 

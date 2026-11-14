@@ -1102,7 +1102,11 @@ router.post('/sessions/:projectId/receitas/config', (req, res) => {
   const { projectId } = req.params;
   try {
     const salva = receitasManager.salvarConfigReceitas(projectId, req.body);
-    res.json({ sucesso: true, mensagem: 'Configurações de Receitas IA salvas com sucesso!', config: salva });
+    if (req.body.personaCustom !== undefined) {
+      const perfilManager = require('./perfilManager');
+      perfilManager.salvarPerfil(projectId, { persona: req.body.personaCustom });
+    }
+    res.json({ sucesso: true, mensagem: 'Configurações de IA salvas com sucesso!', config: salva });
   } catch (err) {
     res.status(400).json({ sucesso: false, erro: err.message });
   }
