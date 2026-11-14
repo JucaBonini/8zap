@@ -8,6 +8,14 @@ if (!fs.existsSync(diretorioData)) {
 }
 
 /**
+ * Templates de arquitetura disponíveis para as instâncias
+ */
+const TEMPLATES = {
+  RECEITAS: 'RECEITAS',
+  GENERICO: 'GENERICO'
+};
+
+/**
  * Catálogo de nichos pré-configurados com personas, templates e configurações recomendadas
  */
 const CATALOGO_NICHOS = {
@@ -131,14 +139,22 @@ function obterPerfil(projectId) {
   const nichoPadraoId = isCulinaria ? 'culinaria' : 'geral';
   const catalogoPadrao = CATALOGO_NICHOS[nichoPadraoId];
 
+  // Regra Inegociável: Instâncias legadas ou sem perfil assumem template 'RECEITAS' por compatibilidade total
+  const templatePadrao = isCulinaria || projectId === 'Receitas' ? TEMPLATES.RECEITAS : TEMPLATES.RECEITAS;
+
   const padrao = {
     projectId,
+    template: templatePadrao,
     nicho: catalogoPadrao.id,
     nomeNicho: catalogoPadrao.nome,
     icone: catalogoPadrao.icone,
     persona: catalogoPadrao.personaPadrao,
     categoriaShopee: catalogoPadrao.categoriaShopeePadrao,
-    modulos: { ...catalogoPadrao.modulosPadrao },
+    modulos: {
+      ...catalogoPadrao.modulosPadrao,
+      autoResposta: false,
+      capturaLeads: false
+    },
     criadoEm: new Date().toISOString(),
     atualizadoEm: new Date().toISOString()
   };
@@ -150,15 +166,20 @@ function obterPerfil(projectId) {
   try {
     const conteudo = fs.readFileSync(caminho, 'utf8');
     const dados = JSON.parse(conteudo);
+    const templateFinal = dados.template || (dados.modulos?.receitasIa ? TEMPLATES.RECEITAS : TEMPLATES.GENERICO);
+
     return {
       projectId,
+      template: templateFinal,
       nicho: dados.nicho || padrao.nicho,
       nomeNicho: dados.nomeNicho || padrao.nomeNicho,
-      icone: dados.icone || padrao.icone,
+      icone: dados.icone || (templateFinal === TEMPLATES.RECEITAS ? '🍳' : '🌐'),
       persona: typeof dados.persona === 'string' ? dados.persona : padrao.persona,
       categoriaShopee: dados.categoriaShopee || padrao.categoriaShopee,
       modulos: {
-        receitasIa: dados.modulos?.receitasIa !== undefined ? Boolean(dados.modulos.receitasIa) : padrao.modulos.receitasIa,
+        receitasIa: dados.modulos?.receitasIa !== undefined ? Boolean(dados.modulos.receitasIa) : (templateFinal === TEMPLATES.RECEITAS),
+        autoResposta: dados.modulos?.autoResposta !== undefined ? Boolean(dados.modulos.autoResposta) : (templateFinal === TEMPLATES.GENERICO),
+        capturaLeads: dados.modulos?.capturaLeads !== undefined ? Boolean(dados.modulos.capturaLeads) : (templateFinal === TEMPLATES.GENERICO),
         rss: dados.modulos?.rss !== undefined ? Boolean(dados.modulos.rss) : padrao.modulos.rss,
         campanhas: dados.modulos?.campanhas !== undefined ? Boolean(dados.modulos.campanhas) : padrao.modulos.campanhas,
         filaManual: dados.modulos?.filaManual !== undefined ? Boolean(dados.modulos.filaManual) : padrao.modulos.filaManual,
@@ -174,6 +195,62 @@ function obterPerfil(projectId) {
 }
 
 /**
+ * Retorna diretamente o template ('RECEITAS' | 'GENERICO') de uma sessão
+ * @param {string} projectId
+ * @returns {string}
+ */
+function obterTemplate(projectId) {
+  const perfil = obterPerfil(projectId);
+  return perfil.template || (perfil.modulos?.receitasIa ? TEMPLATES.RECEITAS : TEMPLATES.GENERICO);
+}
+
+/**
+ * Inicializa um novo perfil de instância com isolamento e tipagem explícita
+ * @param {string} projectId
+ * @param {object} opcoes - { template, nicho }
+ * @returns {object}
+ */
+function inicializarPerfilNovo(projectId, opcoes = {}) {
+  const idSanitizado = (projectId || 'Receitas').replace(/[^a-zA-Z0-9_-]/g, '_');
+  const templateSolicitado = (opcoes.template || '').toUpperCase();
+  const template = templateSolicitado === TEMPLATES.GENERICO ? TEMPLATES.GENERICO : TEMPLATES.RECEITAS;
+
+  const nichoId = opcoes.nicho || (template === TEMPLATES.RECEITAS ? 'culinaria' : 'geral');
+  const catalogo = CATALOGO_NICHOS[nichoId] || (template === TEMPLATES.RECEITAS ? CATALOGO_NICHOS.culinaria : CATALOGO_NICHOS.geral);
+
+  const perfil = {
+    projectId: idSanitizado,
+    template,
+    nicho: catalogo.id,
+    nomeNicho: template === TEMPLATES.RECEITAS ? 'Culinária & Receitas (Mary)' : 'Universal / Genérico',
+    icone: template === TEMPLATES.RECEITAS ? '🍳' : '🌐',
+    persona: catalogo.personaPadrao,
+    categoriaShopee: catalogo.categoriaShopeePadrao,
+    modulos: {
+      receitasIa: template === TEMPLATES.RECEITAS,
+      autoResposta: template === TEMPLATES.GENERICO,
+      capturaLeads: template === TEMPLATES.GENERICO,
+      rss: catalogo.modulosPadrao.rss,
+      campanhas: template === TEMPLATES.RECEITAS ? catalogo.modulosPadrao.campanhas : false,
+      filaManual: true,
+      facebook: catalogo.modulosPadrao.facebook
+    },
+    criadoEm: new Date().toISOString(),
+    atualizadoEm: new Date().toISOString()
+  };
+
+  const caminho = obterCaminhoPerfil(idSanitizado);
+  try {
+    fs.writeFileSync(caminho, JSON.stringify(perfil, null, 2), 'utf8');
+    logProjeto(idSanitizado, 'PERFIL_INICIALIZADO', `Instância inicializada com template "${template}" (${perfil.nomeNicho}).`, 'info');
+    return perfil;
+  } catch (err) {
+    logProjeto(idSanitizado, 'ERRO_INICIALIZAR_PERFIL', `Falha ao gravar perfil: ${err.message}`, 'error');
+    throw err;
+  }
+}
+
+/**
  * Salva o perfil da sessão no disco
  * @param {string} projectId
  * @param {object} novosDados
@@ -183,18 +260,22 @@ function salvarPerfil(projectId, novosDados = {}) {
   const caminho = obterCaminhoPerfil(projectId);
   const atual = obterPerfil(projectId);
 
+  const template = novosDados.template || atual.template || TEMPLATES.RECEITAS;
   const nichoId = novosDados.nicho || atual.nicho;
   const catalogo = CATALOGO_NICHOS[nichoId] || CATALOGO_NICHOS.geral;
 
   const perfilFinal = {
     projectId,
+    template,
     nicho: nichoId,
     nomeNicho: novosDados.nomeNicho || catalogo.nome,
-    icone: catalogo.icone || '⚙️',
+    icone: catalogo.icone || (template === TEMPLATES.RECEITAS ? '🍳' : '🌐'),
     persona: novosDados.persona !== undefined ? novosDados.persona : atual.persona,
     categoriaShopee: novosDados.categoriaShopee || catalogo.categoriaShopeePadrao,
     modulos: {
       receitasIa: novosDados.modulos?.receitasIa !== undefined ? Boolean(novosDados.modulos.receitasIa) : atual.modulos.receitasIa,
+      autoResposta: novosDados.modulos?.autoResposta !== undefined ? Boolean(novosDados.modulos.autoResposta) : (atual.modulos.autoResposta ?? (template === TEMPLATES.GENERICO)),
+      capturaLeads: novosDados.modulos?.capturaLeads !== undefined ? Boolean(novosDados.modulos.capturaLeads) : (atual.modulos.capturaLeads ?? (template === TEMPLATES.GENERICO)),
       rss: novosDados.modulos?.rss !== undefined ? Boolean(novosDados.modulos.rss) : atual.modulos.rss,
       campanhas: novosDados.modulos?.campanhas !== undefined ? Boolean(novosDados.modulos.campanhas) : atual.modulos.campanhas,
       filaManual: novosDados.modulos?.filaManual !== undefined ? Boolean(novosDados.modulos.filaManual) : atual.modulos.filaManual,
@@ -206,7 +287,7 @@ function salvarPerfil(projectId, novosDados = {}) {
 
   try {
     fs.writeFileSync(caminho, JSON.stringify(perfilFinal, null, 2), 'utf8');
-    logProjeto(projectId, 'PERFIL_SALVO', `Perfil da sessão atualizado para o nicho "${perfilFinal.nomeNicho}".`, 'info');
+    logProjeto(projectId, 'PERFIL_SALVO', `Perfil da sessão atualizado para o nicho "${perfilFinal.nomeNicho}" [${template}].`, 'info');
     return perfilFinal;
   } catch (err) {
     logProjeto(projectId, 'ERRO_SALVAR_PERFIL', `Falha ao gravar perfil: ${err.message}`, 'error');
@@ -215,8 +296,11 @@ function salvarPerfil(projectId, novosDados = {}) {
 }
 
 module.exports = {
+  TEMPLATES,
   CATALOGO_NICHOS,
   obterPerfil,
+  obterTemplate,
+  inicializarPerfilNovo,
   salvarPerfil
 };
 

@@ -231,13 +231,34 @@ async function iniciarSessao(projectId, forcarReinicio = false) {
     // Salva credenciais atualizadas
     sock.ev.on('creds.update', saveCreds);
 
-    // Anti-Ban: Listener de mensagens recebidas para Opt-out automático (descadastro)
+    // Listener de mensagens recebidas com Desacoplamento e Roteamento por Template / Nicho
     sock.ev.on('messages.upsert', async (upsert) => {
       try {
+        // 1. Camada de Segurança Anti-Ban (Opt-out / Blacklist) - ativa para toda e qualquer instância
         const antiBanManager = require('./antiBanManager');
         await antiBanManager.processarMensagensRecebidas(idSanitizado, sock, upsert);
+
+        // 2. Isolamento por Nicho / Template
+        const perfilManager = require('./perfilManager');
+        const template = perfilManager.obterTemplate(idSanitizado);
+
+        if (template === 'RECEITAS') {
+          // Instância de Receitas: executa fluxos isolados de receitas se configurados
+          // Mantém 100% de estabilidade sem interferência em outros nichos
+        } else if (template === 'GENERICO') {
+          // Instância Universal / Genérica: ignora receitas e aciona o motor universal
+          try {
+            const automacaoUniversalManager = require('./automacaoUniversalManager');
+            await automacaoUniversalManager.processarMensagensRecebidas(idSanitizado, sock, upsert);
+          } catch (errUniversal) {
+            // Se o módulo universal ainda não foi instanciado nesta etapa, não trava o Baileys
+            if (errUniversal.code !== 'MODULE_NOT_FOUND') {
+              logProjeto(idSanitizado, 'ERRO_UNIVERSAL', `Falha ao processar mensagem no motor universal: ${errUniversal.message}`, 'error');
+            }
+          }
+        }
       } catch (errUpsert) {
-        logProjeto(idSanitizado, 'ERRO_UPSERT_ANTIBAN', `Erro ao processar mensagem recebida: ${errUpsert.message}`, 'error');
+        logProjeto(idSanitizado, 'ERRO_UPSERT_MSG', `Erro ao processar mensagem recebida: ${errUpsert.message}`, 'error');
       }
     });
 
@@ -361,9 +382,25 @@ function obterStatusSessao(projectId) {
   const sessao = sessoes.get(idSanitizado);
   const pastaExiste = fs.existsSync(path.join(diretorioSessoes, idSanitizado));
 
+  let perfil = null;
+  try {
+    const perfilManager = require('./perfilManager');
+    perfil = perfilManager.obterPerfil(idSanitizado);
+  } catch (_) {}
+
+  const template = perfil?.template || (idSanitizado.toLowerCase().includes('receita') ? 'RECEITAS' : 'RECEITAS');
+  const icone = perfil?.icone || (template === 'RECEITAS' ? '🍳' : '🌐');
+  const nomeNicho = perfil?.nomeNicho || (template === 'RECEITAS' ? 'Culinária & Receitas' : 'Universal / Genérico');
+  const modulos = perfil?.modulos || { receitasIa: template === 'RECEITAS' };
+
   if (!sessao) {
     return {
       projectId: idSanitizado,
+      template,
+      nicho: perfil?.nicho || 'culinaria',
+      nomeNicho,
+      icone,
+      modulos,
       status: pastaExiste ? 'desconectado' : 'nao_iniciado',
       temCredenciaisSalvas: pastaExiste,
       usuarioConectado: null,
@@ -373,6 +410,11 @@ function obterStatusSessao(projectId) {
 
   return {
     projectId: idSanitizado,
+    template,
+    nicho: perfil?.nicho || 'culinaria',
+    nomeNicho,
+    icone,
+    modulos,
     status: sessao.status,
     temCredenciaisSalvas: pastaExiste,
     usuarioConectado: sessao.usuarioConectado,
@@ -560,8 +602,28 @@ async function enviarMensagem(projectId, dadosMensagem) {
         mimetype: 'audio/mp4',
         ptt: true
       };
+    } else if (tipoNormalizado === 'documento' || tipoNormalizado === 'document') {
+      if (!url) {
+        throw new Error('O campo "url" é obrigatório para mensagens do tipo documento');
+      }
+      const midiaFinal = resolverOrigemMidia(url);
+      const nomeDoc = dadosMensagem.nomeArquivo || path.basename(midiaFinal) || 'documento.pdf';
+      const isPdf = nomeDoc.toLowerCase().endsWith('.pdf') || String(url).toLowerCase().includes('.pdf');
+      const mime = dadosMensagem.mimetype || (isPdf ? 'application/pdf' : 'application/octet-stream');
+
+      // Se for caminho em disco ou URL
+      const docPayload = midiaFinal.startsWith('http')
+        ? { url: midiaFinal }
+        : (fs.existsSync(midiaFinal) ? fs.readFileSync(midiaFinal) : { url: midiaFinal });
+
+      payload = {
+        document: docPayload,
+        fileName: nomeDoc,
+        mimetype: mime,
+        caption: legenda || texto || ''
+      };
     } else {
-      throw new Error(`Tipo de mensagem não suportado: "${type}". Use "texto", "imagem", "video" ou "audio".`);
+      throw new Error(`Tipo de mensagem não suportado: "${type}". Use "texto", "imagem", "video", "audio" ou "documento".`);
     }
 
     // Para grupos (@g.us), sincroniza a metadata e SenderKeys para garantir entrega aos participantes

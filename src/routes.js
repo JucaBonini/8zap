@@ -118,9 +118,10 @@ router.post('/upload', async (req, res) => {
     // Detecta tipo de mídia
     const isVideo = extensao.includes('mp4') || extensao.includes('webm') || extensao.includes('mov');
     const isAudio = ['.mp3', '.ogg', '.m4a', '.wav', '.aac', '.opus'].some(ext => extensao.includes(ext));
+    const isDocumento = ['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.txt', '.zip'].some(ext => extensao.includes(ext));
 
     // Se for imagem (JPG, PNG, WEBP), processa e padroniza para 800x800 JPEG Progressivo 3G (~90-130 KB)
-    if (!isVideo && !isAudio) {
+    if (!isVideo && !isAudio && !isDocumento) {
       try {
         const receitasIaService = require('./receitasIaService');
         buffer = await receitasIaService.otimizarImagemPara3G(buffer, 800, 80);
@@ -150,7 +151,7 @@ router.post('/upload', async (req, res) => {
       url: urlRelativa,
       urlCompleta: urlCompleta,
       nomeArquivo,
-      tipo: isAudio ? 'audio' : (isVideo ? 'video' : 'imagem'),
+      tipo: isAudio ? 'audio' : (isVideo ? 'video' : (isDocumento ? 'documento' : 'imagem')),
       tamanhoBytes: buffer.length
     });
   } catch (err) {
@@ -184,11 +185,16 @@ router.get('/sessions', (req, res) => {
 
 /**
  * POST /sessions/:projectId/start
- * Inicia ou retoma uma sessão Baileys para o projeto informado
+ * Inicia ou retoma uma sessão Baileys para o projeto informado (suporta seleção de template multi-nicho)
  */
 router.post('/sessions/:projectId/start', async (req, res) => {
   const { projectId } = req.params;
+  const { template, nicho } = req.body || {};
   try {
+    if (template || nicho) {
+      const perfilManager = require('./perfilManager');
+      perfilManager.inicializarPerfilNovo(projectId, { template, nicho });
+    }
     const status = await sessionManager.iniciarSessao(projectId);
     res.json({
       sucesso: true,
@@ -1646,6 +1652,135 @@ router.delete('/sessions/:projectId/antiban/blacklist/:jid', (req, res) => {
     const removeu = antiBanManager.removerDaBlacklist(projectId, jid);
     const blacklist = antiBanManager.obterBlacklist(projectId);
     res.json({ sucesso: true, removeu, blacklist });
+  } catch (err) {
+    res.status(400).json({ sucesso: false, erro: err.message });
+  }
+});
+
+// ==========================================
+// ROTAS DO MOTOR UNIVERSAL (GATILHOS, LEADS & BROADCAST)
+// ==========================================
+
+const automacaoUniversalManager = require('./automacaoUniversalManager');
+
+/**
+ * GET /sessions/:projectId/gatilhos
+ * Retorna os gatilhos por palavra-chave da instância
+ */
+router.get('/sessions/:projectId/gatilhos', (req, res) => {
+  const { projectId } = req.params;
+  try {
+    const gatilhos = automacaoUniversalManager.obterGatilhos(projectId);
+    res.json({ sucesso: true, gatilhos });
+  } catch (err) {
+    res.status(500).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * POST /sessions/:projectId/gatilhos
+ * Cria ou atualiza um gatilho
+ */
+router.post('/sessions/:projectId/gatilhos', (req, res) => {
+  const { projectId } = req.params;
+  try {
+    const gatilhoSalvo = automacaoUniversalManager.salvarGatilho(projectId, req.body || {});
+    res.json({ sucesso: true, mensagem: 'Gatilho salvo com sucesso!', gatilho: gatilhoSalvo });
+  } catch (err) {
+    res.status(400).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * DELETE /sessions/:projectId/gatilhos/:id
+ * Remove um gatilho
+ */
+router.delete('/sessions/:projectId/gatilhos/:id', (req, res) => {
+  const { projectId, id } = req.params;
+  try {
+    const removeu = automacaoUniversalManager.removerGatilho(projectId, id);
+    res.json({ sucesso: true, removeu });
+  } catch (err) {
+    res.status(400).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * PATCH /sessions/:projectId/gatilhos/:id/toggle
+ * Ativa ou pausa um gatilho
+ */
+router.patch('/sessions/:projectId/gatilhos/:id/toggle', (req, res) => {
+  const { projectId, id } = req.params;
+  const { ativo } = req.body || {};
+  try {
+    const atualizado = automacaoUniversalManager.alternarGatilho(projectId, id, ativo);
+    res.json({ sucesso: true, gatilho: atualizado });
+  } catch (err) {
+    res.status(400).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * GET /sessions/:projectId/leads
+ * Retorna os contatos/leads capturados pela instância
+ */
+router.get('/sessions/:projectId/leads', (req, res) => {
+  const { projectId } = req.params;
+  try {
+    const leads = automacaoUniversalManager.obterLeads(projectId);
+    res.json({ sucesso: true, total: leads.length, leads });
+  } catch (err) {
+    res.status(500).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * DELETE /sessions/:projectId/leads/:jid
+ * Remove um lead
+ */
+router.delete('/sessions/:projectId/leads/:jid', (req, res) => {
+  const { projectId, jid } = req.params;
+  try {
+    const removeu = automacaoUniversalManager.removerLead(projectId, jid);
+    res.json({ sucesso: true, removeu });
+  } catch (err) {
+    res.status(400).json({ sucesso: false, erro: err.message });
+  }
+});
+
+/**
+ * GET /sessions/:projectId/leads/exportar-csv
+ * Exporta os leads para download em formato CSV
+ */
+router.get('/sessions/:projectId/leads/exportar-csv', (req, res) => {
+  const { projectId } = req.params;
+  try {
+    const csv = automacaoUniversalManager.exportarLeadsCsv(projectId);
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="leads-${projectId}-${Date.now()}.csv"`);
+    res.send(csv);
+  } catch (err) {
+    res.status(500).send(`Erro ao gerar CSV: ${err.message}`);
+  }
+});
+
+/**
+ * POST /sessions/:projectId/broadcast
+ * Disparo programado / Broadcast para lista de destinatários com controle Anti-Ban
+ */
+router.post('/sessions/:projectId/broadcast', async (req, res) => {
+  const { projectId } = req.params;
+  const { destinatarios, tipo, texto, url, legenda, delayBaseMs } = req.body || {};
+  try {
+    const resultado = await automacaoUniversalManager.executarBroadcast(projectId, {
+      destinatarios,
+      tipo,
+      texto,
+      url,
+      legenda,
+      delayBaseMs
+    });
+    res.json({ sucesso: true, ...resultado });
   } catch (err) {
     res.status(400).json({ sucesso: false, erro: err.message });
   }

@@ -2376,9 +2376,15 @@
         <button class="btn btn-secondary btn-sm" onclick="carregarListaSessoes()" title="Atualizar lista">🔄</button>
       </div>
 
-      <div class="sidebar-actions">
-        <input type="text" id="novoProjectId" placeholder="Novo ID (ex: loja-01)">
-        <button class="btn btn-sm" onclick="criarOuIniciarProjeto()">+ Iniciar</button>
+      <div class="sidebar-actions" style="flex-direction: column; gap: 0.5rem; margin-bottom: 1rem;">
+        <input type="text" id="novoProjectId" placeholder="ID da Instância (ex: cabala-online)" style="width: 100%;">
+        <div style="display: flex; gap: 0.4rem;">
+          <select id="novoProjectTemplate" style="flex: 1; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 0.45rem 0.5rem; color: #fff; font-size: 0.78rem; outline: none; cursor: pointer;">
+            <option value="GENERICO" selected>🌐 Nicho Universal / Genérico</option>
+            <option value="RECEITAS">🍳 Nicho de Receitas</option>
+          </select>
+          <button class="btn btn-sm" onclick="criarOuIniciarProjeto()" style="padding: 0.45rem 0.8rem; font-weight: 600; white-space: nowrap;">+ Iniciar</button>
+        </div>
       </div>
 
       <div class="project-list" id="listaProjetos">
@@ -2610,6 +2616,12 @@
           </button>
           <button class="sub-pill-btn" id="btnSub-sub-gatilhos" onclick="trocarSubConteudo('sub-gatilhos', event)" style="border-color: rgba(239, 68, 68, 0.4); color: #f87171;">
             🔥 Gatilhos de Reação
+          </button>
+          <button class="sub-pill-btn" id="btnSub-sub-autoresposta" onclick="trocarSubConteudo('sub-autoresposta', event)" style="border-color: rgba(59, 130, 246, 0.4); color: #60a5fa; display: none;">
+            🤖 Palavras-Chave &amp; PDFs
+          </button>
+          <button class="sub-pill-btn" id="btnSub-sub-leads" onclick="trocarSubConteudo('sub-leads', event)" style="border-color: rgba(168, 85, 247, 0.4); color: #c084fc; display: none;">
+            👥 Leads &amp; Contatos
           </button>
           <button class="sub-pill-btn" id="btnSub-sub-antiban" onclick="trocarSubConteudo('sub-antiban', event)" style="border-color: rgba(34, 197, 94, 0.4); color: #4ade80;">
             🛡️ Blindagem &amp; Anti-Ban
@@ -4319,6 +4331,120 @@ Uma receita prática, fofinha e deliciosa para o café da tarde!
           </div>
         </div>
       </div> <!-- Fim de #sub-antiban -->
+
+      <!-- Sub-Aba 9: Palavras-Chave & PDFs (Auto-Resposta Universal) -->
+      <div id="sub-autoresposta" class="sub-content-panel">
+        <!-- Banner Principal -->
+        <div style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(37, 99, 235, 0.05)); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: var(--radius-md); padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div style="display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #1d4ed8); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; box-shadow: 0 0 20px rgba(59, 130, 246, 0.35);">
+              🤖
+            </div>
+            <div>
+              <h3 style="margin: 0; font-size: 1.15rem; color: #fff;">Automação Universal: Gatilhos por Palavra-Chave</h3>
+              <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: var(--text-muted);">
+                Responda automaticamente a mensagens recebidas com textos acolhedores e envio de <strong>PDFs (ex: Dossiê)</strong>, imagens ou vídeos.
+              </p>
+            </div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="abrirModalNovoGatilho()" style="box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);">
+            + Novo Gatilho por Palavra-Chave
+          </button>
+        </div>
+
+        <!-- Tabela de Regras de Gatilhos -->
+        <div class="card" style="margin-bottom: 1.5rem;">
+          <div class="card-title">
+            <span>Regras de Auto-Resposta Ativas</span>
+            <span class="badge" id="badgeTotalGatilhos" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa;">0</span>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table class="data-table" id="tabelaGatilhosUniversais" style="width: 100%;">
+              <thead>
+                <tr>
+                  <th style="width: 70px;">Status</th>
+                  <th>Nome do Gatilho</th>
+                  <th>Palavras-Chave (Gatilhos)</th>
+                  <th>Correspondência</th>
+                  <th>Resposta Automática</th>
+                  <th>Anexo / PDF</th>
+                  <th style="width: 80px; text-align: center;">Disparos</th>
+                  <th style="width: 120px; text-align: right;">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyGatilhosUniversais">
+                <tr>
+                  <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                    Carregando regras de automação...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div> <!-- Fim de #sub-autoresposta -->
+
+      <!-- Sub-Aba 10: Leads & Contatos Capturados -->
+      <div id="sub-leads" class="sub-content-panel">
+        <!-- Banner Principal Leads -->
+        <div style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.12), rgba(126, 34, 206, 0.05)); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: var(--radius-md); padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div style="display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #a855f7, #7e22ce); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; box-shadow: 0 0 20px rgba(168, 85, 247, 0.35);">
+              👥
+            </div>
+            <div>
+              <h3 style="margin: 0; font-size: 1.15rem; color: #fff;">Base de Leads &amp; Contatos da Instância</h3>
+              <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: var(--text-muted);">
+                Contatos que enviaram mensagens no WhatsApp. Capturados automaticamente para acompanhamento e broadcast.
+              </p>
+            </div>
+          </div>
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <button class="btn btn-secondary btn-sm" onclick="exportarLeadsCsvDownload()" title="Baixar planilha CSV para Excel / CRM">
+              📥 Exportar CSV
+            </button>
+            <button class="btn btn-primary btn-sm" onclick="abrirModalBroadcastLeads()" style="background: linear-gradient(135deg, #a855f7, #7e22ce); border: none;">
+              📢 Disparo Broadcast Anti-Ban
+            </button>
+            <button class="btn btn-secondary btn-sm" onclick="carregarLeadsProjeto()" title="Atualizar Lista">
+              🔄
+            </button>
+          </div>
+        </div>
+
+        <!-- Tabela de Leads -->
+        <div class="card" style="margin-bottom: 1.5rem;">
+          <div class="card-title">
+            <span>Contatos Capturados</span>
+            <span class="badge" id="badgeTotalLeads" style="background: rgba(168, 85, 247, 0.2); color: #c084fc;">0 Leads</span>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table class="data-table" id="tabelaLeadsUniversais" style="width: 100%;">
+              <thead>
+                <tr>
+                  <th>WhatsApp</th>
+                  <th>Nome (PushName)</th>
+                  <th>Primeiro Contato</th>
+                  <th>Último Contato</th>
+                  <th style="width: 80px; text-align: center;">Msgs</th>
+                  <th>Última Mensagem</th>
+                  <th>Último Gatilho</th>
+                  <th style="width: 70px; text-align: right;">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyLeadsUniversais">
+                <tr>
+                  <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                    Nenhum lead capturado ainda. Envie uma mensagem de teste para o WhatsApp da instância!
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div> <!-- Fim de #sub-leads -->
       </div> <!-- Fim de #secao-conteudo -->
 
       <!-- SEÇÃO 3: AJUSTES & CONEXÕES -->
@@ -4734,6 +4860,160 @@ Uma receita prática, fofinha e deliciosa para o café da tarde!
     </div>
   </div>
 
+  <!-- MODAL DE CRIAR / EDITAR GATILHO UNIVERSAL -->
+  <div class="custom-modal-overlay" id="modalGatilhoUniversal" style="display: none;" onclick="fecharModalGatilhoAoClicarFora(event)">
+    <div class="custom-modal-box" style="max-width: 620px;">
+      <div class="custom-modal-header">
+        <h3 id="tituloModalGatilho">🤖 Novo Gatilho por Palavra-Chave</h3>
+        <button class="btn-close-modal" onclick="fecharModalGatilho()">✕</button>
+      </div>
+      <div class="custom-modal-body">
+        <form id="formGatilhoUniversal" onsubmit="salvarGatilhoUniversalSubmit(event)">
+          <input type="hidden" id="gatilhoEditId" value="">
+
+          <div class="form-group">
+            <label for="gatilhoNome">Nome Identificador da Regra:</label>
+            <input type="text" id="gatilhoNome" class="form-control" placeholder="Ex: Entrega do Dossiê Cabala" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group" style="flex: 2;">
+              <label for="gatilhoPalavras">Palavras-Chave Disparadoras (separadas por vírgula):</label>
+              <input type="text" id="gatilhoPalavras" class="form-control" placeholder="dossie, dossiê, quero meu dossie" required>
+              <small style="color: var(--text-muted); font-size: 0.75rem;">Quando o contato mandar qualquer uma dessas palavras, o robô responderá.</small>
+            </div>
+            <div class="form-group" style="flex: 1;">
+              <label for="gatilhoTipoMatch">Correspondência:</label>
+              <select id="gatilhoTipoMatch" class="form-control">
+                <option value="contem" selected>Contém a palavra</option>
+                <option value="exata">Mensagem Exata</option>
+                <option value="comeca_com">Começa com</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="gatilhoRespostaTexto">Texto da Resposta Acolhedora:</label>
+            <textarea id="gatilhoRespostaTexto" class="form-control" rows="3" placeholder="Olá! Que bom ter você aqui. Segue o material solicitado com muito carinho..."></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group" style="flex: 1;">
+              <label for="gatilhoAnexoTipo">Anexar Arquivo / Mídia:</label>
+              <select id="gatilhoAnexoTipo" class="form-control" onchange="aoMudarTipoAnexoGatilho()">
+                <option value="nenhum" selected>Nenhum (Apenas Texto)</option>
+                <option value="documento">📄 Documento / PDF (Ex: Dossiê)</option>
+                <option value="imagem">🖼️ Imagem / Foto</option>
+                <option value="video">🎥 Vídeo</option>
+                <option value="audio">🎤 Áudio (PTT)</option>
+              </select>
+            </div>
+            <div class="form-group" style="flex: 1;">
+              <label for="gatilhoDebounce">Debounce Anti-Loop (minutos):</label>
+              <input type="number" id="gatilhoDebounce" class="form-control" value="10" min="1" max="1440">
+              <small style="color: var(--text-muted); font-size: 0.72rem;">Evita reenviar se a pessoa mandar várias mensagens seguidas.</small>
+            </div>
+          </div>
+
+          <!-- Campo de URL e Upload do Anexo -->
+          <div id="grupoAnexoGatilho" style="display: none; background: rgba(0,0,0,0.15); padding: 0.85rem; border-radius: var(--radius-sm); border: 1px dashed rgba(255,255,255,0.15); margin-bottom: 1rem;">
+            <div class="form-row">
+              <div class="form-group" style="flex: 2;">
+                <label for="gatilhoAnexoUrl">Link / URL do Arquivo:</label>
+                <input type="text" id="gatilhoAnexoUrl" class="form-control" placeholder="/uploads/dossie.pdf ou https://...">
+              </div>
+              <div class="form-group" style="flex: 1;">
+                <label for="gatilhoAnexoNome">Nome de Exibição do PDF:</label>
+                <input type="text" id="gatilhoAnexoNome" class="form-control" placeholder="Dossie-Cabala.pdf">
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 0.5rem;">
+              <span style="font-size: 0.75rem; color: var(--text-muted);">Ou selecione um arquivo do computador para fazer upload:</span>
+              <label class="btn btn-secondary btn-sm" style="cursor: pointer; margin: 0;">
+                📁 Fazer Upload do PDF / Mídia
+                <input type="file" id="inputUploadGatilho" style="display: none;" onchange="aoFazerUploadGatilho(event)">
+              </label>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem;">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="fecharModalGatilho()">Cancelar</button>
+            <button type="submit" class="btn btn-primary btn-sm">Salvar Regra</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE BROADCAST / DISPARO EM MASSA PARA LEADS -->
+  <div class="custom-modal-overlay" id="modalBroadcastLeads" style="display: none;" onclick="fecharModalBroadcastAoClicarFora(event)">
+    <div class="custom-modal-box" style="max-width: 600px;">
+      <div class="custom-modal-header">
+        <h3>📢 Disparo Broadcast Anti-Ban</h3>
+        <button class="btn-close-modal" onclick="fecharModalBroadcastLeads()">✕</button>
+      </div>
+      <div class="custom-modal-body">
+        <form id="formBroadcastLeads" onsubmit="executarBroadcastLeadsSubmit(event)">
+          <div class="form-group">
+            <label>Público Destinatário:</label>
+            <div style="display: flex; gap: 1rem; margin-top: 0.35rem;">
+              <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer;">
+                <input type="radio" name="broadcastAlvoTipo" value="leads" checked onchange="aoMudarAlvoBroadcast()">
+                <span>Todos os Leads Capturados (<strong id="broadcastContadorLeads">0</strong> contatos)</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer;">
+                <input type="radio" name="broadcastAlvoTipo" value="custom" onchange="aoMudarAlvoBroadcast()">
+                <span>Lista Customizada</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group" id="grupoBroadcastCustom" style="display: none;">
+            <label for="broadcastCustomDestinos">Números ou IDs de Canal (separados por vírgula):</label>
+            <textarea id="broadcastCustomDestinos" class="form-control" rows="2" placeholder="5511999999999, 5521888888888"></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group" style="flex: 1;">
+              <label for="broadcastTipo">Tipo de Conteúdo:</label>
+              <select id="broadcastTipo" class="form-control" onchange="aoMudarTipoBroadcast()">
+                <option value="texto" selected>Apenas Texto</option>
+                <option value="imagem">Foto com Legenda</option>
+                <option value="documento">📄 Documento / PDF</option>
+              </select>
+            </div>
+            <div class="form-group" style="flex: 1;">
+              <label for="broadcastDelay">Delay Base Anti-Ban (segundos):</label>
+              <input type="number" id="broadcastDelay" class="form-control" value="3" min="1" max="60">
+              <small style="color: var(--text-muted); font-size: 0.72rem;">O sistema adiciona Jitter orgânico automaticamente.</small>
+            </div>
+          </div>
+
+          <div class="form-group" id="grupoBroadcastUrl" style="display: none;">
+            <label for="broadcastUrl">Link da Mídia / PDF:</label>
+            <input type="text" id="broadcastUrl" class="form-control" placeholder="/uploads/... ou https://...">
+          </div>
+
+          <div class="form-group">
+            <label for="broadcastTexto">Mensagem / Texto do Envio:</label>
+            <textarea id="broadcastTexto" class="form-control" rows="4" placeholder="Escreva a mensagem para sua lista..." required></textarea>
+          </div>
+
+          <div style="background: rgba(34, 197, 94, 0.08); border: 1px solid rgba(34, 197, 94, 0.25); border-radius: 6px; padding: 0.75rem; margin-bottom: 1rem; font-size: 0.8rem; color: #86efac;">
+            🛡️ <strong>Segurança Anti-Ban:</strong> O envio é serializado e respeita a Blacklist de Opt-out. Contatos que pediram para sair são automaticamente ignorados.
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="fecharModalBroadcastLeads()">Cancelar</button>
+            <button type="submit" class="btn btn-primary btn-sm" id="btnConfirmarBroadcast" style="background: linear-gradient(135deg, #a855f7, #7e22ce); border: none;">
+              🚀 Iniciar Disparo para a Lista
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <script>
     // Estado da Aplicação
     let apiKey = localStorage.getItem('8zap_api_key') || '';
@@ -4922,15 +5202,20 @@ Uma receita prática, fofinha e deliciosa para o café da tarde!
         const ativo = s.projectId === projetoSelecionado ? 'active' : '';
         const badgeClasse = `badge-${s.status}`;
         const badgeTexto = formatarNomeStatus(s.status);
-        const inicial = (s.projectId || 'W').charAt(0).toUpperCase();
         const tel = s.usuarioConectado ? formatarNumeroTelefone(s.usuarioConectado) : 'Desconectado';
+        const isReceitas = s.template === 'RECEITAS' || (s.projectId && s.projectId.toLowerCase().includes('receita'));
+        const iconeNicho = s.icone || (isReceitas ? '🍳' : '🌐');
+        const tagTemplate = isReceitas ? 'Receitas' : 'Universal';
 
         return `
           <div class="project-item ${ativo}" onclick="selecionarProjeto('${s.projectId}')">
             <div class="project-item-left">
-              <div class="project-avatar">${inicial}</div>
+              <div class="project-avatar" style="font-size: 1.15rem; display: flex; align-items: center; justify-content: center;">${iconeNicho}</div>
               <div class="project-info">
-                <h4>${s.projectId}</h4>
+                <div style="display: flex; align-items: center; gap: 0.35rem; flex-wrap: wrap;">
+                  <h4>${s.projectId}</h4>
+                  <span style="font-size: 0.65rem; padding: 0.08rem 0.35rem; border-radius: 4px; background: rgba(255,255,255,0.08); color: var(--text-muted); font-weight: normal;">${tagTemplate}</span>
+                </div>
                 <p>${tel}</p>
               </div>
             </div>
@@ -4967,6 +5252,8 @@ Uma receita prática, fofinha e deliciosa para o café da tarde!
       configCampanhasAtual = null;
       configReceitasCache = null;
       receitasCache = [];
+      gatilhosCache = [];
+      leadsCache = [];
 
       const containerGrade = document.getElementById('containerCheckboxesDestinosGrade');
       if (containerGrade) {
@@ -4997,7 +5284,10 @@ Uma receita prática, fofinha e deliciosa para o café da tarde!
     }
 
     function atualizarCabecalhoProjeto(sessao) {
-      document.getElementById('tituloProjeto').innerText = `Projeto: ${sessao.projectId}`;
+      const isReceitas = sessao.template === 'RECEITAS' || (sessao.projectId && sessao.projectId.toLowerCase().includes('receita'));
+      const iconeNicho = sessao.icone || (isReceitas ? '🍳' : '🌐');
+      const rotuloTemplate = isReceitas ? 'Nicho de Receitas' : 'Nicho Universal';
+      document.getElementById('tituloProjeto').innerHTML = `${iconeNicho} ${sessao.projectId} <span style="font-size: 0.75rem; font-weight: normal; opacity: 0.85; margin-left: 0.4rem; padding: 0.15rem 0.5rem; background: rgba(255,255,255,0.08); border-radius: 4px; vertical-align: middle;">${rotuloTemplate}</span>`;
       const badgeElem = document.getElementById('badgeStatusHeader');
       badgeElem.innerHTML = `
         <span class="badge badge-${sessao.status}">
@@ -5031,7 +5321,9 @@ Uma receita prática, fofinha e deliciosa para o café da tarde!
     // Criar / Iniciar Projeto
     async function criarOuIniciarProjeto() {
       const input = document.getElementById('novoProjectId');
+      const selectTemplate = document.getElementById('novoProjectTemplate');
       const projectId = input.value.trim().replace(/[^a-zA-Z0-9_-]/g, '_');
+      const template = selectTemplate ? selectTemplate.value : 'GENERICO';
 
       if (!projectId) {
         mostrarToast('Digite um ID de projeto válido (letras, números, hífen).', true);
@@ -5039,10 +5331,12 @@ Uma receita prática, fofinha e deliciosa para o café da tarde!
       }
 
       try {
-        mostrarToast(`Iniciando sessão "${projectId}"...`);
+        const nomeTemplate = template === 'RECEITAS' ? 'Receitas' : 'Universal';
+        mostrarToast(`Criando instância "${projectId}" [${nomeTemplate}]...`);
         const resp = await fetch(`/sessions/${projectId}/start`, {
           method: 'POST',
-          headers: obterHeaders()
+          headers: { ...obterHeaders(), 'Content-Type': 'application/json' },
+          body: JSON.stringify({ template })
         });
         const data = await resp.json();
 
@@ -10547,6 +10841,479 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
         }
       } catch (err) {
         mostrarToast(`Erro: ${err.message}`, true);
+      }
+    }
+
+    // ==========================================
+    // FUNÇÕES DO MOTOR UNIVERSAL (GATILHOS, LEADS & BROADCAST)
+    // ==========================================
+    let gatilhosCache = [];
+    let leadsCache = [];
+
+    async function carregarGatilhosProjeto() {
+      if (!projetoSelecionado) return;
+      const tbody = document.getElementById('tbodyGatilhosUniversais');
+      const badgeTotal = document.getElementById('badgeTotalGatilhos');
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/gatilhos`, { headers: obterHeaders() });
+        const data = await resp.json();
+
+        if (data.sucesso) {
+          gatilhosCache = data.gatilhos || [];
+          if (badgeTotal) badgeTotal.innerText = `${gatilhosCache.length} Regra(s)`;
+          renderizarTabelaGatilhos(gatilhosCache);
+        } else {
+          tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--accent-red); padding: 1.5rem;">Erro ao carregar gatilhos: ${data.erro}</td></tr>`;
+        }
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--accent-red); padding: 1.5rem;">Falha de conexão: ${err.message}</td></tr>`;
+      }
+    }
+
+    function renderizarTabelaGatilhos(lista) {
+      const tbody = document.getElementById('tbodyGatilhosUniversais');
+      if (!tbody) return;
+
+      if (!lista || lista.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 2.5rem 1rem;">
+              <div style="font-size: 2rem; margin-bottom: 0.5rem;">🤖</div>
+              <p style="font-weight: 500; color: #fff;">Nenhum gatilho por palavra-chave cadastrado.</p>
+              <span style="font-size: 0.8rem;">Crie sua primeira regra para entregar PDFs (ex: Dossiê) ou responder dúvidas no automático.</span>
+              <div style="margin-top: 1rem;">
+                <button class="btn btn-sm btn-primary" onclick="abrirModalNovoGatilho()">+ Criar Regra de Dossiê</button>
+              </div>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = lista.map(g => {
+        const badgeStatus = g.ativo
+          ? `<span class="badge badge-connected" style="cursor: pointer;" onclick="alternarStatusGatilhoUniversal('${g.id}', false)">● Ativo</span>`
+          : `<span class="badge badge-desconectado" style="cursor: pointer;" onclick="alternarStatusGatilhoUniversal('${g.id}', true)">○ Pausado</span>`;
+
+        const palavrasHtml = (g.palavrasChave || []).map(p =>
+          `<span style="display: inline-block; background: rgba(59, 130, 246, 0.15); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 4px; padding: 0.1rem 0.4rem; font-size: 0.72rem; margin: 0.1rem;">${p}</span>`
+        ).join('');
+
+        const rotuloMatch = {
+          'contem': 'Contém',
+          'exata': 'Exata',
+          'comeca_com': 'Começa com'
+        }[g.tipoCorrespondencia] || 'Contém';
+
+        let anexoHtml = '<span style="color: var(--text-muted); font-size: 0.75rem;">Apenas Texto</span>';
+        if (g.anexoTipo === 'documento' && g.anexoUrl) {
+          anexoHtml = `<a href="${g.anexoUrl}" target="_blank" style="color: #60a5fa; text-decoration: underline; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 0.25rem;">📄 ${g.anexoNomeArquivo || 'PDF'}</a>`;
+        } else if (g.anexoTipo === 'imagem' && g.anexoUrl) {
+          anexoHtml = `<a href="${g.anexoUrl}" target="_blank" style="color: #34d399; font-size: 0.78rem;">🖼️ Imagem</a>`;
+        } else if (g.anexoTipo === 'video' && g.anexoUrl) {
+          anexoHtml = `<a href="${g.anexoUrl}" target="_blank" style="color: #f87171; font-size: 0.78rem;">🎥 Vídeo</a>`;
+        } else if (g.anexoTipo === 'audio' && g.anexoUrl) {
+          anexoHtml = `<a href="${g.anexoUrl}" target="_blank" style="color: #fbbf24; font-size: 0.78rem;">🎤 Áudio PTT</a>`;
+        }
+
+        const previewTexto = g.respostaTexto ? (g.respostaTexto.length > 55 ? g.respostaTexto.slice(0, 55) + '...' : g.respostaTexto) : '<em style="color: var(--text-muted);">Sem texto</em>';
+
+        return `
+          <tr>
+            <td>${badgeStatus}</td>
+            <td><strong>${g.nome}</strong></td>
+            <td><div style="display: flex; flex-wrap: wrap; max-width: 280px;">${palavrasHtml}</div></td>
+            <td><span style="font-size: 0.75rem; color: var(--text-muted);">${rotuloMatch}</span></td>
+            <td style="font-size: 0.8rem; color: #cbd5e1; max-width: 220px;">${previewTexto}</td>
+            <td>${anexoHtml}</td>
+            <td style="text-align: center;"><strong>${g.totalDisparos || 0}</strong></td>
+            <td style="text-align: right; white-space: nowrap;">
+              <button class="btn btn-secondary btn-sm" onclick="editarGatilhoUniversal('${g.id}')" title="Editar regra" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;">✏️</button>
+              <button class="btn btn-danger btn-sm" onclick="excluirGatilhoUniversal('${g.id}')" title="Excluir regra" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;">🗑</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function abrirModalNovoGatilho() {
+      document.getElementById('tituloModalGatilho').innerText = '🤖 Novo Gatilho por Palavra-Chave';
+      document.getElementById('gatilhoEditId').value = '';
+      document.getElementById('gatilhoNome').value = '';
+      document.getElementById('gatilhoPalavras').value = '';
+      document.getElementById('gatilhoTipoMatch').value = 'contem';
+      document.getElementById('gatilhoRespostaTexto').value = '';
+      document.getElementById('gatilhoAnexoTipo').value = 'nenhum';
+      document.getElementById('gatilhoAnexoUrl').value = '';
+      document.getElementById('gatilhoAnexoNome').value = '';
+      document.getElementById('gatilhoDebounce').value = '10';
+      aoMudarTipoAnexoGatilho();
+
+      const modal = document.getElementById('modalGatilhoUniversal');
+      if (modal) modal.style.display = 'flex';
+    }
+
+    function fecharModalGatilho() {
+      const modal = document.getElementById('modalGatilhoUniversal');
+      if (modal) modal.style.display = 'none';
+    }
+
+    function fecharModalGatilhoAoClicarFora(e) {
+      if (e.target.id === 'modalGatilhoUniversal') fecharModalGatilho();
+    }
+
+    function aoMudarTipoAnexoGatilho() {
+      const tipo = document.getElementById('gatilhoAnexoTipo').value;
+      const grupo = document.getElementById('grupoAnexoGatilho');
+      grupo.style.display = tipo === 'nenhum' ? 'none' : 'block';
+    }
+
+    async function aoFazerUploadGatilho(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      mostrarToast(`Fazendo upload de "${file.name}"...`);
+      const reader = new FileReader();
+      reader.onload = async function() {
+        try {
+          const resp = await fetch('/upload', {
+            method: 'POST',
+            headers: { ...obterHeaders(), 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              nome: file.name,
+              base64: reader.result
+            })
+          });
+          const data = await resp.json();
+          if (data.sucesso && data.url) {
+            document.getElementById('gatilhoAnexoUrl').value = data.url;
+            document.getElementById('gatilhoAnexoNome').value = file.name;
+            mostrarToast('Upload concluído com sucesso!');
+          } else {
+            mostrarToast(`Erro no upload: ${data.erro}`, true);
+          }
+        } catch (err) {
+          mostrarToast(`Falha no upload: ${err.message}`, true);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function salvarGatilhoUniversalSubmit(e) {
+      e.preventDefault();
+      if (!projetoSelecionado) return;
+
+      const id = document.getElementById('gatilhoEditId').value.trim();
+      const nome = document.getElementById('gatilhoNome').value.trim();
+      const palavrasRaw = document.getElementById('gatilhoPalavras').value.trim();
+      const tipoCorrespondencia = document.getElementById('gatilhoTipoMatch').value;
+      const respostaTexto = document.getElementById('gatilhoRespostaTexto').value.trim();
+      const anexoTipo = document.getElementById('gatilhoAnexoTipo').value;
+      const anexoUrl = document.getElementById('gatilhoAnexoUrl').value.trim();
+      const anexoNomeArquivo = document.getElementById('gatilhoAnexoNome').value.trim();
+      const debounceMinutos = parseInt(document.getElementById('gatilhoDebounce').value, 10) || 10;
+
+      const payload = {
+        id: id || undefined,
+        nome,
+        palavrasChave: palavrasRaw,
+        tipoCorrespondencia,
+        respostaTexto,
+        anexoTipo,
+        anexoUrl,
+        anexoNomeArquivo,
+        debounceMinutos
+      };
+
+      try {
+        mostrarToast('Salvando regra de automação...');
+        const resp = await fetch(`/sessions/${projetoSelecionado}/gatilhos`, {
+          method: 'POST',
+          headers: { ...obterHeaders(), 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await resp.json();
+
+        if (data.sucesso) {
+          mostrarToast('Gatilho salvo com sucesso!');
+          fecharModalGatilho();
+          carregarGatilhosProjeto();
+        } else {
+          mostrarToast(`Erro: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Falha de conexão: ${err.message}`, true);
+      }
+    }
+
+    function editarGatilhoUniversal(id) {
+      const g = gatilhosCache.find(item => item.id === id);
+      if (!g) return;
+
+      document.getElementById('tituloModalGatilho').innerText = `✏️ Editar Gatilho: ${g.nome}`;
+      document.getElementById('gatilhoEditId').value = g.id;
+      document.getElementById('gatilhoNome').value = g.nome;
+      document.getElementById('gatilhoPalavras').value = (g.palavrasChave || []).join(', ');
+      document.getElementById('gatilhoTipoMatch').value = g.tipoCorrespondencia || 'contem';
+      document.getElementById('gatilhoRespostaTexto').value = g.respostaTexto || '';
+      document.getElementById('gatilhoAnexoTipo').value = g.anexoTipo || 'nenhum';
+      document.getElementById('gatilhoAnexoUrl').value = g.anexoUrl || '';
+      document.getElementById('gatilhoAnexoNome').value = g.anexoNomeArquivo || '';
+      document.getElementById('gatilhoDebounce').value = g.debounceMinutos || 10;
+      aoMudarTipoAnexoGatilho();
+
+      const modal = document.getElementById('modalGatilhoUniversal');
+      if (modal) modal.style.display = 'flex';
+    }
+
+    async function alternarStatusGatilhoUniversal(id, novoStatus) {
+      if (!projetoSelecionado) return;
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/gatilhos/${id}/toggle`, {
+          method: 'PATCH',
+          headers: { ...obterHeaders(), 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ativo: novoStatus })
+        });
+        const data = await resp.json();
+        if (data.sucesso) {
+          mostrarToast(`Gatilho ${novoStatus ? 'ativado' : 'pausado'}.`);
+          carregarGatilhosProjeto();
+        }
+      } catch (err) {
+        mostrarToast(`Erro ao alternar status: ${err.message}`, true);
+      }
+    }
+
+    async function excluirGatilhoUniversal(id) {
+      if (!projetoSelecionado) return;
+      if (!confirm('Deseja realmente excluir esta regra de gatilho?')) return;
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/gatilhos/${id}`, {
+          method: 'DELETE',
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+        if (data.sucesso) {
+          mostrarToast('Gatilho excluído com sucesso.');
+          carregarGatilhosProjeto();
+        } else {
+          mostrarToast(`Erro ao excluir: ${data.erro}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Falha de conexão: ${err.message}`, true);
+      }
+    }
+
+    // ==========================================
+    // FUNÇÕES DE LEADS & BROADCAST
+    // ==========================================
+    async function carregarLeadsProjeto() {
+      if (!projetoSelecionado) return;
+      const tbody = document.getElementById('tbodyLeadsUniversais');
+      const badgeTotal = document.getElementById('badgeTotalLeads');
+      const badgeBroadcast = document.getElementById('broadcastContadorLeads');
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/leads`, { headers: obterHeaders() });
+        const data = await resp.json();
+
+        if (data.sucesso) {
+          leadsCache = data.leads || [];
+          if (badgeTotal) badgeTotal.innerText = `${leadsCache.length} Lead(s)`;
+          if (badgeBroadcast) badgeBroadcast.innerText = leadsCache.length;
+          renderizarTabelaLeads(leadsCache);
+        } else {
+          tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--accent-red); padding: 1.5rem;">Erro: ${data.erro}</td></tr>`;
+        }
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--accent-red); padding: 1.5rem;">Falha: ${err.message}</td></tr>`;
+      }
+    }
+
+    function renderizarTabelaLeads(lista) {
+      const tbody = document.getElementById('tbodyLeadsUniversais');
+      if (!tbody) return;
+
+      if (!lista || lista.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 2.5rem 1rem;">
+              <div style="font-size: 2rem; margin-bottom: 0.5rem;">👥</div>
+              <p style="font-weight: 500; color: #fff;">Nenhum contato capturado ainda.</p>
+              <span style="font-size: 0.8rem;">Quando alguém mandar uma mensagem no WhatsApp desta instância, o contato aparecerá aqui automaticamente.</span>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = lista.map(l => {
+        const telFormatado = formatarNumeroTelefone(l.telefone || l.jid);
+        const linkWa = `https://wa.me/${l.telefone}`;
+        const primeiro = l.primeiroContato ? new Date(l.primeiroContato).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '--';
+        const ultimo = l.ultimoContato ? new Date(l.ultimoContato).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '--';
+        const gatilhoTag = l.ultimoGatilho
+          ? `<span style="background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 4px; padding: 0.1rem 0.4rem; font-size: 0.72rem;">${l.ultimoGatilho}</span>`
+          : '<span style="color: var(--text-muted); font-size: 0.75rem;">Nenhum</span>';
+
+        return `
+          <tr>
+            <td>
+              <a href="${linkWa}" target="_blank" style="color: #60a5fa; text-decoration: none; font-weight: 500;" title="Abrir conversa no WhatsApp">
+                📱 ${telFormatado}
+              </a>
+            </td>
+            <td><strong>${l.nome || 'Contato WhatsApp'}</strong></td>
+            <td style="font-size: 0.75rem; color: var(--text-muted);">${primeiro}</td>
+            <td style="font-size: 0.75rem; color: #cbd5e1;">${ultimo}</td>
+            <td style="text-align: center;"><strong>${l.totalMensagens || 1}</strong></td>
+            <td style="font-size: 0.78rem; color: var(--text-muted); max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+              ${l.ultimaMensagem || '--'}
+            </td>
+            <td>${gatilhoTag}</td>
+            <td style="text-align: right;">
+              <button class="btn btn-danger btn-sm" onclick="excluirLeadUniversal('${l.jid}')" title="Excluir contato" style="padding: 0.2rem 0.5rem; font-size: 0.72rem;">🗑</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function excluirLeadUniversal(jid) {
+      if (!projetoSelecionado) return;
+      if (!confirm('Deseja remover este lead da lista?')) return;
+
+      try {
+        const resp = await fetch(`/sessions/${projetoSelecionado}/leads/${encodeURIComponent(jid)}`, {
+          method: 'DELETE',
+          headers: obterHeaders()
+        });
+        const data = await resp.json();
+        if (data.sucesso) {
+          mostrarToast('Lead removido.');
+          carregarLeadsProjeto();
+        }
+      } catch (err) {
+        mostrarToast(`Erro ao excluir: ${err.message}`, true);
+      }
+    }
+
+    function exportarLeadsCsvDownload() {
+      if (!projetoSelecionado) return;
+      window.open(`/sessions/${projetoSelecionado}/leads/exportar-csv`, '_blank');
+      mostrarToast('Download do arquivo CSV iniciado!');
+    }
+
+    function abrirModalBroadcastLeads() {
+      document.getElementById('broadcastTexto').value = '';
+      document.getElementById('broadcastUrl').value = '';
+      document.getElementById('broadcastTipo').value = 'texto';
+      document.getElementById('broadcastDelay').value = '3';
+      aoMudarTipoBroadcast();
+      aoMudarAlvoBroadcast();
+
+      const modal = document.getElementById('modalBroadcastLeads');
+      if (modal) modal.style.display = 'flex';
+    }
+
+    function fecharModalBroadcastLeads() {
+      const modal = document.getElementById('modalBroadcastLeads');
+      if (modal) modal.style.display = 'none';
+    }
+
+    function fecharModalBroadcastAoClicarFora(e) {
+      if (e.target.id === 'modalBroadcastLeads') fecharModalBroadcastLeads();
+    }
+
+    function aoMudarAlvoBroadcast() {
+      const radios = document.getElementsByName('broadcastAlvoTipo');
+      let selecionado = 'leads';
+      for (const r of radios) {
+        if (r.checked) selecionado = r.value;
+      }
+      const grupoCustom = document.getElementById('grupoBroadcastCustom');
+      grupoCustom.style.display = selecionado === 'custom' ? 'block' : 'none';
+    }
+
+    function aoMudarTipoBroadcast() {
+      const tipo = document.getElementById('broadcastTipo').value;
+      const grupo = document.getElementById('grupoBroadcastUrl');
+      grupo.style.display = tipo === 'texto' ? 'none' : 'block';
+    }
+
+    async function executarBroadcastLeadsSubmit(e) {
+      e.preventDefault();
+      if (!projetoSelecionado) return;
+
+      const radios = document.getElementsByName('broadcastAlvoTipo');
+      let alvoTipo = 'leads';
+      for (const r of radios) {
+        if (r.checked) alvoTipo = r.value;
+      }
+
+      let destinos = [];
+      if (alvoTipo === 'leads') {
+        destinos = leadsCache.map(l => l.jid || l.telefone).filter(Boolean);
+        if (destinos.length === 0) {
+          mostrarToast('Não há leads capturados nesta instância para enviar o broadcast.', true);
+          return;
+        }
+      } else {
+        const raw = document.getElementById('broadcastCustomDestinos').value.trim();
+        destinos = raw.split(/[,;\n]+/).map(d => d.trim()).filter(Boolean);
+        if (destinos.length === 0) {
+          mostrarToast('Informe ao menos um destinatário válido.', true);
+          return;
+        }
+      }
+
+      const tipo = document.getElementById('broadcastTipo').value;
+      const delayBaseSeg = parseInt(document.getElementById('broadcastDelay').value, 10) || 3;
+      const url = document.getElementById('broadcastUrl').value.trim();
+      const texto = document.getElementById('broadcastTexto').value.trim();
+
+      if (!confirm(`Confirma o envio do Broadcast para ${destinos.length} destinatários com intervalo Anti-Ban de ~${delayBaseSeg}s?`)) {
+        return;
+      }
+
+      try {
+        const btn = document.getElementById('btnConfirmarBroadcast');
+        btn.disabled = true;
+        btn.innerText = '⏳ Enviando Broadcast...';
+
+        mostrarToast(`Disparando broadcast para ${destinos.length} contatos em segundo plano...`);
+
+        const resp = await fetch(`/sessions/${projetoSelecionado}/broadcast`, {
+          method: 'POST',
+          headers: { ...obterHeaders(), 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            destinatarios: destinos,
+            tipo,
+            texto,
+            url,
+            delayBaseMs: delayBaseSeg * 1000
+          })
+        });
+
+        const data = await resp.json();
+        btn.disabled = false;
+        btn.innerText = '🚀 Iniciar Disparo para a Lista';
+
+        if (data.sucesso) {
+          mostrarToast(`Broadcast finalizado! Sucessos: ${data.sucessos} | Falhas: ${data.falhas}`);
+          fecharModalBroadcastLeads();
+        } else {
+          mostrarToast(`Erro no broadcast: ${data.erro}`, true);
+        }
+      } catch (err) {
+        const btn = document.getElementById('btnConfirmarBroadcast');
+        if (btn) {
+          btn.disabled = false;
+          btn.innerText = '🚀 Iniciar Disparo para a Lista';
+        }
+        mostrarToast(`Falha de conexão: ${err.message}`, true);
       }
     }
   </script>
