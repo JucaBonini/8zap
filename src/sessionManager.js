@@ -231,9 +231,53 @@ async function iniciarSessao(projectId, forcarReinicio = false) {
     // Salva credenciais atualizadas
     sock.ev.on('creds.update', saveCreds);
 
+    // Auto-descoberta e registro em tempo de execução de canais (@newsletter)
+    const interceptarCanais = (chatsArray) => {
+      if (!Array.isArray(chatsArray)) return;
+      try {
+        const destinosManager = require('./destinos');
+        chatsArray.forEach((c) => {
+          const jid = c?.id || c?.jid;
+          if (jid && String(jid).includes('@newsletter')) {
+            const role = c.role || c.viewer_metadata?.role || '';
+            const ehDono = role === 'OWNER';
+            const ehAdmin = role === 'ADMIN' || ehDono;
+            const badge = ehDono ? ' (Dono)' : ehAdmin ? ' (Admin)' : '';
+            const nome = (c.name || c.subject || jid) + badge;
+            destinosManager.registrarCanalDescoberto(idSanitizado, {
+              jid,
+              nome,
+              dono: ehDono,
+              admin: ehAdmin
+            });
+          }
+        });
+      } catch (_) {}
+    };
+
+    sock.ev.on('chats.set', ({ chats }) => interceptarCanais(chats));
+    sock.ev.on('chats.upsert', (chats) => interceptarCanais(chats));
+    sock.ev.on('messaging-history.set', ({ chats }) => interceptarCanais(chats));
+
     // Listener de mensagens recebidas com Desacoplamento e Roteamento por Template / Nicho
     sock.ev.on('messages.upsert', async (upsert) => {
       try {
+        // Intercepta mensagens de canais para registrar o canal automaticamente
+        if (upsert && Array.isArray(upsert.messages)) {
+          for (const m of upsert.messages) {
+            const jidRemoto = m?.key?.remoteJid;
+            if (jidRemoto && String(jidRemoto).includes('@newsletter')) {
+              try {
+                const destinosManager = require('./destinos');
+                destinosManager.registrarCanalDescoberto(idSanitizado, {
+                  jid: jidRemoto,
+                  nome: `📢 Canal (${jidRemoto.split('@')[0]})`
+                });
+              } catch (_) {}
+            }
+          }
+        }
+
         // 1. Camada de Segurança Anti-Ban (Opt-out / Blacklist) - ativa para toda e qualquer instância
         const antiBanManager = require('./antiBanManager');
         await antiBanManager.processarMensagensRecebidas(idSanitizado, sock, upsert);
@@ -297,6 +341,14 @@ async function iniciarSessao(projectId, forcarReinicio = false) {
           `Sessão conectada com sucesso! Usuário: ${sessao.usuarioConectado}`,
           'success'
         );
+
+        // Dispara varredura automática de canais do usuário em background
+        setTimeout(async () => {
+          try {
+            const destinosManager = require('./destinos');
+            await destinosManager.listarDestinosDisponiveis(idSanitizado, true);
+          } catch (_) {}
+        }, 1500);
       }
 
       if (connection === 'close') {

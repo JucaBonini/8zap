@@ -53,6 +53,20 @@ function obterConfigReceitas(projectId) {
   try {
     const conteudo = fs.readFileSync(caminho, 'utf8');
     const dados = JSON.parse(conteudo);
+    const idLower = (projectId || '').toLowerCase();
+    const isCulinaria = idLower.includes('receita') || projectId === 'Receitas';
+
+    let personaFinal = typeof dados.personaCustom === 'string' ? dados.personaCustom : '';
+
+    // Se for uma instância universal/genérica e tiver texto de Mary/cozinheira, limpa automaticamente
+    if (!isCulinaria && (personaFinal.includes('Mary') || personaFinal.includes('cozinheira') || personaFinal.includes('culinária'))) {
+      personaFinal = '';
+      dados.personaCustom = '';
+      try {
+        fs.writeFileSync(caminho, JSON.stringify(dados, null, 2), 'utf8');
+      } catch (_) {}
+    }
+
     return {
       ativo: Boolean(dados.ativo),
       provedor: dados.provedor === 'gemini' ? 'gemini' : 'openai',
@@ -63,7 +77,7 @@ function obterConfigReceitas(projectId) {
       resolucaoImagem: Number(dados.resolucaoImagem) || 800,
       qualidadeCompressao: Number(dados.qualidadeCompressao) || 80,
       destinos: Array.isArray(dados.destinos) ? dados.destinos : [],
-      personaCustom: typeof dados.personaCustom === 'string' ? dados.personaCustom : ''
+      personaCustom: personaFinal
     };
   } catch (err) {
     return padrao;

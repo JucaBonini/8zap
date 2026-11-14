@@ -2520,6 +2520,13 @@
                 <button type="button" class="btn btn-secondary btn-sm" onclick="carregarDestinosGrade(true)" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">🔄 Atualizar Canais</button>
               </div>
             </div>
+
+            <!-- Adição Rápida de Canal na Grade -->
+            <div style="display: flex; gap: 0.4rem; margin-bottom: 0.6rem; flex-wrap: wrap;">
+              <input type="text" id="inputNovoCanalGrade" placeholder="Cole o link do Canal (https://whatsapp.com/channel/...) ou JID (@newsletter)" style="flex: 1; min-width: 220px; font-size: 0.8rem; padding: 0.45rem 0.65rem; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: #fff;">
+              <button type="button" class="btn btn-sm" onclick="adicionarCanalGrade()" style="padding: 0.45rem 0.85rem; font-size: 0.8rem; font-weight: 600; white-space: nowrap;">➕ Adicionar Canal</button>
+            </div>
+
             <div id="containerCheckboxesDestinosGrade" style="background: rgba(0,0,0,0.25); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.75rem; max-height: 190px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.45rem;">
               <p style="color: var(--text-muted); font-size: 0.8rem; padding: 0.4rem;">Carregando canais disponíveis...</p>
             </div>
@@ -4647,7 +4654,7 @@ Uma receita prática, fofinha e deliciosa para o café da tarde!
                 🤖 Configuração de Inteligência Artificial &amp; Chaves de API
               </h3>
               <p id="subtituloCardIaConfig" style="font-size: 0.82rem; color: var(--text-muted);">
-                Defina suas chaves de API para geração de conteúdos, receitas da Mary e fotos culinárias ultra-realistas (DALL-E 3 ou Imagen 3).
+                Defina suas chaves de API para geração de conteúdos, reflexões e imagens para o seu nicho (DALL-E 3 ou Imagen 3).
               </p>
             </div>
           </div>
@@ -4706,7 +4713,7 @@ Uma receita prática, fofinha e deliciosa para o café da tarde!
           <!-- Configurações de Otimização de Imagem (3G/WhatsApp) -->
           <div class="form-row">
             <div class="form-group">
-              <label for="recResolucao" id="labelResolucaoIa">Resolução da Fotografia Gastronômica:</label>
+              <label for="recResolucao" id="labelResolucaoIa">Resolução da Imagem / Foto (IA):</label>
               <select id="recResolucao" class="form-control">
                 <option value="800" selected>800 × 800 px (Recomendado para WhatsApp no Brasil - ~100 KB)</option>
                 <option value="1024">1024 × 1024 px (Alta Definição Retina - ~150 KB)</option>
@@ -4725,21 +4732,21 @@ Uma receita prática, fofinha e deliciosa para o café da tarde!
           <!-- Persona e Voz da IA -->
           <div class="form-group" style="margin-bottom: 1.25rem;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; flex-wrap: wrap; gap: 0.4rem;">
-              <label for="recPersonaCustom" id="labelPersonaIa" style="margin-bottom: 0; font-weight: 600;">Tom de Voz &amp; Instruções da IA (Prompt de Sistema da Mary):</label>
-              <button type="button" class="btn btn-secondary btn-sm" id="btnRestaurarPersonaIa" onclick="restaurarPersonaPadraoMary()" style="font-size: 0.72rem; padding: 0.2rem 0.55rem;">Restaurar Voz da Mary</button>
+              <label for="recPersonaCustom" id="labelPersonaIa" style="margin-bottom: 0; font-weight: 600;">Tom de Voz &amp; Prompt de Sistema da IA (Personalizado):</label>
+              <button type="button" class="btn btn-secondary btn-sm" id="btnRestaurarPersonaIa" onclick="limparPromptIa()" style="font-size: 0.72rem; padding: 0.2rem 0.55rem;">Deixar em Branco</button>
             </div>
-            <textarea id="recPersonaCustom" class="form-control" style="min-height: 100px; font-size: 0.82rem; line-height: 1.5;" placeholder="Instruções para como a IA conversa com seu público no WhatsApp..."></textarea>
+            <textarea id="recPersonaCustom" class="form-control" style="min-height: 100px; font-size: 0.82rem; line-height: 1.5;" placeholder="Digite ou cole aqui o seu Prompt de Sistema para a IA (ou deixe em branco)..."></textarea>
             <p id="subtextoPersonaIa" style="font-size: 0.73rem; color: var(--text-muted); margin-top: 0.3rem;">
-              Personalize para adaptar o vocabulário, estilo culinário (ex: fitness, doces finos, mineira) ou saudações.
+              Insira o seu prompt de sistema para guiar a IA sobre o tom de voz, estilo e regras de conteúdo do seu negócio (ex: Cabala, infoprodutos, e-commerce).
             </p>
           </div>
 
-          <!-- Destinos Padrão de Receitas (Canais/Grupos) -->
+          <!-- Destinos Padrão (Canais/Grupos) -->
           <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color); margin-bottom: 1.25rem;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem; flex-wrap: wrap; gap: 0.5rem;">
               <div>
-                <label id="labelDestinosIa" style="margin-bottom: 0; font-weight: 600; font-size: 0.9rem;">📢 Canais &amp; Grupos de Destino para Receitas:</label>
-                <span id="subtextoDestinosIa" style="font-size: 0.75rem; color: var(--text-muted); display: block;">Selecione os canais que receberão as receitas automáticas</span>
+                <label id="labelDestinosIa" style="margin-bottom: 0; font-weight: 600; font-size: 0.9rem;">📢 Canais &amp; Grupos de Destino dos Disparos:</label>
+                <span id="subtextoDestinosIa" style="font-size: 0.75rem; color: var(--text-muted); display: block;">Selecione os canais que receberão as postagens automáticas da IA</span>
               </div>
               <div style="display: flex; gap: 0.4rem; align-items: center;">
                 <button type="button" class="btn btn-secondary btn-sm" onclick="marcarTodosDestinosReceitas(true)" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">Marcar Todos</button>
@@ -4747,6 +4754,13 @@ Uma receita prática, fofinha e deliciosa para o café da tarde!
                 <button type="button" class="btn btn-secondary btn-sm" onclick="carregarDestinosReceitas(true)" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">🔄 Atualizar Canais</button>
               </div>
             </div>
+
+            <!-- Adição Rápida de Canal em Ajustes -->
+            <div style="display: flex; gap: 0.4rem; margin-bottom: 0.6rem; flex-wrap: wrap;">
+              <input type="text" id="inputNovoCanalAjustes" placeholder="Cole o link do Canal (https://whatsapp.com/channel/...) ou JID (@newsletter)" style="flex: 1; min-width: 220px; font-size: 0.8rem; padding: 0.45rem 0.65rem; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: #fff;">
+              <button type="button" class="btn btn-sm" onclick="adicionarCanalAjustes()" style="padding: 0.45rem 0.85rem; font-size: 0.8rem; font-weight: 600; white-space: nowrap;">➕ Adicionar Canal</button>
+            </div>
+
             <div id="containerCheckboxesDestinosReceitas" style="background: rgba(0,0,0,0.25); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.75rem; max-height: 170px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.45rem;">
               <p style="color: var(--text-muted); font-size: 0.8rem; padding: 0.4rem;">Carregando canais disponíveis...</p>
             </div>
@@ -5359,9 +5373,27 @@ Uma receita prática, fofinha e deliciosa para o café da tarde!
       configRssAtual = null;
       configCampanhasAtual = null;
       configReceitasCache = null;
+      perfilProjetoAtual = null;
       receitasCache = [];
       gatilhosCache = [];
       leadsCache = [];
+
+      const isReceitasProj = (projectId === 'Receitas' || (projectId && projectId.toLowerCase().includes('receita')));
+      const txtPers = document.getElementById('recPersonaCustom');
+      if (txtPers && !isReceitasProj) {
+        txtPers.value = '';
+      }
+
+      // Aplica imediatamente regras visuais de isolamento (sem flicker ou espera por resposta de rede)
+      aplicarAjustesPerfilNaInterface({
+        template: isReceitasProj ? 'RECEITAS' : 'GENERICO',
+        modulos: {
+          receitasIa: isReceitasProj,
+          conteudoIa: !isReceitasProj,
+          autoResposta: !isReceitasProj,
+          capturaLeads: !isReceitasProj
+        }
+      });
 
       const containerGrade = document.getElementById('containerCheckboxesDestinosGrade');
       if (containerGrade) {
@@ -5729,12 +5761,9 @@ Uma receita prática, fofinha e deliciosa para o café da tarde!
           const telFormatado = formatarNumeroTelefone(data.usuarioConectado);
           atualizarCockpitStatus(true, telFormatado);
 
-          const sessaoObj = sessoesGlobais.find(s => s.projectId === projetoSelecionado);
-          const isReceitas = (data.template === 'RECEITAS') || 
-                             (sessaoObj && sessaoObj.template === 'RECEITAS') || 
-                             (perfilProjetoAtual && perfilProjetoAtual.template === 'RECEITAS') ||
-                             (perfilProjetoAtual && perfilProjetoAtual.modulos && perfilProjetoAtual.modulos.receitasIa) || 
-                             (projetoSelecionado && projetoSelecionado.toLowerCase().includes('receita'));
+          // Regra Inegociável: Uma instância só é tratada como receitas se for a sessão mestre 'Receitas' ou tiver 'receita' no nome.
+          // Instâncias de outros nichos (ex: CabalaOnline) são 100% universais e exibem sempre o Criar com IA.
+          const isReceitas = (projetoSelecionado === 'Receitas' || (projetoSelecionado && projetoSelecionado.toLowerCase().includes('receita')));
 
           const cardIaHtml = isReceitas ? `
                 <!-- Card 2: Receitas IA da Mary -->
@@ -8509,7 +8538,7 @@ Uma receita prática, fofinha e deliciosa para o café da tarde!
         const data = await resp.json();
 
         if (!data.sucesso || !data.destinos || data.destinos.length === 0) {
-          container.innerHTML = `<p style="color: var(--text-muted); font-size: 0.8rem; padding: 0.4rem;">Nenhum canal ou grupo encontrado. Conecte o WhatsApp ou adicione links de canal na aba RSS.</p>`;
+          container.innerHTML = `<p style="color: var(--text-muted); font-size: 0.8rem; padding: 0.4rem;">Nenhum canal ou grupo encontrado. Cole o link do seu Canal acima para adicioná-lo imediatamente.</p>`;
           return;
         }
 
@@ -8519,17 +8548,61 @@ Uma receita prática, fofinha e deliciosa para o café da tarde!
 
         container.innerHTML = data.destinos.map(dest => {
           const marcado = destinosAtuais.includes(dest.jid);
-          const iconeTipo = dest.tipo === 'canal' ? '📢' : '👥';
+          const ehCanal = dest.tipo === 'canal' || (dest.jid && dest.jid.includes('@newsletter'));
+          const iconeTipo = ehCanal ? '📢' : '👥';
+          const badgeRole = dest.dono
+            ? '<span style="font-size: 0.65rem; background: rgba(16, 185, 129, 0.2); color: #34d399; padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 600; margin-left: 0.35rem;">DONO</span>'
+            : dest.admin
+            ? '<span style="font-size: 0.65rem; background: rgba(56, 189, 248, 0.2); color: #38bdf8; padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 600; margin-left: 0.35rem;">ADMIN</span>'
+            : ehCanal
+            ? '<span style="font-size: 0.65rem; background: rgba(139, 92, 246, 0.2); color: #a78bfa; padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 600; margin-left: 0.35rem;">CANAL</span>'
+            : '<span style="font-size: 0.65rem; background: rgba(255, 255, 255, 0.08); color: var(--text-muted); padding: 0.1rem 0.4rem; border-radius: 4px; margin-left: 0.35rem;">GRUPO</span>';
+
           return `
-            <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; padding: 0.35rem 0.5rem; border-radius: var(--radius-sm); background: rgba(255,255,255,0.02); transition: background 0.15s ease;" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='rgba(255,255,255,0.02)'">
+            <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; padding: 0.4rem 0.6rem; border-radius: var(--radius-sm); background: ${ehCanal ? 'rgba(56, 189, 248, 0.06)' : 'rgba(255,255,255,0.02)'}; border: 1px solid ${ehCanal ? 'rgba(56, 189, 248, 0.2)' : 'transparent'}; transition: background 0.15s ease;" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='${ehCanal ? 'rgba(56, 189, 248, 0.06)' : 'rgba(255,255,255,0.02)'}'">
               <input type="checkbox" class="checkbox-destino-grade" value="${dest.jid}" ${marcado ? 'checked' : ''} style="accent-color: var(--primary); width: 16px; height: 16px;">
-              <span style="font-size: 0.85rem; font-weight: 500; color: #fff;">${iconeTipo} ${dest.nome}</span>
+              <span style="font-size: 0.85rem; font-weight: 500; color: #fff; display: flex; align-items: center;">${iconeTipo} ${dest.nome} ${badgeRole}</span>
               <span style="font-size: 0.72rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; margin-left: auto;">${dest.jid}</span>
             </label>
           `;
         }).join('');
       } catch (err) {
         console.error('Erro ao carregar destinos da Grade:', err);
+      }
+    }
+
+    async function adicionarCanalGrade() {
+      if (!projetoSelecionado) return;
+      const input = document.getElementById('inputNovoCanalGrade');
+      const link = input ? input.value.trim() : '';
+      if (!link) {
+        mostrarToast('Cole o link do canal (whatsapp.com/channel/...) ou o JID (@newsletter)', true);
+        return;
+      }
+      try {
+        mostrarToast('Verificando e adicionando canal...');
+        const resp = await fetch(`/sessions/${projetoSelecionado}/destinos/manual`, {
+          method: 'POST',
+          headers: obterHeaders(),
+          body: JSON.stringify({ link })
+        });
+        const data = await resp.json();
+        if (data.sucesso && data.destino) {
+          mostrarToast(`✅ Canal "${data.destino.nome}" adicionado com sucesso!`);
+          if (input) input.value = '';
+          if (gradeConfigCache) {
+            if (!Array.isArray(gradeConfigCache.destinos)) gradeConfigCache.destinos = [];
+            if (!gradeConfigCache.destinos.includes(data.destino.jid)) {
+              gradeConfigCache.destinos.push(data.destino.jid);
+            }
+          }
+          await carregarDestinosGrade(true);
+          await salvarGradeProjeto(false);
+        } else {
+          mostrarToast(`Erro ao adicionar canal: ${data.erro || 'Falha na validação'}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro ao adicionar canal: ${err.message}`, true);
       }
     }
 
@@ -9029,10 +9102,11 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
     }
 
     function aplicarAjustesPerfilNaInterface(perfil) {
-      if (!perfil || !perfil.modulos) return;
+      if (!perfil) return;
 
-      const temReceitas = Boolean(perfil.modulos.receitasIa);
-      const isUniversal = perfil.template === 'GENERICO' || (!temReceitas);
+      const isReceitasProj = (projetoSelecionado === 'Receitas' || (projetoSelecionado && projetoSelecionado.toLowerCase().includes('receita')));
+      const temReceitas = isReceitasProj && (perfil.modulos ? Boolean(perfil.modulos.receitasIa !== false) : true);
+      const isUniversal = !temReceitas;
 
       // Subtítulo do botão principal 2. Central de Conteúdos
       const subNav = document.getElementById('subtituloNavConteudo');
@@ -9048,17 +9122,17 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
 
       const btnSubAuto = document.getElementById('btnSub-sub-autoresposta');
       if (btnSubAuto) {
-        btnSubAuto.style.display = (isUniversal || perfil.modulos.autoResposta) ? 'inline-flex' : 'none';
+        btnSubAuto.style.display = isUniversal ? 'inline-flex' : 'none';
       }
 
       const btnSubLeads = document.getElementById('btnSub-sub-leads');
       if (btnSubLeads) {
-        btnSubLeads.style.display = (isUniversal || perfil.modulos.capturaLeads) ? 'inline-flex' : 'none';
+        btnSubLeads.style.display = isUniversal ? 'inline-flex' : 'none';
       }
 
       const btnSubIaUniv = document.getElementById('btnSub-sub-ia-universal');
       if (btnSubIaUniv) {
-        btnSubIaUniv.style.display = (isUniversal || perfil.modulos.conteudoIa) ? 'inline-flex' : 'none';
+        btnSubIaUniv.style.display = isUniversal ? 'inline-flex' : 'none';
       }
 
       // Se for instância universal e estiver na aba de receitas, redireciona para a aba de IA universal
@@ -9101,7 +9175,12 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
           btnPers.setAttribute('onclick', 'limparPromptIa()');
         }
         if (subPers) subPers.innerText = 'Insira o seu prompt de sistema para guiar a IA sobre o tom de voz, estilo e regras de conteúdo do seu negócio (ex: Cabala, infoprodutos, e-commerce).';
-        if (txtPers) txtPers.setAttribute('placeholder', 'Digite ou cole aqui o seu Prompt de Sistema para a IA (ou deixe em branco)...');
+        if (txtPers) {
+          txtPers.setAttribute('placeholder', 'Digite ou cole aqui o seu Prompt de Sistema para a IA (ou deixe em branco)...');
+          if (txtPers.value.includes('Mary') || txtPers.value.includes('cozinheira') || txtPers.value.includes('culinária')) {
+            txtPers.value = '';
+          }
+        }
         if (lblDest) lblDest.innerText = '📢 Canais & Grupos de Destino dos Disparos:';
         if (subDest) subDest.innerText = 'Selecione os canais que receberão as postagens automáticas da IA';
       } else {
@@ -9221,11 +9300,7 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
           const qualidade = document.getElementById('recQualidade');
           if (qualidade) qualidade.value = String(data.config.qualidadeCompressao || 80);
 
-          const sessaoObj = sessoesGlobais.find(s => s.projectId === projetoSelecionado);
-          const isReceitas = (sessaoObj && sessaoObj.template === 'RECEITAS') || 
-                             (perfilProjetoAtual && perfilProjetoAtual.template === 'RECEITAS') ||
-                             (perfilProjetoAtual && perfilProjetoAtual.modulos && perfilProjetoAtual.modulos.receitasIa) || 
-                             (projetoSelecionado && projetoSelecionado.toLowerCase().includes('receita'));
+          const isReceitas = (projetoSelecionado === 'Receitas' || (projetoSelecionado && projetoSelecionado.toLowerCase().includes('receita')));
 
           const persona = document.getElementById('recPersonaCustom');
           if (persona) {
@@ -9233,7 +9308,12 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
               persona.value = data.config.personaCustom || PERSONA_PADRAO_MARY_JS;
             } else {
               // Nicho Universal / Genérico: DEIXA EM BRANCO para o usuário colocar o seu próprio prompt!
-              persona.value = data.config.personaCustom || '';
+              const val = data.config.personaCustom || '';
+              if (val.includes('Mary') || val.includes('cozinheira') || val.includes('culinária')) {
+                persona.value = '';
+              } else {
+                persona.value = val;
+              }
             }
           }
 
@@ -9304,7 +9384,7 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
         const data = await resp.json();
 
         if (!data.sucesso || !data.destinos || data.destinos.length === 0) {
-          container.innerHTML = `<p style="color: var(--text-muted); font-size: 0.8rem; padding: 0.4rem;">Nenhum canal ou grupo encontrado. Conecte o WhatsApp ou adicione links de canal na aba RSS.</p>`;
+          container.innerHTML = `<p style="color: var(--text-muted); font-size: 0.8rem; padding: 0.4rem;">Nenhum canal ou grupo encontrado. Cole o link do seu Canal acima para adicioná-lo imediatamente.</p>`;
           return;
         }
 
@@ -9314,17 +9394,60 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
 
         container.innerHTML = data.destinos.map(dest => {
           const marcado = destinosAtuais.includes(dest.jid);
-          const iconeTipo = dest.tipo === 'canal' ? '📢' : '👥';
+          const ehCanal = dest.tipo === 'canal' || (dest.jid && dest.jid.includes('@newsletter'));
+          const iconeTipo = ehCanal ? '📢' : '👥';
+          const badgeRole = dest.dono
+            ? '<span style="font-size: 0.65rem; background: rgba(16, 185, 129, 0.2); color: #34d399; padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 600; margin-left: 0.35rem;">DONO</span>'
+            : dest.admin
+            ? '<span style="font-size: 0.65rem; background: rgba(56, 189, 248, 0.2); color: #38bdf8; padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 600; margin-left: 0.35rem;">ADMIN</span>'
+            : ehCanal
+            ? '<span style="font-size: 0.65rem; background: rgba(139, 92, 246, 0.2); color: #a78bfa; padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 600; margin-left: 0.35rem;">CANAL</span>'
+            : '<span style="font-size: 0.65rem; background: rgba(255, 255, 255, 0.08); color: var(--text-muted); padding: 0.1rem 0.4rem; border-radius: 4px; margin-left: 0.35rem;">GRUPO</span>';
+
           return `
-            <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; padding: 0.35rem 0.5rem; border-radius: var(--radius-sm); background: rgba(255,255,255,0.02); transition: background 0.15s ease;" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='rgba(255,255,255,0.02)'">
+            <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; padding: 0.4rem 0.6rem; border-radius: var(--radius-sm); background: ${ehCanal ? 'rgba(56, 189, 248, 0.06)' : 'rgba(255,255,255,0.02)'}; border: 1px solid ${ehCanal ? 'rgba(56, 189, 248, 0.2)' : 'transparent'}; transition: background 0.15s ease;" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='${ehCanal ? 'rgba(56, 189, 248, 0.06)' : 'rgba(255,255,255,0.02)'}'">
               <input type="checkbox" class="checkbox-destino-receita" value="${dest.jid}" ${marcado ? 'checked' : ''} style="accent-color: var(--primary); width: 16px; height: 16px;">
-              <span style="font-size: 0.85rem; font-weight: 500; color: #fff;">${iconeTipo} ${dest.nome}</span>
+              <span style="font-size: 0.85rem; font-weight: 500; color: #fff; display: flex; align-items: center;">${iconeTipo} ${dest.nome} ${badgeRole}</span>
               <span style="font-size: 0.72rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; margin-left: auto;">${dest.jid}</span>
             </label>
           `;
         }).join('');
       } catch (err) {
         console.error('Erro ao carregar destinos de receitas:', err);
+      }
+    }
+
+    async function adicionarCanalAjustes() {
+      if (!projetoSelecionado) return;
+      const input = document.getElementById('inputNovoCanalAjustes');
+      const link = input ? input.value.trim() : '';
+      if (!link) {
+        mostrarToast('Cole o link do canal (whatsapp.com/channel/...) ou o JID (@newsletter)', true);
+        return;
+      }
+      try {
+        mostrarToast('Verificando e adicionando canal...');
+        const resp = await fetch(`/sessions/${projetoSelecionado}/destinos/manual`, {
+          method: 'POST',
+          headers: obterHeaders(),
+          body: JSON.stringify({ link })
+        });
+        const data = await resp.json();
+        if (data.sucesso && data.destino) {
+          mostrarToast(`✅ Canal "${data.destino.nome}" adicionado com sucesso!`);
+          if (input) input.value = '';
+          if (configReceitasCache) {
+            if (!Array.isArray(configReceitasCache.destinos)) configReceitasCache.destinos = [];
+            if (!configReceitasCache.destinos.includes(data.destino.jid)) {
+              configReceitasCache.destinos.push(data.destino.jid);
+            }
+          }
+          await carregarDestinosReceitas(true);
+        } else {
+          mostrarToast(`Erro ao adicionar canal: ${data.erro || 'Falha na validação'}`, true);
+        }
+      } catch (err) {
+        mostrarToast(`Erro ao adicionar canal: ${err.message}`, true);
       }
     }
 
@@ -10239,16 +10362,25 @@ A formatação deve ser compatível com o WhatsApp (use *negrito* e quebras de l
           const containerFila = document.getElementById('fbContainerFilaCards');
           if (containerFila) {
             if (pendentes.length === 0) {
+              const isReceitas = (projetoSelecionado === 'Receitas' || (projetoSelecionado && projetoSelecionado.toLowerCase().includes('receita')));
               containerFila.innerHTML = `
                 <div style="grid-column: 1 / -1; text-align: center; padding: 2rem; background: rgba(0,0,0,0.15); border-radius: var(--radius-sm); border: 1px dashed var(--border-color);">
                   <span style="font-size: 2.2rem; display: block; margin-bottom: 0.5rem;">📦</span>
                   <strong style="color: #fff; font-size: 0.95rem;">A Esteira do Facebook está vazia no momento</strong>
                   <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">
-                    Vá na aba <strong>Receitas IA (Mary)</strong> e clique em <strong>📘 Face</strong> em qualquer receita para colocá-la na fila!
+                    ${isReceitas 
+                      ? 'Vá na aba <strong>Receitas IA (Mary)</strong> e clique em <strong>📘 Face</strong> em qualquer receita para colocá-la na fila!' 
+                      : 'Adicione postagens à fila na Central de Conteúdos para publicação automatizada.'}
                   </p>
+                  ${isReceitas ? `
                   <button class="btn btn-secondary btn-sm" onclick="trocarSubConteudo('sub-receitas')" style="margin-top: 0.85rem;">
                     🍳 Abrir Catálogo da Mary
                   </button>
+                  ` : `
+                  <button class="btn btn-secondary btn-sm" onclick="trocarSubConteudo('sub-ia-universal')" style="margin-top: 0.85rem;">
+                    ✨ Criar com IA
+                  </button>
+                  `}
                 </div>
               `;
             } else {

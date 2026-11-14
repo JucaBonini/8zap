@@ -148,7 +148,7 @@ function obterPerfil(projectId) {
     nicho: catalogoPadrao.id,
     nomeNicho: templatePadrao === TEMPLATES.RECEITAS ? 'Culinária & Receitas (Mary)' : 'Universal / Genérico',
     icone: templatePadrao === TEMPLATES.RECEITAS ? '🍳' : '🌐',
-    persona: catalogoPadrao.personaPadrao,
+    persona: templatePadrao === TEMPLATES.RECEITAS ? catalogoPadrao.personaPadrao : '',
     categoriaShopee: catalogoPadrao.categoriaShopeePadrao,
     modulos: {
       ...catalogoPadrao.modulosPadrao,
@@ -168,7 +168,32 @@ function obterPerfil(projectId) {
   try {
     const conteudo = fs.readFileSync(caminho, 'utf8');
     const dados = JSON.parse(conteudo);
-    const templateFinal = dados.template || (dados.modulos?.receitasIa ? TEMPLATES.RECEITAS : TEMPLATES.GENERICO);
+    let templateFinal = dados.template || (dados.modulos?.receitasIa ? TEMPLATES.RECEITAS : TEMPLATES.GENERICO);
+
+    // Auto-cura de instâncias universais / genéricas (qualquer ID diferente de "Receitas" e que não contenha "receita")
+    // Garante que instâncias como CabalaOnline nunca fiquem presas a receitas, culinária ou persona da Mary
+    if (!isCulinaria && (templateFinal === TEMPLATES.RECEITAS || dados.nicho === 'culinaria' || dados.modulos?.receitasIa)) {
+      templateFinal = TEMPLATES.GENERICO;
+      dados.template = TEMPLATES.GENERICO;
+      if (dados.nicho === 'culinaria') dados.nicho = 'geral';
+      dados.nomeNicho = 'Universal / Genérico';
+      dados.icone = '🌐';
+      if (!dados.modulos) dados.modulos = {};
+      dados.modulos.receitasIa = false;
+      dados.modulos.conteudoIa = true;
+      dados.modulos.autoResposta = true;
+      dados.modulos.capturaLeads = true;
+      if (typeof dados.persona === 'string' && (dados.persona.includes('Mary') || dados.persona.includes('cozinheira') || dados.persona.includes('culinária'))) {
+        dados.persona = '';
+      }
+      try {
+        fs.writeFileSync(caminho, JSON.stringify(dados, null, 2), 'utf8');
+      } catch (_) {}
+    }
+
+    const personaLimpa = (!isCulinaria && typeof dados.persona === 'string' && (dados.persona.includes('Mary') || dados.persona.includes('cozinheira'))) 
+      ? '' 
+      : (typeof dados.persona === 'string' ? dados.persona : (isCulinaria ? padrao.persona : ''));
 
     return {
       projectId,
@@ -176,12 +201,13 @@ function obterPerfil(projectId) {
       nicho: dados.nicho || padrao.nicho,
       nomeNicho: dados.nomeNicho || padrao.nomeNicho,
       icone: dados.icone || (templateFinal === TEMPLATES.RECEITAS ? '🍳' : '🌐'),
-      persona: typeof dados.persona === 'string' ? dados.persona : padrao.persona,
+      persona: personaLimpa,
       categoriaShopee: dados.categoriaShopee || padrao.categoriaShopee,
       modulos: {
         receitasIa: dados.modulos?.receitasIa !== undefined ? Boolean(dados.modulos.receitasIa) : (templateFinal === TEMPLATES.RECEITAS),
         autoResposta: dados.modulos?.autoResposta !== undefined ? Boolean(dados.modulos.autoResposta) : (templateFinal === TEMPLATES.GENERICO),
         capturaLeads: dados.modulos?.capturaLeads !== undefined ? Boolean(dados.modulos.capturaLeads) : (templateFinal === TEMPLATES.GENERICO),
+        conteudoIa: dados.modulos?.conteudoIa !== undefined ? Boolean(dados.modulos.conteudoIa) : (templateFinal === TEMPLATES.GENERICO),
         rss: dados.modulos?.rss !== undefined ? Boolean(dados.modulos.rss) : padrao.modulos.rss,
         campanhas: dados.modulos?.campanhas !== undefined ? Boolean(dados.modulos.campanhas) : padrao.modulos.campanhas,
         filaManual: dados.modulos?.filaManual !== undefined ? Boolean(dados.modulos.filaManual) : padrao.modulos.filaManual,
@@ -226,7 +252,7 @@ function inicializarPerfilNovo(projectId, opcoes = {}) {
     nicho: catalogo.id,
     nomeNicho: template === TEMPLATES.RECEITAS ? 'Culinária & Receitas (Mary)' : 'Universal / Genérico',
     icone: template === TEMPLATES.RECEITAS ? '🍳' : '🌐',
-    persona: catalogo.personaPadrao,
+    persona: template === TEMPLATES.RECEITAS ? catalogo.personaPadrao : '',
     categoriaShopee: catalogo.categoriaShopeePadrao,
     modulos: {
       receitasIa: template === TEMPLATES.RECEITAS,
