@@ -6893,6 +6893,36 @@ Uma receita prática, fofinha e deliciosa para o café da tarde!
 
     let canaisFilaCache = [];
 
+    function obterCanaisFilaSalvos() {
+      try {
+        const key = `8zap_canais_fila_selecionados_${(projetoSelecionado || 'default').toLowerCase()}`;
+        const raw = localStorage.getItem(key) || localStorage.getItem('8zap_canais_fila_selecionados');
+        return raw ? JSON.parse(raw) : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function salvarCanaisFilaSelecionados() {
+      try {
+        const marcados = Array.from(document.querySelectorAll('.checkbox-canal-fila:checked')).map(cb => cb.value.trim());
+        const key = `8zap_canais_fila_selecionados_${(projetoSelecionado || 'default').toLowerCase()}`;
+        localStorage.setItem(key, JSON.stringify(marcados));
+        localStorage.setItem('8zap_canais_fila_selecionados', JSON.stringify(marcados));
+      } catch (e) {
+        console.warn('Erro ao salvar canais selecionados:', e);
+      }
+    }
+
+    function restaurarSelecaoCanaisFila() {
+      const salvos = (obterCanaisFilaSalvos() || []).map(s => String(s).trim());
+      document.querySelectorAll('.checkbox-canal-fila').forEach(cb => {
+        const val = String(cb.value).trim();
+        cb.checked = salvos.includes(val);
+      });
+      atualizarContadorCanaisFila(false);
+    }
+
     async function carregarCanaisFila(forcar = false) {
       if (!projetoSelecionado) return;
       const container = document.getElementById('containerCheckboxesCanaisFila');
@@ -6917,7 +6947,7 @@ Uma receita prática, fofinha e deliciosa para o café da tarde!
                 Nenhum canal detectado automaticamente. Clique abaixo para adicionar pelo link ou JID.
               </p>
             `;
-            atualizarContadorCanaisFila();
+            atualizarContadorCanaisFila(false);
             return;
           }
 
@@ -6925,7 +6955,7 @@ Uma receita prática, fofinha e deliciosa para o café da tarde!
             const icone = d.tipo === 'canal' ? '📢' : d.tipo === 'grupo' ? '👥' : '📱';
             return `
               <label class="destino-canal-item" style="display: flex; align-items: center; gap: 0.65rem; padding: 0.5rem 0.75rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: var(--radius-sm); cursor: pointer; transition: background 0.2s ease;">
-                <input type="checkbox" class="checkbox-canal-fila" value="${d.jid}" data-nome="${d.nome}" onchange="atualizarContadorCanaisFila()" style="width: 17px; height: 17px; accent-color: var(--primary); cursor: pointer;">
+                <input type="checkbox" class="checkbox-canal-fila" value="${d.jid}" data-nome="${d.nome}" onchange="atualizarContadorCanaisFila(true)" style="width: 17px; height: 17px; accent-color: var(--primary); cursor: pointer;">
                 <div style="flex: 1; min-width: 0;">
                   <div style="font-size: 0.85rem; font-weight: 600; color: #fff;">${icone} ${d.nome}</div>
                   <div style="font-size: 0.72rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; word-break: break-all;">${d.jid}</div>
@@ -6934,18 +6964,21 @@ Uma receita prática, fofinha e deliciosa para o café da tarde!
             `;
           }).join('');
 
-          atualizarContadorCanaisFila();
+          restaurarSelecaoCanaisFila();
         }
       } catch (err) {
         console.error('Erro ao carregar canais para fila:', err);
       }
     }
 
-    function atualizarContadorCanaisFila() {
+    function atualizarContadorCanaisFila(salvar = true) {
       const marcados = document.querySelectorAll('.checkbox-canal-fila:checked');
       const contador = document.getElementById('contadorCanaisFila');
       if (contador) {
         contador.innerText = `${marcados.length} canal(is) selecionado(s)`;
+      }
+      if (salvar) {
+        salvarCanaisFilaSelecionados();
       }
     }
 
@@ -6953,7 +6986,7 @@ Uma receita prática, fofinha e deliciosa para o café da tarde!
       document.querySelectorAll('.checkbox-canal-fila').forEach(cb => {
         cb.checked = marcar;
       });
-      atualizarContadorCanaisFila();
+      atualizarContadorCanaisFila(true);
     }
 
     function toggleEntradaManualFila() {
@@ -7058,7 +7091,7 @@ Uma receita prática, fofinha e deliciosa para o café da tarde!
       document.querySelectorAll('.checkbox-canal-fila').forEach(cb => {
         cb.checked = (cb.value === item.to);
       });
-      atualizarContadorCanaisFila();
+      atualizarContadorCanaisFila(false);
 
       if (item.url) {
         exibirPreviewMidia('agenda', {
@@ -7137,8 +7170,7 @@ Uma receita prática, fofinha e deliciosa para o café da tarde!
       const chkFb = document.getElementById('agendaTambemFacebook');
       if (chkFb) chkFb.checked = false;
       aoAlternarTambemFacebookFila();
-      document.querySelectorAll('.checkbox-canal-fila').forEach(cb => cb.checked = false);
-      atualizarContadorCanaisFila();
+      restaurarSelecaoCanaisFila();
       removerMidia('agenda');
       aoMudarTipoAgenda();
     }
@@ -7260,8 +7292,7 @@ Uma receita prática, fofinha e deliciosa para o café da tarde!
             if (chkFb) chkFb.checked = false;
             aoAlternarTambemFacebookFila();
             if (manualInput) manualInput.value = '';
-            document.querySelectorAll('.checkbox-canal-fila').forEach(cb => cb.checked = false);
-            atualizarContadorCanaisFila();
+            restaurarSelecaoCanaisFila();
             removerMidia('agenda');
             carregarFilaProjeto();
             carregarGradeProjeto();
